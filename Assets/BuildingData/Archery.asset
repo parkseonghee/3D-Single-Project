@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e381052aa8c44d245a8390bca9299ff4, type: 3}
+  m_Name: Archery
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Building.BuildingDefinition
+  displayName: "\uC0AC\uACA9\uC7A5"
+  prefab: {fileID: 100000, guid: 7036859d28e2cb84c9948a1fcf49fe95, type: 3}
+  icon: {fileID: 21300000, guid: 73c6b0ff244e1d44bb8ef9a741d81f11, type: 3}
+  riceCost: 290
+  costMultiplier: 1.4
+  footprint: {x: 6.9362526, y: 4.6956015, z: 6.857968}
+  modelOffset: {x: 0.07209349, y: 0.73313046, z: 0.038845062}
+  modelRotation: {x: 90, y: 0, z: 0}
+  modelScale: {x: 1, y: 1, z: 1}

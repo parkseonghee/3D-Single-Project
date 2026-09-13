@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e381052aa8c44d245a8390bca9299ff4, type: 3}
+  m_Name: Stables
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Building.BuildingDefinition
+  displayName: "\uB9C8\uAD6C\uAC04"
+  prefab: {fileID: 100000, guid: 0c6eb60ad59a81145839dbc6dedcbc3f, type: 3}
+  icon: {fileID: 21300000, guid: 4f1b8a88418f16c47b4b6966ce3c9dca, type: 3}
+  riceCost: 640
+  costMultiplier: 1.4
+  footprint: {x: 6.9139557, y: 5.374171, z: 6.9482517}
+  modelOffset: {x: -0.060945034, y: 0.73313046, z: 0.06130123}
+  modelRotation: {x: 90, y: 0, z: 0}
+  modelScale: {x: 1, y: 1, z: 1}

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52df8746a4212bb4880842899bf67732, type: 3}
+  m_Name: Shield
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
+  prefab: {fileID: 6500569391121197396, guid: 47abe018a9fca504d9629c5fff4a38da, type: 3}
+  requiredBuilding: {fileID: 11400000, guid: 64956c6d2fc2ea84a8a734f4a410599f, type: 2}
+  riceCost: 150
+  modelOffset: {x: 0, y: 0, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
+  modelScale: {x: 1, y: 1, z: 1}

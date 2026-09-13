@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52df8746a4212bb4880842899bf67732, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
+  prefab: {fileID: 147602521348237220, guid: 4b489d896fe26364eaa483b581e72bea, type: 3}
+  requiredBuilding: {fileID: 11400000, guid: 0ad4c6e8962110d4eb066b8110fbb4c9, type: 2}
+  riceCost: 210
+  modelOffset: {x: 0, y: 0, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
+  modelScale: {x: 1, y: 1, z: 1}
