@@ -17,6 +17,9 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 152a230b33632a24f8a3232443c4d846, type: 3}
   riceCost: 110
   costMultiplier: 1.4
+  upgradeGoldCost: 85
+  upgradeCostMultiplier: 1.4
+  demolitionRefundRatio: 0.5
   footprint: {x: 6.946894, y: 4.6619534, z: 6.820866}
   modelOffset: {x: -0, y: 0.80705905, z: -0.00000023841858}
   modelRotation: {x: 90, y: 0, z: 0}

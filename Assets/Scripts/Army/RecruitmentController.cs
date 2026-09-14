@@ -24,7 +24,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private Transform soldiersRoot;
         [SerializeField] private Button backButton;
         [SerializeField] private GameObject formationFull;
-        [SerializeField] private TMP_Text riceAmount;
+        private int lastRice = -1;
         [SerializeField] private string villageScene = "VillageScene";
         [SerializeField, Min(0.01f)] private float appearDuration = 0.2f;
 
@@ -32,6 +32,8 @@ namespace ArmySurvivor.Army
         private BuildingPlacementController village;
         private int hiredCount;
         public int HiredCount => hiredCount;
+        public bool IsPreparing { get; set; } = true;
+        public Transform SoldiersRoot => soldiersRoot;
 
         private void Start()
         {
@@ -43,6 +45,11 @@ namespace ArmySurvivor.Army
             RefreshUI();
         }
 
+        private void Update()
+        {
+            if (village != null && lastRice != village.Rice) RefreshUI();
+        }
+
         private void OnEnable()
         {
             RefreshUI();
@@ -50,7 +57,7 @@ namespace ArmySurvivor.Army
 
         public bool TryHire(UnitDefinition unit)
         {
-            if (unit == null || unit.prefab == null || village == null) return false;
+            if (!IsPreparing || unit == null || unit.prefab == null || village == null) return false;
             if (!village.HasBuilding(unit.requiredBuilding) || hiredCount >= spawnPoints.Length) return false;
             if (!village.TrySpendRice(unit.riceCost)) return false;
 
@@ -85,14 +92,20 @@ namespace ArmySurvivor.Army
 
         private void OnDisable()
         {
-            // 등장 도중 마을로 돌아가도 유닛이 작은 크기로 남지 않는다.
+            FinishAppearances();
+        }
+
+        public void FinishAppearances()
+        {
+            // 등장 도중 화면을 전환해도 유닛이 작은 크기로 남지 않는다.
+            StopAllCoroutines();
             foreach (Transform soldier in soldiersRoot) soldier.localScale = Vector3.one;
         }
 
         private void RefreshUI()
         {
             // 고정 문구는 Inspector에서 입력하고, 보유량 숫자만 갱신한다.
-            riceAmount.text = village != null ? village.Rice.ToString() : "—";
+            lastRice = village != null ? village.Rice : -1;
             bool full = hiredCount >= spawnPoints.Length;
             formationFull.SetActive(full);
             foreach (HireOption option in options)
@@ -108,6 +121,7 @@ namespace ArmySurvivor.Army
 
         private void Back()
         {
+            if (!IsPreparing) return;
             if (travel != null) travel.ReturnToVillage();
             else SceneManager.LoadScene(villageScene);
         }

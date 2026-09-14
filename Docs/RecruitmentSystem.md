@@ -76,3 +76,10 @@ PlayScene을 직접 실행하면 지휘관과 잠긴 목록이 나오며, 뒤로
 Play Camera는 Perspective, Field of View 40으로 변경했다. 시점을 낮추고 지휘관 근처로 당겨 얼굴과 장비가 크게 보이도록 했다. 유닛 크기와 고용 위치는 유지했다.
 RecruitmentController의 Rice Amount에 숫자용 TMP를 연결한다. ‘벼’ 라벨은 별도 TMP이므로 직접 편집할 수 있다.
 현재 Inspector 시작 자원 999999를 유지한 상태에서 병영 건설 후 999889, 병사 5명 고용 후 999589 표시 및 왕복 후 유지, 전체 6명 화면 표시와 콘솔 오류 없음 확인.
+
+## 2026-09-14 갱신: 시작 건물
+VillageScene > Buildings에 Starting Farm, Starting Workshop(병영), Starting Castle(막사)을 각 1개씩 미리 배치했다. Building System > Starting Buildings에서 정의와 씬 오브젝트를 연결한다. 위치는 각 오브젝트 Transform에서 직접 변경 가능하다. 비용 차감 없이 시작하며 병사 고용이 즉시 해금된다. 시작 건물은 추가 구매 횟수에 포함하지 않아 첫 추가 Farm 비용 120을 유지한다. 겹침 방지 콜라이더도 적용했다. 씬 왕복 시 중복 생성 없음과 고용 해금을 검증했다. 이전 문서의 '빈 마을/시작 건물 미구현' 설명은 이 내용으로 대체한다. 시작 병사 자동 지급은 여전히 미구현이다.
+
+## 2026-09-14: 자원 UI와 환전
+VillageScene과 PlayScene의 Resource Bar에 벼/골드/특수 자원과 환전 버튼을 추가했다. ResourceHUD는 숫자만 갱신하며 문구는 TMP Inspector에서 편집한다. 기존 마을 정적 Rice 표시와 준비 화면 전용 숫자 갱신은 공통 HUD로 대체했다. BuildingPlacementController가 현재 세 자원을 관리하며 초기 골드/특수 자원은 0, 기존 시작 벼 설정은 유지한다. TryExchangeRice는 벼100을 골드40으로 원자적으로 환전한다. 환전 비율은 Inspector Exchange Rice Cost/Exchange Gold Gain으로 조절하며 버튼 문구도 수동 변경해야 한다. 부족한 벼나 정수 초과 시 거래하지 않는다. 환전 후 고용/건설 버튼도 잔액에 따라 갱신한다. 양쪽 씬 환전·잔액 부족·골드 유지·고용 비활성화를 검증했다.
+특수 자원은 표시와 초기값 연결까지 구현했다. 보스 보상/영구 강화/새 회차 초기화/디스크 영구 저장은 아직 미구현이며, 현 상태는 동일 실행 중 씬 왕복에서만 보존된다.
