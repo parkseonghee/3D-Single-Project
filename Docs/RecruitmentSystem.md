@@ -72,6 +72,16 @@ Scene Travel 오브젝트는 전환 중에도 활성 상태여야 한다. Villag
 PlayScene을 직접 실행하면 지휘관과 잠긴 목록이 나오며, 뒤로가기로 VillageScene에 진입할 수 있다.
 앱 종료 후 디스크 저장, 전투/이동, 강화, 해고, 막사에 따른 편성 상한 확장은 아직 구현하지 않았다.
 
+## 편성 추가/제외 버튼 (2026-09-15)
+
+5종 병력 카드에 `-`, `+`, 편성/보유 수량을 추가했다. 고용은 식량을 소비해 새 병력을 생성하고, `-`는 한 명을 대기 병력으로 옮기며, `+`는 대기 병력을 무료로 다시 편성한다. 제외는 해고나 환불이 아니다. 수량 `4 / 6`은 편성 4명, 대기 포함 보유 6명을 의미한다. 편성 상한은 기존 Spawn Points 배열 길이를 따른다.
+
+RecruitmentController의 HireOption에 addButton/removeButton/formationCount를 Inspector로 연결한다. 고정 문구, 버튼 기호, 폰트와 배치는 PlayScene에 저장하며 코드는 숫자와 버튼 활성 상태만 변경한다. 특정 병사 이름으로 분기하지 않고 UnitDefinition 참조로 병종을 구분한다.
+
+Units 딕셔너리는 출전 병력, reserves 딕셔너리는 대기 병력을 관리한다. TryRemove는 오브젝트를 Reserve Troops 아래로 옮기고 비활성화한다. TryAdd는 SoldiersRoot로 복귀시킨다. Rearrange는 빈 배치 자리를 순서대로 채운다. 전투는 기존처럼 Units와 SoldiersRoot만 사용하므로 대기 병력은 공격과 추적 대상에서 제외된다. 기존 HiredCount는 현재 편성 인원이다. 전투 중에는 편성 변경을 거부한다. 대기 병력은 현재 실행 중에만 보존하며 디스크 저장은 별도 기능이다.
+
+Unity Play 모드에서 버튼 콜백으로 무료 제외/복귀, 정원에서 추가 차단, 전체 제외 후 빈 편성에서 제외 거부, 복귀, 전투 진입과 준비 복귀를 검증했다. 편성 4명/보유 6명 화면과 대기 병력 비활성 상태를 확인했다. 물리 마우스 입력 검증은 아니다.
+
 ## 준비 화면 카메라와 보유 벼 (2026-09-13)
 Play Camera는 Perspective, Field of View 40으로 변경했다. 시점을 낮추고 지휘관 근처로 당겨 얼굴과 장비가 크게 보이도록 했다. 유닛 크기와 고용 위치는 유지했다.
 RecruitmentController의 Rice Amount에 숫자용 TMP를 연결한다. ‘벼’ 라벨은 별도 TMP이므로 직접 편집할 수 있다.

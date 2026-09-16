@@ -15,6 +15,9 @@ namespace ArmySurvivor.Army
         {
             public UnitDefinition unit;
             public Button hireButton;
+            public Button addButton;
+            public Button removeButton;
+            public TMP_Text formationCount;
             public GameObject buildingRequired;
             public GameObject riceRequired;
         }
@@ -34,13 +37,22 @@ namespace ArmySurvivor.Army
         public int HiredCount => hiredCount;
         public bool IsPreparing { get; set; } = true;
         public Transform SoldiersRoot => soldiersRoot;
+        public readonly System.Collections.Generic.Dictionary<Transform, UnitDefinition> Units =
+            new System.Collections.Generic.Dictionary<Transform, UnitDefinition>();
+        private readonly System.Collections.Generic.Dictionary<Transform, UnitDefinition> reserves =
+            new System.Collections.Generic.Dictionary<Transform, UnitDefinition>();
+        private Transform reserveRoot;
 
         private void Start()
         {
             travel = FindFirstObjectByType<SceneTravel>();
             village = travel != null ? travel.Village : null;
             foreach (HireOption option in options)
+            {
                 option.hireButton.onClick.AddListener(() => TryHire(option.unit));
+                if (option.addButton != null) option.addButton.onClick.AddListener(() => TryAdd(option.unit));
+                if (option.removeButton != null) option.removeButton.onClick.AddListener(() => TryRemove(option.unit));
+            }
             backButton.onClick.AddListener(Back);
             RefreshUI();
         }
@@ -72,6 +84,7 @@ namespace ArmySurvivor.Army
             foreach (Animator animator in soldier.GetComponentsInChildren<Animator>())
                 animator.applyRootMotion = false;
             hiredCount++;
+            Units.Add(root, unit);
             StartCoroutine(Appear(root, Vector3.one));
             RefreshUI();
             return true;
@@ -88,6 +101,69 @@ namespace ArmySurvivor.Army
                 yield return null;
             }
             soldier.localScale = scale;
+        }
+
+        public int AssignedCount(UnitDefinition unit)
+        {
+            int count = 0;
+            foreach (var entry in Units) if (entry.Value == unit) count++;
+            return count;
+        }
+
+        public int ReserveCount(UnitDefinition unit)
+        {
+            int count = 0;
+            foreach (var entry in reserves) if (entry.Value == unit) count++;
+            return count;
+        }
+
+        public bool TryRemove(UnitDefinition unit)
+        {
+            if (!IsPreparing || unit == null) return false;
+            Transform target = null;
+            foreach (var entry in Units) if (entry.Value == unit) target = entry.Key;
+            if (target == null) return false;
+            FinishAppearances();
+            if (reserveRoot == null)
+            {
+                reserveRoot = new GameObject("Reserve Troops").transform;
+                reserveRoot.SetParent(transform, false);
+            }
+            Units.Remove(target);
+            reserves.Add(target, unit);
+            target.SetParent(reserveRoot, true);
+            target.gameObject.SetActive(false);
+            hiredCount--;
+            Rearrange();
+            RefreshUI();
+            return true;
+        }
+
+        public bool TryAdd(UnitDefinition unit)
+        {
+            if (!IsPreparing || unit == null || hiredCount >= spawnPoints.Length) return false;
+            Transform target = null;
+            foreach (var entry in reserves) if (entry.Value == unit) { target = entry.Key; break; }
+            if (target == null) return false;
+            FinishAppearances();
+            reserves.Remove(target);
+            Units.Add(target, unit);
+            target.SetParent(soldiersRoot, false);
+            target.gameObject.SetActive(true);
+            hiredCount++;
+            Rearrange();
+            RefreshUI();
+            return true;
+        }
+
+        private void Rearrange()
+        {
+            int index = 0;
+            foreach (Transform soldier in soldiersRoot)
+            {
+                Transform point = spawnPoints[index++];
+                soldier.SetPositionAndRotation(point.position, point.rotation);
+            }
         }
 
         private void OnDisable()
@@ -112,7 +188,13 @@ namespace ArmySurvivor.Army
             {
                 bool unlocked = village != null && village.HasBuilding(option.unit.requiredBuilding);
                 bool affordable = village != null && village.Rice >= option.unit.riceCost;
-                option.hireButton.interactable = unlocked && affordable && !full;
+                option.hireButton.interactable = IsPreparing && unlocked && affordable && !full;
+                int assigned = AssignedCount(option.unit);
+                int reserve = ReserveCount(option.unit);
+                if (option.addButton != null) option.addButton.interactable = IsPreparing && reserve > 0 && !full;
+                if (option.removeButton != null) option.removeButton.interactable = IsPreparing && assigned > 0;
+                // 편성 / 보유 숫자만 갱신한다. 버튼과 설명 문구는 Inspector에서 편집한다.
+                if (option.formationCount != null) option.formationCount.text = $"{assigned} / {assigned + reserve}";
                 // 문구는 Inspector에 둔다. 코드는 필요한 안내 오브젝트만 켜고 끈다.
                 option.buildingRequired.SetActive(!unlocked);
                 option.riceRequired.SetActive(unlocked && !affordable);

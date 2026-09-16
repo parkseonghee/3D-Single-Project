@@ -54,6 +54,10 @@ namespace ArmySurvivor.Army
         private static readonly int Moving = Animator.StringToHash("Moving");
 
         public bool IsRunning { get; private set; }
+        public Transform Commander => commander;
+        public Collider Ground => ground;
+        public event Action RunStarted;
+        public event Action RunEnded;
         public float Elapsed { get; private set; }
         public int TacticIndex { get; private set; }
         public Tactic CurrentTactic => tactics[TacticIndex];
@@ -105,6 +109,7 @@ namespace ArmySurvivor.Army
             playCamera.orthographicSize = cameraSize;
             SelectTactic(0);
             FollowCamera();
+            RunStarted?.Invoke();
         }
 
         public void SelectTactic(int index)
@@ -193,6 +198,14 @@ namespace ArmySurvivor.Army
             foreach (Animator animator in animators[unit]) animator.SetBool(Moving, moving);
         }
 
+        public void FaceTarget(Transform unit, Vector3 target)
+        {
+            Vector3 direction = target - unit.position;
+            direction.y = 0;
+            if (direction.sqrMagnitude > Mathf.Epsilon && facingCorrections.ContainsKey(unit))
+                unit.rotation = Quaternion.LookRotation(direction) * facingCorrections[unit];
+        }
+
         private void LateUpdate()
         {
             if (IsRunning) FollowCamera();
@@ -209,6 +222,7 @@ namespace ArmySurvivor.Army
         {
             if (!IsRunning) return;
             IsRunning = false;
+            RunEnded?.Invoke();
             recruitment.IsPreparing = true;
             commander.SetPositionAndRotation(commanderPosition, commanderRotation);
             for (int i = 0; i < soldiers.Count; i++)
