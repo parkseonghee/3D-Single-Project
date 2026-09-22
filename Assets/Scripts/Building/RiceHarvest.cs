@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ArmySurvivor.Building
 {
-    public class RiceHarvest : MonoBehaviour
+    public partial class RiceHarvest : MonoBehaviour
     {
         [SerializeField] private BuildingPlacementController resources;
         [SerializeField, Min(1)] private int harvestsPerDay = 4;

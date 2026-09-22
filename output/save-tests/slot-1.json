@@ -1,0 +1,60 @@
+{
+    "version": 1,
+    "savedAt": "2026-09-22 15:09:44",
+    "rice": 999924,
+    "gold": 1234,
+    "special": 7,
+    "day": 3,
+    "dailyTotal": 100,
+    "remainingCount": 3,
+    "remainingRice": 75,
+    "portion": 25,
+    "buildings": [
+        {
+            "id": "bd7aa74dcdbce8541bdb5b8734a2a6e0",
+            "position": {
+                "x": -14.0,
+                "y": 0.0,
+                "z": 14.0
+            },
+            "level": 3,
+            "starting": true
+        },
+        {
+            "id": "50371229f7ff66f42a3640d450eb1b5c",
+            "position": {
+                "x": -6.0,
+                "y": 0.0,
+                "z": 14.0
+            },
+            "level": 1,
+            "starting": true
+        },
+        {
+            "id": "c1c6034a3601da14bb58f08134a87aef",
+            "position": {
+                "x": 13.0,
+                "y": 0.0,
+                "z": 13.0
+            },
+            "level": 1,
+            "starting": true
+        }
+    ],
+    "purchases": [
+        {
+            "id": "bd7aa74dcdbce8541bdb5b8734a2a6e0",
+            "count": 2
+        }
+    ],
+    "troops": [
+        {
+            "id": "90c264df12cb1b94b9237f26959d6c6f",
+            "reserve": false
+        },
+        {
+            "id": "90c264df12cb1b94b9237f26959d6c6f",
+            "reserve": true
+        }
+    ]
+}

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace ArmySurvivor.Building
 {
-    public class BuildingPlacementController : MonoBehaviour
+    public partial class BuildingPlacementController : MonoBehaviour
     {
         [System.Serializable]
         private class StartingBuilding

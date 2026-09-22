@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ArmySurvivor.Army
 {
-    public class RecruitmentController : MonoBehaviour
+    public partial class RecruitmentController : MonoBehaviour
     {
         [Serializable]
         private class HireOption
@@ -54,6 +54,7 @@ namespace ArmySurvivor.Army
                 if (option.removeButton != null) option.removeButton.onClick.AddListener(() => TryRemove(option.unit));
             }
             backButton.onClick.AddListener(Back);
+            RestoreSavedTroops();
             RefreshUI();
         }
 

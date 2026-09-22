@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e381052aa8c44d245a8390bca9299ff4, type: 3}
   m_Name: Farm
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Building.BuildingDefinition
-  displayName: Farm
+  displayName: "\uB18D\uC7A5"
   prefab: {fileID: 100000, guid: 520e20395d1150a4c94174228bde0499, type: 3}
   icon: {fileID: 21300000, guid: cd281a07a09726d43991d92849b6e208, type: 3}
   riceCost: 120
