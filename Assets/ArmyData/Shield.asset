@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Shield
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 6500569391121197396, guid: 47abe018a9fca504d9629c5fff4a38da, type: 3}
+  attack: {fileID: 11400000, guid: f3b5fd3e66e164f48b43cc29931d66fd, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 64956c6d2fc2ea84a8a734f4a410599f, type: 2}
   riceCost: 150
   modelOffset: {x: 0, y: 0, z: 0}

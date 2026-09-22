@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Mage
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 147602521348237220, guid: 4b489d896fe26364eaa483b581e72bea, type: 3}
+  attack: {fileID: 11400000, guid: 57cbdb6ead2f9704da40c80f221f9f85, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 0ad4c6e8962110d4eb066b8110fbb4c9, type: 2}
   riceCost: 210
   modelOffset: {x: 0, y: 0, z: 0}

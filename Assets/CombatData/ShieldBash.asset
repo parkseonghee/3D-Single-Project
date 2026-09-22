@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9428155656115224e95662d82f63ea42, type: 3}
+  m_Name: ShieldBash
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.AttackDefinition
+  style: 2
+  range: 2.5
+  interval: 1.2
+  damage: 15
+  speed: 0
+  hitRadius: 0.8
+  height: 1.1
+  projectilePrefab: {fileID: 4009200888511192951, guid: bd3ed2aa3fc4b1b46bac6153e7a144a4, type: 3}
+  animationTrigger: Attack
+  windup: 0.3
+  arcAngle: 100
+  knockback: 1.5

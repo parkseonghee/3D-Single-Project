@@ -44,6 +44,7 @@ namespace ArmySurvivor.Army
         private readonly List<Transform> soldiers = new List<Transform>();
         private readonly Dictionary<Transform, Animator[]> animators = new Dictionary<Transform, Animator[]>();
         private readonly Dictionary<Transform, Quaternion> facingCorrections = new Dictionary<Transform, Quaternion>();
+        private readonly Dictionary<Transform, Vector3> moveDirections = new Dictionary<Transform, Vector3>();
         private readonly List<Vector3> preparationPositions = new List<Vector3>();
         private readonly List<Quaternion> preparationRotations = new List<Quaternion>();
         private Vector3 commanderPosition, cameraPosition;
@@ -54,6 +55,7 @@ namespace ArmySurvivor.Army
         private static readonly int Moving = Animator.StringToHash("Moving");
 
         public bool IsRunning { get; private set; }
+        public bool CanStart { get; set; } = true;
         public Transform Commander => commander;
         public Collider Ground => ground;
         public event Action RunStarted;
@@ -77,11 +79,12 @@ namespace ArmySurvivor.Army
 
         public void BeginRun()
         {
-            if (IsRunning) return;
+            if (IsRunning || !CanStart) return;
             recruitment.FinishAppearances();
             soldiers.Clear();
             animators.Clear();
             facingCorrections.Clear();
+            moveDirections.Clear();
             preparationPositions.Clear();
             preparationRotations.Clear();
             foreach (Transform soldier in recruitment.SoldiersRoot)
@@ -127,6 +130,7 @@ namespace ArmySurvivor.Army
 
         private void Update()
         {
+            startButton.interactable = CanStart;
             if (!IsRunning) return;
             Vector2 input = Vector2.zero;
             Keyboard keyboard = Keyboard.current;
@@ -184,6 +188,7 @@ namespace ArmySurvivor.Army
             // 준비 화면용 모델 회전은 유지하고, 이동할 때 루트 회전으로 보정한다.
             Vector3 forward = models.Length > 0 ? models[0].transform.forward : unit.forward;
             forward = Vector3.ProjectOnPlane(unit.InverseTransformDirection(forward), Vector3.up);
+            moveDirections[unit] = unit.TransformDirection(forward).normalized;
             facingCorrections.Add(unit, forward.sqrMagnitude > 0.0001f
                 ? Quaternion.Inverse(Quaternion.LookRotation(forward)) : Quaternion.identity);
         }
@@ -192,6 +197,7 @@ namespace ArmySurvivor.Army
         {
             Vector3 direction = target - unit.position;
             bool moving = direction.sqrMagnitude > 0.00001f;
+            if (moving) moveDirections[unit] = direction.normalized;
             unit.position = target;
             if (moving) unit.rotation = Quaternion.RotateTowards(unit.rotation,
                 Quaternion.LookRotation(direction) * facingCorrections[unit], 540 * deltaTime);
@@ -205,6 +211,9 @@ namespace ArmySurvivor.Army
             if (direction.sqrMagnitude > Mathf.Epsilon && facingCorrections.ContainsKey(unit))
                 unit.rotation = Quaternion.LookRotation(direction) * facingCorrections[unit];
         }
+
+        // 정지 중에는 마지막 이동 방향으로 창을 찌른다.
+        public Vector3 MoveDirection(Transform unit) => moveDirections[unit];
 
         private void LateUpdate()
         {

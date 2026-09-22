@@ -63,6 +63,11 @@ namespace ArmySurvivor.Building
 
         public int Rice { get; private set; }
         public int Gold { get; private set; }
+        public void AddStageRewards(int gold, int special)
+        {
+            Gold = (int)System.Math.Min(int.MaxValue, (long)Gold + Mathf.Max(0, gold));
+            SpecialResource = (int)System.Math.Min(int.MaxValue, (long)SpecialResource + Mathf.Max(0, special));
+        }
         public int SpecialResource { get; private set; }
         public bool CanExchange => exchangeRiceCost > 0 && exchangeGoldGain > 0 &&
             Rice >= exchangeRiceCost && Gold <= int.MaxValue - exchangeGoldGain;
