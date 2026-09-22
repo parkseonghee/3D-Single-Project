@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d40b60f705b3479e0f6ee7aac1d19, type: 3}
+  m_Name: DaySettings
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.DaySettings
+  finalDay: 100
+  bossInterval: 10
+  stages:
+  - fromDay: 1
+    survivalSeconds: 90
+    enemy: {fileID: 11400000, guid: 423cb0d3aee114141819fe3758d01c9b, type: 2}
+    boss: {fileID: 11400000, guid: 826cd6dae143e06438012d5a4f3b4701, type: 2}
+    spawnInterval: 2.5
+    maximumEnemies: 12
+    goldReward: 100
+    bossSpecialReward: 1
+  - fromDay: 11
+    survivalSeconds: 120
+    enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
+    boss: {fileID: 11400000, guid: 996ed3888ba337c49b28d238edb8595f, type: 2}
+    spawnInterval: 2
+    maximumEnemies: 16
+    goldReward: 160
+    bossSpecialReward: 1
+  - fromDay: 51
+    survivalSeconds: 150
+    enemy: {fileID: 11400000, guid: 7cc296e9d0a007e4790f7e438f182545, type: 2}
+    boss: {fileID: 11400000, guid: e95dc2bb8c0e49845b2637e370f783c6, type: 2}
+    spawnInterval: 1.6
+    maximumEnemies: 20
+    goldReward: 240
+    bossSpecialReward: 1

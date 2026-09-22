@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Cavalry
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 9161802960214006406, guid: 03a9d36179659c041bb136f8401ad713, type: 3}
+  attack: {fileID: 11400000, guid: 595ea6cae7d04164d96ae61a9571c56d, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 46420be553e53284cad50da127a2bbc8, type: 2}
   riceCost: 260
   modelOffset: {x: 0, y: 0, z: 0}

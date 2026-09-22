@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9428155656115224e95662d82f63ea42, type: 3}
+  m_Name: MageBolt
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.AttackDefinition
+  style: 1
+  range: 9
+  interval: 1.3
+  damage: 30
+  speed: 7
+  hitRadius: 0.5
+  height: 1.1
+  projectilePrefab: {fileID: 3892673226519651931, guid: d5e1bb24374ed174990fbd63f323a49b, type: 3}
+  animationTrigger: Attack
+  windup: 0.3
+  arcAngle: 100
+  knockback: 0

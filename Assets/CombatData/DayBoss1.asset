@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
+  m_Name: DayBoss1
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  prefab: {fileID: 6993479537435688055, guid: 0a3cbabfa62fbb447b2c3b108736fe6d, type: 3}
+  health: 650
+  speed: 1.6
+  stoppingDistance: 1.1
+  turnSpeed: 360
+  deathDuration: 1.3
+  movingParameter: Moving
+  deathTrigger: Death
