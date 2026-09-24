@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9428155656115224e95662d82f63ea42, type: 3}
   m_Name: SoldierSwordWave
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.AttackDefinition
-  range: 7
+  style: 5
+  range: 3.5
   interval: 0.9
   damage: 25
   speed: 13
@@ -21,3 +22,10 @@ MonoBehaviour:
   projectilePrefab: {fileID: 7352488265871992651, guid: 7ac7d7edc44e25045a7353784c3331f7, type: 3}
   animationTrigger: Attack
   windup: 0.3
+  arcAngle: 160
+  knockback: 0
+  detectionRange: 10
+  approachSpeed: 6
+  returnSpeed: 9
+  stoppingDistance: 1.5
+  effectScale: 2.5

@@ -176,7 +176,8 @@ namespace ArmySurvivor.Army
         {
             // 등장 도중 화면을 전환해도 유닛이 작은 크기로 남지 않는다.
             StopAllCoroutines();
-            foreach (Transform soldier in soldiersRoot) soldier.localScale = Vector3.one;
+            if (soldiersRoot != null)
+                foreach (Transform soldier in soldiersRoot) soldier.localScale = Vector3.one;
         }
 
         private void RefreshUI()

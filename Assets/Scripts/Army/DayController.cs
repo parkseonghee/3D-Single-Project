@@ -72,7 +72,7 @@ namespace ArmySurvivor.Army
 
         public void UpdateProgress()
         {
-            if (!run.IsRunning || AwaitingResult || CampaignComplete) return;
+            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || AwaitingResult || CampaignComplete) return;
             int seconds = Mathf.CeilToInt(Mathf.Max(0, stage.survivalSeconds - run.Elapsed));
             remainingTime.text = $"{seconds / 60:00}:{seconds % 60:00}";
             if (run.Elapsed < stage.survivalSeconds) return;

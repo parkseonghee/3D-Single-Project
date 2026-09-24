@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Soldier
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 2470762036441475627, guid: d699fe42a64c85c46bbd77438f1d0821, type: 3}
+  displayName: "\uBCD1\uC0AC"
+  health: 150
   attack: {fileID: 11400000, guid: 523c8f97a2cef2c438cb4c0f5e9cdb6d, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 50371229f7ff66f42a3640d450eb1b5c, type: 2}
   riceCost: 60

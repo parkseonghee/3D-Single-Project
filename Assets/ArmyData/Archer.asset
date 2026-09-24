@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Archer
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 1576735961115007201, guid: f4093b426dbcc5c47a0a1474f6ca8a25, type: 3}
+  displayName: "\uAD81\uC218"
+  health: 72
   attack: {fileID: 11400000, guid: a212d2acdc7df9a489df237954df323c, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 3cdcf0ddd7407d447832acb1b7d7081d, type: 2}
   riceCost: 110

@@ -7,6 +7,8 @@ namespace ArmySurvivor.Army
     {
         public GameObject prefab;
         [Min(1)] public float health;
+        [Min(0)] public float damage = 10;
+        [Min(0.1f)] public float attackInterval = 1;
         [Min(0)] public float speed;
         [Min(0)] public float stoppingDistance;
         [Min(0)] public float turnSpeed;

@@ -42,6 +42,7 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(1)] private float cameraSize = 11;
 
         private readonly List<Transform> soldiers = new List<Transform>();
+        private readonly HashSet<Transform> attackingUnits = new HashSet<Transform>();
         private readonly Dictionary<Transform, Animator[]> animators = new Dictionary<Transform, Animator[]>();
         private readonly Dictionary<Transform, Quaternion> facingCorrections = new Dictionary<Transform, Quaternion>();
         private readonly Dictionary<Transform, Vector3> moveDirections = new Dictionary<Transform, Vector3>();
@@ -55,6 +56,8 @@ namespace ArmySurvivor.Army
         private static readonly int Moving = Animator.StringToHash("Moving");
 
         public bool IsRunning { get; private set; }
+        public bool IsChoosingUpgrade { get; set; }
+        public bool IsPaused { get; set; }
         public bool CanStart { get; set; } = true;
         public Transform Commander => commander;
         public Collider Ground => ground;
@@ -82,6 +85,7 @@ namespace ArmySurvivor.Army
             if (IsRunning || !CanStart) return;
             recruitment.FinishAppearances();
             soldiers.Clear();
+            attackingUnits.Clear();
             animators.Clear();
             facingCorrections.Clear();
             moveDirections.Clear();
@@ -131,7 +135,7 @@ namespace ArmySurvivor.Army
         private void Update()
         {
             startButton.interactable = CanStart;
-            if (!IsRunning) return;
+            if (!IsRunning || IsPaused || IsChoosingUpgrade) return;
             Vector2 input = Vector2.zero;
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null)
@@ -148,7 +152,7 @@ namespace ArmySurvivor.Army
 
         public void Tick(Vector2 input, float deltaTime)
         {
-            if (!IsRunning || deltaTime <= 0) return;
+            if (!IsRunning || IsPaused || IsChoosingUpgrade || deltaTime <= 0) return;
             Elapsed += deltaTime;
             int second = Mathf.FloorToInt(Elapsed);
             if (shownSecond != second)
@@ -170,7 +174,7 @@ namespace ArmySurvivor.Army
             Move(commander, target, deltaTime);
             for (int i = 0; i < soldiers.Count; i++)
             {
-                if (soldiers[i] == null) continue;
+                if (soldiers[i] == null || !soldiers[i].gameObject.activeSelf || attackingUnits.Contains(soldiers[i])) continue;
                 float angle = i * Mathf.PI * 2 / soldiers.Count;
                 Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius;
                 Vector3 destination = commander.position + offset;
@@ -191,6 +195,28 @@ namespace ArmySurvivor.Army
             moveDirections[unit] = unit.TransformDirection(forward).normalized;
             facingCorrections.Add(unit, forward.sqrMagnitude > 0.0001f
                 ? Quaternion.Inverse(Quaternion.LookRotation(forward)) : Quaternion.identity);
+        }
+
+        public Vector3 FormationPosition(Transform unit)
+        {
+            int index = soldiers.IndexOf(unit);
+            float angle = Mathf.Max(0, index) * Mathf.PI * 2 / Mathf.Max(1, soldiers.Count);
+            return commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius;
+        }
+
+        public void SetAttacking(Transform unit, bool attacking)
+        {
+            if (attacking) attackingUnits.Add(unit);
+            else attackingUnits.Remove(unit);
+        }
+
+        public void MoveAttacker(Transform unit, Vector3 destination, float speed, float dt)
+        {
+            Bounds bounds = ground.bounds;
+            destination.x = Mathf.Clamp(destination.x, bounds.min.x + 1, bounds.max.x - 1);
+            destination.z = Mathf.Clamp(destination.z, bounds.min.z + 1, bounds.max.z - 1);
+            destination.y = commander.position.y;
+            Move(unit, Vector3.MoveTowards(unit.position, destination, speed * dt), dt);
         }
 
         private void Move(Transform unit, Vector3 target, float deltaTime)

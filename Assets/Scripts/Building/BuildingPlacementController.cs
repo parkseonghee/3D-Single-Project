@@ -29,6 +29,7 @@ namespace ArmySurvivor.Building
         [SerializeField] private Collider buildSurface;
         [SerializeField] private Transform buildingsRoot;
         [SerializeField] private BuildingManagementUI buildingMenu;
+        [SerializeField] private VillageCameraDrag cameraDrag;
 
         [Header("입력")]
         [SerializeField] private InputActionReference pointer;
@@ -235,7 +236,9 @@ namespace ArmySurvivor.Building
         private void Update()
         {
             bool overUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-            UpdatePlacement(pointer.action.ReadValue<Vector2>(), confirm.action.WasPressedThisFrame(),
+            bool clicked = cameraDrag != null ? cameraDrag.ClickedThisFrame : confirm.action.WasPressedThisFrame();
+            if (cameraDrag != null) overUi |= cameraDrag.IsDragging || cameraDrag.DragEndedThisFrame;
+            UpdatePlacement(pointer.action.ReadValue<Vector2>(), clicked,
                 cancel.action.WasPressedThisFrame(), overUi);
         }
 

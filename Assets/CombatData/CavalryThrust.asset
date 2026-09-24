@@ -12,15 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9428155656115224e95662d82f63ea42, type: 3}
   m_Name: CavalryThrust
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.AttackDefinition
-  style: 3
-  range: 3.5
+  style: 4
+  range: 2.5
   interval: 1
   damage: 26
   speed: 0
   hitRadius: 0.8
   height: 1.1
-  projectilePrefab: {fileID: 595674037543114346, guid: 29103b13d91f40143a1600c135045449, type: 3}
+  projectilePrefab: {fileID: 0}
   animationTrigger: Attack
-  windup: 0.3
+  windup: 0.15
   arcAngle: 100
   knockback: 0
+  detectionRange: 12
+  approachSpeed: 16
+  returnSpeed: 14
+  stoppingDistance: 1.5
+  effectScale: 1

@@ -7,6 +7,8 @@ namespace ArmySurvivor.Army
     public class UnitDefinition : ScriptableObject
     {
         public GameObject prefab;
+        public string displayName;
+        [Min(1)] public float health = 150;
         public AttackDefinition attack;
         public BuildingDefinition requiredBuilding;
         [Min(0)] public int riceCost;
