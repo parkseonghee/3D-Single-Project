@@ -7,11 +7,19 @@ namespace ArmySurvivor.Army
     public class DaySettings : ScriptableObject
     {
         [Serializable]
+        public class EnemySpawn
+        {
+            public EnemyDefinition enemy;
+            [Min(0)] public float weight = 1;
+        }
+
+        [Serializable]
         public class Stage
         {
             [Min(1)] public int fromDay = 1;
             [Min(1)] public float survivalSeconds = 90;
             public EnemyDefinition enemy;
+            public EnemySpawn[] enemies;
             public EnemyDefinition boss;
             [Min(0.1f)] public float spawnInterval = 2.5f;
             [Min(1)] public int maximumEnemies = 12;

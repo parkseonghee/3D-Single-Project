@@ -14,6 +14,11 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(1)] private int maximumEnemies;
         [SerializeField, Min(0)] private float boundaryMargin;
         [SerializeField, Min(1)] private float commanderHealth = 300;
+        [Header("몬스터 피격 이펙트")]
+        [SerializeField] private GameObject bloodEffect;
+        [SerializeField, Min(0)] private float bloodHeight = 1;
+        [SerializeField, Min(0.01f)] private float bloodScale = 1;
+        [SerializeField, Min(0.1f)] private float bloodLifetime = 1.5f;
         private readonly Dictionary<Transform, UnitHealth> allies = new Dictionary<Transform, UnitHealth>();
         private BattleExperience experience;
         private void Awake() => experience = GetComponent<BattleExperience>();
@@ -31,6 +36,9 @@ namespace ArmySurvivor.Army
             public UnitHealth vitality;
             public float health => vitality.Current;
             public float attackCooldown;
+            public Transform attackTarget;
+            public float attackTime;
+            public bool attackHit;
             public float deathTime;
             public EnemyDefinition definition;
             public bool isBoss;
@@ -65,6 +73,7 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<Transform, MeleeAttack> melee = new Dictionary<Transform, MeleeAttack>();
         private Transform combatRoot;
         private float spawnTimer;
+        private DaySettings.EnemySpawn[] enemyPool;
         public int ShotsFired { get; private set; }
         public int Kills { get; private set; }
         public int Hits { get; private set; }
@@ -72,11 +81,12 @@ namespace ArmySurvivor.Army
         public int ProjectileCount => shots.Count;
         public bool BossDefeated { get; private set; }
 
-        public void Configure(EnemyDefinition definition, float interval, int limit)
+        public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null)
         {
             enemy = definition;
             spawnInterval = interval;
             maximumEnemies = limit;
+            enemyPool = pool;
         }
 
         public bool SpawnBoss(EnemyDefinition definition)
@@ -121,6 +131,12 @@ namespace ArmySurvivor.Army
         public void Tick(float dt)
         {
             if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || combatRoot == null || dt <= 0) return;
+            if (run.CommanderDead)
+            {
+                Defeated = true;
+                if (allies[run.Commander].DeathFinished) run.ReturnToPreparation();
+                return;
+            }
             spawnTimer -= dt;
             if (spawnTimer <= 0)
             {
@@ -131,13 +147,13 @@ namespace ArmySurvivor.Army
             if (allies[run.Commander].IsDead)
             {
                 Defeated = true;
-                run.ReturnToPreparation();
                 return;
             }
             foreach (var unit in recruitment.Units)
             {
                 AttackDefinition attack = unit.Value.attack;
                 if (unit.Key == null || !unit.Key.gameObject.activeSelf || attack == null || attack.range <= 0 || attack.interval <= 0) continue;
+                if (allies[unit.Key].IsDead) continue;
                 cooldowns[unit.Key] -= dt;
                 if (attack.style == AttackDefinition.AttackStyle.Charge ||
                     attack.style == AttackDefinition.AttackStyle.ApproachArc)
@@ -175,7 +191,25 @@ namespace ArmySurvivor.Army
         }
         private void Spawn()
         {
-            Spawn(enemy, false);
+            Spawn(ChooseEnemy(), false);
+        }
+
+        private EnemyDefinition ChooseEnemy()
+        {
+            float total = 0;
+            if (enemyPool == null) return enemy;
+            foreach (var entry in enemyPool)
+                if (entry != null && entry.enemy != null && entry.enemy.prefab != null)
+                    total += Mathf.Max(0, entry.weight);
+            if (total <= 0) return enemy;
+            float roll = Random.value * total;
+            foreach (var entry in enemyPool)
+            {
+                if (entry == null || entry.enemy == null || entry.enemy.prefab == null || entry.weight <= 0) continue;
+                roll -= entry.weight;
+                if (roll <= 0) return entry.enemy;
+            }
+            return enemy;
         }
 
         private void RegisterHealth(Transform unit, float maximum, Color color)
@@ -275,7 +309,35 @@ namespace ArmySurvivor.Army
                 if (state.health <= 0)
                 {
                     state.deathTime -= dt;
-                    if (state.deathTime <= 0) { Destroy(state.root.gameObject); enemies.RemoveAt(i); }
+                    if (state.deathTime <= 0)
+                    {
+                        if (state.isBoss) BossDefeated = true;
+                        Destroy(state.root.gameObject);
+                        enemies.RemoveAt(i);
+                    }
+                    continue;
+                }
+                state.attackCooldown -= dt;
+                if (state.attackTarget != null)
+                {
+                    state.attackTime += dt;
+                    if (!state.attackHit && state.attackTime >= enemy.attackWindup)
+                    {
+                        state.attackHit = true;
+                        Transform victim = state.attackTarget;
+                        if (allies.TryGetValue(victim, out var health) && !health.IsDead &&
+                            FlatDistance(state.root.position, victim.position) <= enemy.stoppingDistance + 0.15f)
+                        {
+                            health.TakeDamage(enemy.damage * run.CurrentTactic.receivedDamageMultiplier);
+                            if (health.IsDead)
+                            {
+                                pending.Remove(victim);
+                                melee.Remove(victim);
+                                run.SetAttacking(victim, false);
+                            }
+                        }
+                    }
+                    if (state.attackTime >= Mathf.Max(enemy.attackDuration, enemy.attackWindup)) state.attackTarget = null;
                     continue;
                 }
                 Transform target = run.Commander;
@@ -296,18 +358,18 @@ namespace ArmySurvivor.Army
                 }
                 if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
                     state.animator.SetBool(enemy.movingParameter, step > 0);
-                state.attackCooldown -= dt;
                 if (FlatDistance(state.root.position, target.position) <= enemy.stoppingDistance + 0.15f &&
                     state.attackCooldown <= 0 && !allies[target].IsDead)
                 {
-                    allies[target].TakeDamage(enemy.damage * run.CurrentTactic.receivedDamageMultiplier);
-                    state.attackCooldown = Mathf.Max(0.1f, enemy.attackInterval);
-                    if (allies[target].IsDead && target != run.Commander)
+                    state.attackTarget = target;
+                    state.attackTime = 0;
+                    state.attackHit = false;
+                    state.attackCooldown = Mathf.Max(enemy.attackInterval, enemy.attackDuration, enemy.attackWindup);
+                    if (direction.sqrMagnitude > 0.0001f) state.root.rotation = Quaternion.LookRotation(direction);
+                    if (state.animator != null)
                     {
-                        pending.Remove(target);
-                        melee.Remove(target);
-                        run.SetAttacking(target, false);
-                        target.gameObject.SetActive(false);
+                        if (!string.IsNullOrEmpty(enemy.movingParameter)) state.animator.SetBool(enemy.movingParameter, false);
+                        if (!string.IsNullOrEmpty(enemy.attackState)) state.animator.Play(enemy.attackState, 0, 0);
                     }
                 }
             }
@@ -439,16 +501,24 @@ namespace ArmySurvivor.Army
         }
         private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback)
         {
-            if (target.health <= 0) return;
+            if (target.health <= 0 || damage <= 0) return;
             Hits++;
             target.vitality.TakeDamage(damage);
+            if (bloodEffect != null)
+            {
+                Quaternion rotation = direction.sqrMagnitude > 0.0001f
+                    ? Quaternion.LookRotation(direction) : Quaternion.identity;
+                var effect = Instantiate(bloodEffect, target.root.position + Vector3.up * bloodHeight,
+                    rotation * bloodEffect.transform.localRotation, combatRoot);
+                effect.transform.localScale *= bloodScale;
+                Destroy(effect, bloodLifetime);
+            }
             if (target.health <= 0)
             {
                 Kills++;
                 EnemyKilled?.Invoke(target.root.position);
-                if (target.isBoss) BossDefeated = true;
-                target.deathTime = target.definition.deathDuration;
-                if (target.animator != null && !string.IsNullOrEmpty(target.definition.deathTrigger)) target.animator.SetTrigger(target.definition.deathTrigger);
+                target.attackTarget = null;
+                target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);
             }
             else if (knockback > 0)
             {

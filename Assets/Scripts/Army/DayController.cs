@@ -59,7 +59,7 @@ namespace ArmySurvivor.Army
         {
             RefreshDay();
             bossSpawned = false;
-            combat.Configure(stage.enemy, stage.spawnInterval, stage.maximumEnemies);
+            combat.Configure(stage.enemy, stage.spawnInterval, stage.maximumEnemies, stage.enemies);
             UpdateProgress();
         }
 
@@ -72,7 +72,7 @@ namespace ArmySurvivor.Army
 
         public void UpdateProgress()
         {
-            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || AwaitingResult || CampaignComplete) return;
+            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || run.CommanderDead || AwaitingResult || CampaignComplete) return;
             int seconds = Mathf.CeilToInt(Mathf.Max(0, stage.survivalSeconds - run.Elapsed));
             remainingTime.text = $"{seconds / 60:00}:{seconds % 60:00}";
             if (run.Elapsed < stage.survivalSeconds) return;

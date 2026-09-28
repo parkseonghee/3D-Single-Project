@@ -60,6 +60,7 @@ namespace ArmySurvivor.Army
         public bool IsPaused { get; set; }
         public bool CanStart { get; set; } = true;
         public Transform Commander => commander;
+        public bool CommanderDead => commander.TryGetComponent<UnitHealth>(out var health) && health.IsDead;
         public Collider Ground => ground;
         public event Action RunStarted;
         public event Action RunEnded;
@@ -152,7 +153,7 @@ namespace ArmySurvivor.Army
 
         public void Tick(Vector2 input, float deltaTime)
         {
-            if (!IsRunning || IsPaused || IsChoosingUpgrade || deltaTime <= 0) return;
+            if (!IsRunning || IsPaused || IsChoosingUpgrade || CommanderDead || deltaTime <= 0) return;
             Elapsed += deltaTime;
             int second = Mathf.FloorToInt(Elapsed);
             if (shownSecond != second)
@@ -175,6 +176,7 @@ namespace ArmySurvivor.Army
             for (int i = 0; i < soldiers.Count; i++)
             {
                 if (soldiers[i] == null || !soldiers[i].gameObject.activeSelf || attackingUnits.Contains(soldiers[i])) continue;
+                if (soldiers[i].TryGetComponent<UnitHealth>(out var health) && health.IsDead) continue;
                 float angle = i * Mathf.PI * 2 / soldiers.Count;
                 Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius;
                 Vector3 destination = commander.position + offset;

@@ -18,6 +18,15 @@ MonoBehaviour:
   - fromDay: 1
     survivalSeconds: 90
     enemy: {fileID: 11400000, guid: 423cb0d3aee114141819fe3758d01c9b, type: 2}
+    enemies:
+    - enemy: {fileID: 11400000, guid: 423cb0d3aee114141819fe3758d01c9b, type: 2}
+      weight: 50
+    - enemy: {fileID: 11400000, guid: 663b7788a15435a4d8f947056972a82a, type: 2}
+      weight: 25
+    - enemy: {fileID: 11400000, guid: a1bc91b9a6a2b9349a52577526719c4f, type: 2}
+      weight: 15
+    - enemy: {fileID: 11400000, guid: 3efdd06fc1a1f354187cf6e057400428, type: 2}
+      weight: 10
     boss: {fileID: 11400000, guid: 826cd6dae143e06438012d5a4f3b4701, type: 2}
     spawnInterval: 2.5
     maximumEnemies: 12
@@ -26,6 +35,15 @@ MonoBehaviour:
   - fromDay: 11
     survivalSeconds: 120
     enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
+    enemies:
+    - enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
+      weight: 50
+    - enemy: {fileID: 11400000, guid: 36c1e0d21e5593248a40ecb53bc222c9, type: 2}
+      weight: 25
+    - enemy: {fileID: 11400000, guid: 49cd0c1e5447a3b41b331a1cbab3877d, type: 2}
+      weight: 15
+    - enemy: {fileID: 11400000, guid: 98de29ee1a7f2eb42bf91c11b51045ee, type: 2}
+      weight: 10
     boss: {fileID: 11400000, guid: 996ed3888ba337c49b28d238edb8595f, type: 2}
     spawnInterval: 2
     maximumEnemies: 16
@@ -34,6 +52,15 @@ MonoBehaviour:
   - fromDay: 51
     survivalSeconds: 150
     enemy: {fileID: 11400000, guid: 7cc296e9d0a007e4790f7e438f182545, type: 2}
+    enemies:
+    - enemy: {fileID: 11400000, guid: 7cc296e9d0a007e4790f7e438f182545, type: 2}
+      weight: 50
+    - enemy: {fileID: 11400000, guid: cfce29c5f0d32ed4e892a67047fae570, type: 2}
+      weight: 25
+    - enemy: {fileID: 11400000, guid: a336961d01117f6479379f42eeb78b43, type: 2}
+      weight: 15
+    - enemy: {fileID: 11400000, guid: 45c8bd0dfd379b7488324c237bf6a010, type: 2}
+      weight: 10
     boss: {fileID: 11400000, guid: e95dc2bb8c0e49845b2637e370f783c6, type: 2}
     spawnInterval: 1.6
     maximumEnemies: 20

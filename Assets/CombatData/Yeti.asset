@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
+  m_Name: Yeti
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  prefab: {fileID: 7195423321794688100, guid: 34cab676b0c96924e852399f457e1ba7, type: 3}
+  health: 180
+  damage: 24
+  attackInterval: 2.2
+  attackWindup: 0.5
+  attackDuration: 1.155556
+  attackState: Base Layer.Attack
+  speed: 1.4
+  stoppingDistance: 1.3
+  turnSpeed: 360
+  deathDuration: 1.3
+  movingParameter: Moving
+  deathTrigger: Death

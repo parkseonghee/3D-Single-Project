@@ -1,0 +1,33 @@
+UnityEditor.EditorApplication.isPaused=true;
+var run=UnityEngine.Object.FindFirstObjectByType<ArmySurvivor.Army.RunController>();run.BeginRun();
+var combat=UnityEngine.Object.FindFirstObjectByType<ArmySurvivor.Army.CombatController>();
+var rec=UnityEngine.Object.FindFirstObjectByType<ArmySurvivor.Army.RecruitmentController>();foreach(var u in rec.Units.Keys)u.position=run.Commander.position+UnityEngine.Vector3.right*25;
+var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+var spawn=typeof(ArmySurvivor.Army.CombatController).GetMethod("Spawn",flags,null,new[]{typeof(ArmySurvivor.Army.EnemyDefinition),typeof(bool)},null);
+var move=typeof(ArmySurvivor.Army.CombatController).GetMethod("MoveEnemies",flags);
+var hit=typeof(ArmySurvivor.Army.CombatController).GetMethod("ApplyDamage",flags);
+var choose=typeof(ArmySurvivor.Army.CombatController).GetMethod("ChooseEnemy",flags);
+var list=(System.Collections.IList)typeof(ArmySurvivor.Army.CombatController).GetField("enemies",flags).GetValue(combat);
+var sb=new System.Text.StringBuilder();var counts=new System.Collections.Generic.Dictionary<string,int>();
+var random=UnityEngine.Random.state;UnityEngine.Random.InitState(27);
+for(int j=0;j<1000;j++){var d=(ArmySurvivor.Army.EnemyDefinition)choose.Invoke(combat,null);if(!counts.ContainsKey(d.name))counts[d.name]=0;counts[d.name]++;}UnityEngine.Random.state=random;
+foreach(var c in counts)sb.AppendLine("spawn sample "+c.Key+"="+c.Value);
+foreach(var name in new[]{"Ninja","Orc_Skull","Yeti"}){
+ var d=UnityEditor.AssetDatabase.LoadAssetAtPath<ArmySurvivor.Army.EnemyDefinition>("Assets/CombatData/"+name+".asset");spawn.Invoke(combat,new object[]{d,false});
+ var state=list[list.Count-1];var type=state.GetType();var root=(UnityEngine.Transform)type.GetField("root").GetValue(state);var a=(UnityEngine.Animator)type.GetField("animator").GetValue(state);a.cullingMode=UnityEngine.AnimatorCullingMode.AlwaysAnimate;
+ root.position=run.Commander.position+UnityEngine.Vector3.forward*d.stoppingDistance;
+ var health=run.Commander.GetComponent<ArmySurvivor.Army.UnitHealth>();var before=health.Current;
+ move.Invoke(combat,new object[]{0.01f});a.Update(0);
+ if(!a.GetCurrentAnimatorStateInfo(0).IsName("Attack"))throw new System.Exception(name+" Attack missing");
+ int missing=0;foreach(var b in UnityEditor.AnimationUtility.GetCurveBindings(a.GetCurrentAnimatorClipInfo(0)[0].clip))if(b.path!=""&&a.transform.Find(b.path)==null)missing++;
+ if(missing>0)throw new System.Exception(name+" missing attack bindings "+missing);
+ move.Invoke(combat,new object[]{d.attackWindup-0.01f});if(health.Current!=before)throw new System.Exception("Early hit");
+ move.Invoke(combat,new object[]{0.02f});float expected=d.damage*run.CurrentTactic.receivedDamageMultiplier;
+ if(UnityEngine.Mathf.Abs(before-health.Current-expected)>0.001f)throw new System.Exception(name+" bad damage");
+ hit.Invoke(combat,new object[]{state,99999f,UnityEngine.Vector3.forward,0f});a.Update(0.3f);
+ if(!a.GetCurrentAnimatorStateInfo(0).IsName("Death"))throw new System.Exception(name+" Death missing");
+ foreach(var b in UnityEditor.AnimationUtility.GetCurveBindings(a.GetCurrentAnimatorClipInfo(0)[0].clip))if(b.path!=""&&a.transform.Find(b.path)==null)throw new System.Exception(name+" death binding missing");
+ move.Invoke(combat,new object[]{2f});if(list.Count!=0)throw new System.Exception(name+" corpse not removed");
+ sb.AppendLine(name+": attack timing/damage/death bindings/removal PASS");
+}
+return sb.ToString();

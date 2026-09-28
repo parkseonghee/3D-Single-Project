@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
   prefab: {fileID: 6993479537435688055, guid: 0a3cbabfa62fbb447b2c3b108736fe6d, type: 3}
   health: 350
+  damage: 10
+  attackInterval: 1
+  attackWindup: 0.35
+  attackDuration: 0.8666667
+  attackState: Base Layer.Attack
   speed: 1.6
   stoppingDistance: 1.1
   turnSpeed: 360

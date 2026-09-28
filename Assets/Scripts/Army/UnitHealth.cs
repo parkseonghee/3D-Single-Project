@@ -8,6 +8,10 @@ namespace ArmySurvivor.Army
         public float Maximum { get; private set; }
         public float Current { get; private set; }
         public bool IsDead => Current <= 0;
+        public float DeathDuration { get; private set; }
+        public bool DeathFinished => IsDead && Time.time >= deathEndsAt;
+        private float deathEndsAt;
+        private static readonly int DeathState = Animator.StringToHash("Base Layer.Death");
         private Color barColor;
         private float barHeight;
         private RectTransform healthBar;
@@ -15,6 +19,12 @@ namespace ArmySurvivor.Army
 
         public void Initialize(float maximum, Color color)
         {
+            if (Maximum > 0 && IsDead)
+                foreach (var animator in GetComponentsInChildren<Animator>())
+                {
+                    animator.Rebind();
+                    animator.Update(0);
+                }
             Maximum = Mathf.Max(1, maximum);
             Current = Maximum;
             barColor = color;
@@ -29,8 +39,26 @@ namespace ArmySurvivor.Army
 
         public void TakeDamage(float damage)
         {
+            if (IsDead) return;
             Current = Mathf.Max(0, Current - Mathf.Max(0, damage));
+            if (IsDead) PlayDeath();
             RefreshBar();
+        }
+
+        private void PlayDeath()
+        {
+            DeathDuration = 0;
+            foreach (var animator in GetComponentsInChildren<Animator>())
+            {
+                if (!animator.HasState(0, DeathState)) continue;
+                foreach (var parameter in animator.parameters)
+                    if (parameter.type == AnimatorControllerParameterType.Trigger) animator.ResetTrigger(parameter.nameHash);
+                // 사망은 진행 중인 공격을 즉시 끊고, 마지막 자세를 유지한다.
+                animator.Play(DeathState, 0, 0);
+                animator.Update(0);
+                DeathDuration = Mathf.Max(DeathDuration, animator.GetCurrentAnimatorStateInfo(0).length);
+            }
+            deathEndsAt = Time.time + DeathDuration + 0.25f;
         }
 
         public void IncreaseMaximum(float amount)
