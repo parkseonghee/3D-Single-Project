@@ -37,3 +37,6 @@
 - Assets/Prefabs/Combat/ExperienceBottle.prefab: 임시 큐브. 추후 병 모델로 교체.
 - Recruitment UI / Experience Panel: 고정 문구는 TMP에서 직접 수정. 코드에서는 수량·레벨·EXP만 갱신.
 - BattleExperience.ClassLeveledUp: 클래스 레벨업 이벤트. 스킬 드래프트는 아직 연결하지 않았으며, 이번 구현은 경험치 수집·투자·레벨 관리까지입니다. 레벨만으로 임의 능력치 보너스를 지급하지 않습니다.
+
+## 2026-09-29 궁수 관통 카드
+궁수 레벨업 시 미습득 상태면 기존 3종 강화 외에 관통 화살 카드가 추가로 표시된다. 해당 병력만 관통을 습득하며 중복 선택할 수 없다. 전장 종료 시 초기화된다. 상세 동작과 검증은 ArcherSkills.md를 참고한다.

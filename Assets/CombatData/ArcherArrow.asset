@@ -19,8 +19,13 @@ MonoBehaviour:
   speed: 18
   hitRadius: 0.4
   height: 1.1
-  projectilePrefab: {fileID: 7918601106419157819, guid: 8c5424cdfe50bbd46bac601acac2233b, type: 3}
+  projectilePrefab: {fileID: 9049310248845762340, guid: c1da9e1487e013147989b3ffc259f3d8, type: 3}
   animationTrigger: Attack
   windup: 0.3
   arcAngle: 100
   knockback: 0
+  detectionRange: 10
+  approachSpeed: 6
+  returnSpeed: 8
+  stoppingDistance: 1.5
+  effectScale: 1

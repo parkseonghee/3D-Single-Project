@@ -51,6 +51,8 @@ namespace ArmySurvivor.Army
             public float remaining;
             public float damage;
             public EnemyState target;
+            public bool piercing;
+            public readonly HashSet<EnemyState> hitEnemies = new HashSet<EnemyState>();
         }
         private readonly List<EnemyState> enemies = new List<EnemyState>();
         private readonly List<Shot> shots = new List<Shot>();
@@ -454,9 +456,20 @@ namespace ArmySurvivor.Army
             if (attack.projectilePrefab == null || attack.speed <= 0) return;
             Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
                 Quaternion.LookRotation(direction), combatRoot).transform;
+            bool piercing = experience != null && experience.HasPiercing(source);
             shots.Add(new Shot { visual = visual, direction = direction, definition = attack,
-                remaining = attack.range, damage = damage, target = enemyTarget });
+                remaining = piercing ? DistanceToBoundary(source.position, direction, run.Ground.bounds) : attack.range,
+                damage = damage, target = enemyTarget, piercing = piercing });
             ShotsFired++;
+        }
+        private static float DistanceToBoundary(Vector3 origin, Vector3 direction, Bounds bounds)
+        {
+            if (origin.x < bounds.min.x || origin.x > bounds.max.x || origin.z < bounds.min.z || origin.z > bounds.max.z) return 0;
+            float x = Mathf.Abs(direction.x) > 0.00001f
+                ? ((direction.x > 0 ? bounds.max.x : bounds.min.x) - origin.x) / direction.x : float.PositiveInfinity;
+            float z = Mathf.Abs(direction.z) > 0.00001f
+                ? ((direction.z > 0 ? bounds.max.z : bounds.min.z) - origin.z) / direction.z : float.PositiveInfinity;
+            return Mathf.Max(0, Mathf.Min(x, z));
         }
         private void MoveShots(float dt)
         {
@@ -483,12 +496,19 @@ namespace ArmySurvivor.Army
                 // 이동 선분으로 판정해 빠른 검기가 적을 통과하는 현상을 방지한다.
                 foreach (EnemyState state in enemies)
                 {
-                    if (state.health <= 0) continue;
+                    if (state.health <= 0 || shot.hitEnemies.Contains(state)) continue;
                     Vector3 offset = state.root.position - start;
                     offset.y = 0;
                     float along = Mathf.Clamp(Vector3.Dot(offset, shot.direction), 0, distance);
                     if ((offset - shot.direction * along).sqrMagnitude <= shot.definition.hitRadius * shot.definition.hitRadius && along < earliest)
-                    { hit = state; earliest = along; }
+                    {
+                        if (shot.piercing)
+                        {
+                            shot.hitEnemies.Add(state);
+                            ApplyDamage(state, shot.damage, shot.direction, shot.definition.knockback);
+                        }
+                        else { hit = state; earliest = along; }
+                    }
                 }
                 shot.visual.position = end;
                 shot.remaining -= distance;

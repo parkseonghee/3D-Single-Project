@@ -86,3 +86,8 @@ PlayScene의 Recruitment System에 추가된 CombatController: 생성 간격 2.5
 양손무기 공격을 infantry_04_attack_A 한손검 보병 모션으로 교체했다. Animator Attack 속도 2로 0.75초에 재생하고 마지막까지 재생 후 0.06초 전환한다. 기존 0.9초 공격 간격 안에 복귀한다. 원본 FBX는 수정하지 않았다.
 AttackDefinition.windup(현재 0.3초)을 추가했다. CombatController는 공격 트리거 후 목표 위치와 남은 준비 시간을 보관하고, 준비 시간이 끝나면 검기를 생성한다. 준비 중에는 목표 방향을 유지한다. 전투 종료 시 예약 공격도 제거한다. 발사 방향은 공격 시작 시 목표 위치를 기준으로 한다. 재생 속도는 Animator, 준비 시간은 공격 데이터 Inspector에서 조절한다.
 
+
+## 2026-09-29 궁수 화살 교체
+ArcherArrow 공격 데이터의 Projectile Prefab을 MeshyArcherArrow로 연결했다. 원본 FBX는 유지하고 프리팹의 모델 자식 Scale을 (300,300,300), 회전을 (0,-90,0)으로 설정하여 화살촉이 비행 방향 +Z를 향하도록 했다. 모델 길이는 약 5.85 Unity 단위다.
+Arrow Trail 자식의 TrailRenderer가 이동 경로를 0.2초간 표시한다. 최대 폭 0.12, 금색에서 투명하게 줄어드는 궤적이며 Inspector에서 Time, Width, Color를 변경할 수 있다. 기존 투사체 이동·피격 코드가 그대로 사용되며 명중/사거리 종료 시 화살과 궤적이 함께 제거된다. 새 런타임 스크립트는 추가하지 않았다.
+

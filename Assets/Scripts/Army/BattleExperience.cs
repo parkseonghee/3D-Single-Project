@@ -28,6 +28,7 @@ namespace ArmySurvivor.Army
             public int Required => 100 * (Level + 2);
             public float DamageBonus { get; internal set; }
             public float SpeedBonus { get; internal set; }
+            public bool Piercing { get; internal set; }
         }
 
         [SerializeField] private RunController run;
@@ -39,10 +40,15 @@ namespace ArmySurvivor.Army
         [SerializeField] private ClassRow[] rows;
         [SerializeField, Min(1)] private int experiencePerBottle = 100;
         [SerializeField, Min(0.1f)] private float pickupRadius = 1.2f;
+        [Header("경험치 병 표시")]
+        [SerializeField] private float bottleWorldY = 0.65f;
+        [SerializeField] private float bottleRotationSpeed = 90f;
         [Header("레벨업 카드")]
         [SerializeField] private GameObject levelUpPanel;
         [SerializeField] private TMP_Text levelUpTarget;
         [SerializeField] private Button[] upgradeButtons;
+        [SerializeField] private Button piercingButton;
+        [SerializeField] private GameObject piercingCard;
         [SerializeField, Min(0)] private float damageUpgrade = 0.2f;
         [SerializeField, Min(0)] private float speedUpgrade = 0.15f;
         [SerializeField, Min(0)] private float healthUpgrade = 0.25f;
@@ -69,6 +75,7 @@ namespace ArmySurvivor.Army
                 row.invest.onClick.AddListener(() => Invest(row.unit));
             panel.SetActive(false);
             levelUpPanel.SetActive(false);
+            if (piercingButton != null) piercingButton.onClick.AddListener(() => ChooseUpgrade(3));
             for (int i = 0; i < upgradeButtons.Length; i++)
             {
                 int choice = i;
@@ -122,13 +129,16 @@ namespace ArmySurvivor.Army
         public void Drop(Vector3 position)
         {
             if (!run.IsRunning || dropRoot == null) return;
-            position.y = run.Commander.position.y + 0.35f;
+            position.y = bottleWorldY;
             drops.Add(Instantiate(bottlePrefab, position, Quaternion.identity, dropRoot).transform);
         }
 
         private void Update()
         {
             CollectNearby();
+            if (run.IsRunning && !run.IsPaused && !IsChoosingUpgrade)
+                foreach (Transform bottle in drops)
+                    bottle.Rotate(Vector3.up, bottleRotationSpeed * Time.deltaTime, Space.World);
             if (run.IsRunning) RefreshUI();
         }
 
@@ -193,6 +203,10 @@ namespace ArmySurvivor.Army
 
         public float DamageMultiplier(Transform unit) => GetProgress(unit) is UnitProgress p ? 1 + p.DamageBonus : 1;
         public float SpeedMultiplier(Transform unit) => GetProgress(unit) is UnitProgress p ? 1 + p.SpeedBonus : 1;
+        public bool HasPiercing(Transform unit) => GetProgress(unit)?.Piercing == true;
+        private bool CanLearnPiercing(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnPiercing &&
+            GetProgress(unit) != null && !HasPiercing(unit);
 
         private void ShowNextUpgrade()
         {
@@ -205,6 +219,7 @@ namespace ArmySurvivor.Army
                 run.IsChoosingUpgrade = true;
             }
             LevelUpRequest request = levelUps.Peek();
+            if (piercingCard != null) piercingCard.SetActive(CanLearnPiercing(request.unit));
             foreach (ClassRow row in rows)
                 if (row.unit == request.unit) levelUpTarget.text = $"{row.title.text} · Lv.{request.level}";
             levelUpPanel.SetActive(true);
@@ -213,13 +228,15 @@ namespace ArmySurvivor.Army
 
         public bool ChooseUpgrade(int choice)
         {
-            if (!run.IsRunning || !IsChoosingUpgrade || levelUps.Count == 0 || choice < 0 || choice > 2) return false;
+            if (!run.IsRunning || !IsChoosingUpgrade || levelUps.Count == 0 || choice < 0 || choice > 3) return false;
+            if (choice == 3 && !CanLearnPiercing(levelUps.Peek().unit)) return false;
             LevelUpRequest request = levelUps.Dequeue();
             UnitProgress progress = GetProgress(request.unit);
             if (progress != null)
             {
                 if (choice == 0) progress.DamageBonus += damageUpgrade;
                 else if (choice == 1) progress.SpeedBonus += speedUpgrade;
+                else if (choice == 3) progress.Piercing = true;
                 else
                 {
                     var health = request.unit.GetComponent<UnitHealth>();

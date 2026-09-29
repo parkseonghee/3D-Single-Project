@@ -8,6 +8,7 @@ namespace ArmySurvivor.Army
     {
         public GameObject prefab;
         public string displayName;
+        public bool canLearnPiercing;
         [Min(1)] public float health = 150;
         public AttackDefinition attack;
         public BuildingDefinition requiredBuilding;
