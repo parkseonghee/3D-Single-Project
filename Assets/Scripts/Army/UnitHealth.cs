@@ -61,15 +61,6 @@ namespace ArmySurvivor.Army
             deathEndsAt = Time.time + DeathDuration + 0.25f;
         }
 
-        public void IncreaseMaximum(float amount)
-        {
-            if (IsDead) return;
-            amount = Mathf.Max(0, amount);
-            Maximum += amount;
-            Current = Mathf.Min(Maximum, Current + amount);
-            RefreshBar();
-        }
-
         private void CreateBar()
         {
             var root = new GameObject("World Health Bar", typeof(RectTransform), typeof(Canvas), typeof(Image));

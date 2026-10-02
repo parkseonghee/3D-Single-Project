@@ -19,13 +19,48 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0)] private float bloodHeight = 1;
         [SerializeField, Min(0.01f)] private float bloodScale = 1;
         [SerializeField, Min(0.1f)] private float bloodLifetime = 1.5f;
+        [Header("궁수 제압 사격")]
+        [SerializeField] private GameObject suppressionDebuffPrefab;
+        [SerializeField] private Vector3 suppressionDebuffLocalPosition = new Vector3(0, 0.1f, 0);
+        [SerializeField] private Vector3 suppressionDebuffScale = Vector3.one * 1.5f;
+        [SerializeField, Range(0, 1)] private float suppressionSlowPercent = 0.4f;
+        [SerializeField, Min(0.1f)] private float suppressionDuration = 2.5f;
+        public float SuppressionSlowPercent => suppressionSlowPercent * 100f;
+        public float SuppressionDuration => suppressionDuration;
+        [Header("궁수 폭발 사격")]
+        [SerializeField] private GameObject explosionEffectPrefab;
+        [SerializeField, Min(0.1f)] private float explosionRadius = 2.5f;
+        [SerializeField, Min(0)] private float explosionDamageMultiplier = 0.5f;
+        [SerializeField] private float explosionEffectHeight = 0.65f;
+        [SerializeField, Min(0.01f)] private float explosionEffectScale = 1f;
+        [SerializeField, Min(0.1f)] private float explosionEffectLifetime = 2f;
+        public float ExplosionRadius => explosionRadius;
+        public float ExplosionDamagePercent => explosionDamageMultiplier * 100f;
+        [Header("병사 낙하 창")]
+        [SerializeField] private GameObject weaponStrikeEffectPrefab;
+        [SerializeField, Min(0.1f)] private float weaponStrikeInterval = 15f;
+        [SerializeField] private ParticleSystem weaponStrikeImpactParticle;
+        [SerializeField, Min(0)] private float weaponStrikeImpactDelay = 0.3f;
+        [SerializeField, Min(0.1f)] private float weaponStrikeRadius = 2.5f;
+        [SerializeField, Min(0)] private float weaponStrikeDamageMultiplier = 2f;
+        [SerializeField, Min(0.01f)] private float weaponStrikeEffectScale = 0.2f;
+        [SerializeField] private float weaponStrikeGroundOffset;
+        [SerializeField, Min(0.1f)] private float weaponStrikeEffectLifetime = 2.5f;
+        public float WeaponStrikeInterval => weaponStrikeInterval;
+        public float WeaponStrikeImpactDelay => weaponStrikeImpactParticle != null
+            ? weaponStrikeImpactParticle.main.startDelay.constant : weaponStrikeImpactDelay;
+        public float WeaponStrikeRadius => weaponStrikeRadius;
         private readonly Dictionary<Transform, UnitHealth> allies = new Dictionary<Transform, UnitHealth>();
         private BattleExperience experience;
         private void Awake() => experience = GetComponent<BattleExperience>();
-        private float AttackInterval(Transform unit, AttackDefinition attack) =>
-            attack.interval / (experience != null ? experience.SpeedMultiplier(unit) : 1);
-        private float AttackDamage(Transform unit, AttackDefinition attack) =>
-            attack.damage * run.CurrentTactic.damageMultiplier * (experience != null ? experience.DamageMultiplier(unit) : 1);
+        private static float AttackInterval(AttackDefinition attack) => attack.interval;
+        private float AttackDamage(Transform unit, AttackDefinition attack)
+        {
+            float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            if (experience != null && Random.value < experience.FocusCriticalChance(unit))
+                damage *= experience.FocusCriticalMultiplier(unit);
+            return damage;
+        }
         public bool Defeated { get; private set; }
         public event System.Action<Vector3> EnemyKilled;
 
@@ -42,6 +77,8 @@ namespace ArmySurvivor.Army
             public float deathTime;
             public EnemyDefinition definition;
             public bool isBoss;
+            public float suppressionRemaining;
+            public Transform suppressionEffect;
         }
         private class Shot
         {
@@ -52,11 +89,22 @@ namespace ArmySurvivor.Army
             public float damage;
             public EnemyState target;
             public bool piercing;
+            public bool suppression;
+            public bool explosion;
             public readonly HashSet<EnemyState> hitEnemies = new HashSet<EnemyState>();
+            public readonly HashSet<EnemyState> splashedEnemies = new HashSet<EnemyState>();
         }
         private readonly List<EnemyState> enemies = new List<EnemyState>();
         private readonly List<Shot> shots = new List<Shot>();
         private readonly Dictionary<Transform, float> cooldowns = new Dictionary<Transform, float>();
+        private readonly Dictionary<Transform, float> weaponStrikeCooldowns = new Dictionary<Transform, float>();
+        private class PendingWeaponStrike
+        {
+            public Vector3 impactPoint;
+            public float remaining;
+            public float damage;
+        }
+        private readonly List<PendingWeaponStrike> pendingWeaponStrikes = new List<PendingWeaponStrike>();
         private readonly Dictionary<Transform, Animator[]> attackers = new Dictionary<Transform, Animator[]>();
         private class PendingAttack
         {
@@ -146,6 +194,7 @@ namespace ArmySurvivor.Army
                 spawnTimer = spawnInterval;
             }
             MoveEnemies(dt);
+            AdvanceWeaponStrikes(dt);
             if (allies[run.Commander].IsDead)
             {
                 Defeated = true;
@@ -156,6 +205,7 @@ namespace ArmySurvivor.Army
                 AttackDefinition attack = unit.Value.attack;
                 if (unit.Key == null || !unit.Key.gameObject.activeSelf || attack == null || attack.range <= 0 || attack.interval <= 0) continue;
                 if (allies[unit.Key].IsDead) continue;
+                UpdateWeaponStrike(unit.Key, attack, dt);
                 cooldowns[unit.Key] -= dt;
                 if (attack.style == AttackDefinition.AttackStyle.Charge ||
                     attack.style == AttackDefinition.AttackStyle.ApproachArc)
@@ -187,9 +237,83 @@ namespace ArmySurvivor.Army
                     foreach (Animator animator in attackers[unit.Key]) animator.SetTrigger(attack.animationTrigger);
                 pending[unit.Key] = new PendingAttack { remaining = attack.windup,
                     target = target.root.position, enemyTarget = target, definition = attack };
-                cooldowns[unit.Key] = Mathf.Max(AttackInterval(unit.Key, attack), attack.windup);
+                cooldowns[unit.Key] = Mathf.Max(AttackInterval(attack), attack.windup);
             }
             MoveShots(dt);
+        }
+        private void UpdateWeaponStrike(Transform unit, AttackDefinition attack, float dt)
+        {
+            if (experience == null || !experience.HasWeaponStrike(unit)) return;
+            if (!weaponStrikeCooldowns.TryGetValue(unit, out float remaining))
+                remaining = weaponStrikeInterval;
+            remaining -= dt;
+            if (remaining > 0)
+            {
+                weaponStrikeCooldowns[unit] = remaining;
+                return;
+            }
+            // 살아 있는 적을 각각 같은 확률로 선택한다.
+            EnemyState target = null;
+            int seen = 0;
+            foreach (EnemyState candidate in enemies)
+            {
+                if (candidate.root == null || candidate.health <= 0) continue;
+                seen++;
+                if (Random.Range(0, seen) == 0) target = candidate;
+            }
+            if (target == null)
+            {
+                weaponStrikeCooldowns[unit] = 0;
+                return;
+            }
+            weaponStrikeCooldowns[unit] = weaponStrikeInterval;
+            Vector3 impactPoint = target.root.position;
+            float impactDelay = WeaponStrikeImpactDelay;
+            pendingWeaponStrikes.Add(new PendingWeaponStrike
+            {
+                impactPoint = impactPoint,
+                remaining = impactDelay,
+                damage = AttackDamage(unit, attack) * weaponStrikeDamageMultiplier
+            });
+            if (weaponStrikeEffectPrefab == null) return;
+            GameObject effect = Instantiate(weaponStrikeEffectPrefab,
+                impactPoint + Vector3.up * weaponStrikeGroundOffset,
+                weaponStrikeEffectPrefab.transform.rotation, combatRoot);
+            effect.transform.localScale *= weaponStrikeEffectScale;
+            Animator effectAnimator = effect.GetComponent<Animator>();
+            if (effectAnimator != null)
+            {
+                effectAnimator.Rebind();
+                effectAnimator.Update(0);
+            }
+            foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particle.main;
+                main.loop = false;
+                particle.Clear(true);
+                particle.Play(true);
+            }
+            Destroy(effect, Mathf.Max(weaponStrikeEffectLifetime, impactDelay + 0.1f));
+        }
+
+        private void AdvanceWeaponStrikes(float dt)
+        {
+            // 새로 생성한 이펙트는 다음 프레임부터 시간을 줄여 파티클 지연과 피해가 일치한다.
+            for (int i = pendingWeaponStrikes.Count - 1; i >= 0; i--)
+            {
+                PendingWeaponStrike strike = pendingWeaponStrikes[i];
+                strike.remaining -= dt;
+                if (strike.remaining > 0) continue;
+                foreach (EnemyState target in enemies)
+                {
+                    if (target.root == null || target.health <= 0 ||
+                        FlatDistance(strike.impactPoint, target.root.position) > weaponStrikeRadius) continue;
+                    Vector3 direction = target.root.position - strike.impactPoint;
+                    direction.y = 0;
+                    ApplyDamage(target, strike.damage, direction.normalized, 0);
+                }
+                pendingWeaponStrikes.RemoveAt(i);
+            }
         }
         private void Spawn()
         {
@@ -246,15 +370,19 @@ namespace ArmySurvivor.Army
                 {
                     melee.Remove(unit);
                     run.SetAttacking(unit, false);
-                    cooldowns[unit] = AttackInterval(unit, attack);
+                    cooldowns[unit] = AttackInterval(attack);
                 }
                 return;
             }
 
             Vector3 offset = unit.position - state.target.root.position;
             offset.y = 0;
-            Vector3 destination = state.target.root.position + offset.normalized * attack.stoppingDistance;
-            if (state.windup < 0 && offset.magnitude > attack.stoppingDistance + 0.05f)
+            Vector3 away = offset.sqrMagnitude > 0.0001f ? offset.normalized : -unit.forward;
+            Vector3 destination = state.target.root.position + away * attack.stoppingDistance;
+            float distance = offset.magnitude;
+            bool tooFar = distance > attack.stoppingDistance + attack.stoppingTolerance;
+            bool tooClose = attack.maintainDistance && distance < attack.stoppingDistance - attack.stoppingTolerance;
+            if (state.windup < 0 && (tooFar || tooClose))
             {
                 run.MoveAttacker(unit, destination, attack.approachSpeed, dt);
                 return;
@@ -285,7 +413,7 @@ namespace ArmySurvivor.Army
                 state.returning = state.target.health <= 0;
             }
             state.windup = -1;
-            cooldowns[unit] = AttackInterval(unit, attack);
+            cooldowns[unit] = AttackInterval(attack);
         }
 
         private void Spawn(EnemyDefinition definition, bool isBoss)
@@ -310,6 +438,7 @@ namespace ArmySurvivor.Army
                 EnemyDefinition enemy = state.definition;
                 if (state.health <= 0)
                 {
+                    ClearSuppression(state);
                     state.deathTime -= dt;
                     if (state.deathTime <= 0)
                     {
@@ -318,6 +447,11 @@ namespace ArmySurvivor.Army
                         enemies.RemoveAt(i);
                     }
                     continue;
+                }
+                if (state.suppressionRemaining > 0)
+                {
+                    state.suppressionRemaining = Mathf.Max(0, state.suppressionRemaining - dt);
+                    if (state.suppressionRemaining <= 0) ClearSuppression(state);
                 }
                 state.attackCooldown -= dt;
                 if (state.attackTarget != null)
@@ -352,7 +486,8 @@ namespace ArmySurvivor.Army
                 }
                 Vector3 direction = target.position - state.root.position;
                 direction.y = 0;
-                float step = Mathf.Min(enemy.speed * dt, Mathf.Max(0, distance - enemy.stoppingDistance));
+                float speedMultiplier = state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f;
+                float step = Mathf.Min(enemy.speed * speedMultiplier * dt, Mathf.Max(0, distance - enemy.stoppingDistance));
                 if (step > 0)
                 {
                     state.root.position += direction.normalized * step;
@@ -418,6 +553,17 @@ namespace ArmySurvivor.Army
 
         private void ExecuteAttack(Transform source, Vector3 target, AttackDefinition attack, EnemyState enemyTarget)
         {
+            // 준비 동작 중 이동한 거리를 반영한다. 관통도 조준 사거리는 동일하다.
+            bool projectile = attack.style == AttackDefinition.AttackStyle.StraightProjectile ||
+                attack.style == AttackDefinition.AttackStyle.HomingProjectile;
+            if (projectile && enemyTarget != null)
+            {
+                if (enemyTarget.root == null || enemyTarget.health <= 0 ||
+                    FlatDistance(source.position, enemyTarget.root.position) > attack.range)
+                    enemyTarget = NearestEnemy(source.position, attack.range);
+                if (enemyTarget == null) return;
+                target = enemyTarget.root.position;
+            }
             Vector3 direction = target - source.position;
             direction.y = 0;
             if (direction.sqrMagnitude <= Mathf.Epsilon) direction = source.forward;
@@ -430,13 +576,20 @@ namespace ArmySurvivor.Army
                 foreach (EnemyState state in enemies)
                     if (state.health > 0 && InMelee(source.position, direction, state.root.position, attack))
                         ApplyDamage(state, damage, direction, attack.knockback);
-                // 병사의 검기는 발사체가 아닌 광역 베기 효과로 표시한다.
+                // 접근 공격은 피해 판정과 별개로 지정된 이펙트를 한 번 재생한다.
                 if (attack.style == AttackDefinition.AttackStyle.ApproachArc && attack.projectilePrefab != null)
                 {
                     var effect = Instantiate(attack.projectilePrefab,
-                        source.position + Vector3.up * attack.height,
-                        Quaternion.LookRotation(direction), combatRoot);
+                        source.position + direction * attack.effectForwardOffset + Vector3.up * attack.height,
+                        Quaternion.LookRotation(direction) * attack.projectilePrefab.transform.rotation, combatRoot);
                     effect.transform.localScale *= attack.effectScale;
+                    foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+                    {
+                        var main = particle.main;
+                        main.loop = false;
+                        particle.Clear(true);
+                        particle.Play(true);
+                    }
                     var arc = effect.GetComponent<LineRenderer>();
                     if (arc != null)
                     {
@@ -449,18 +602,33 @@ namespace ArmySurvivor.Army
                                 * (attack.range / attack.effectScale));
                         }
                     }
-                    Destroy(effect, 0.3f);
+                    Destroy(effect, attack.effectLifetime);
                 }
                 return;
             }
             if (attack.projectilePrefab == null || attack.speed <= 0) return;
-            Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
-                Quaternion.LookRotation(direction), combatRoot).transform;
             bool piercing = experience != null && experience.HasPiercing(source);
-            shots.Add(new Shot { visual = visual, direction = direction, definition = attack,
-                remaining = piercing ? DistanceToBoundary(source.position, direction, run.Ground.bounds) : attack.range,
-                damage = damage, target = enemyTarget, piercing = piercing });
-            ShotsFired++;
+            bool suppression = experience != null && experience.HasSuppression(source);
+            bool explosion = experience != null && experience.HasExplosion(source);
+            int projectileCount = experience != null ? experience.MultiShotCount(source) : 1;
+            float spread = projectileCount > 1 ? experience.MultiShotSpreadAngle : 0;
+            for (int i = 0; i < projectileCount; i++)
+            {
+                // 중앙 1발을 유지하고 좌우 바깥쪽, 안쪽 순서로 추가한다.
+                // 4갈래에서도 조준한 적 사이로 모든 화살이 빗나가지 않는다.
+                float angle = i == 0 ? 0 : spread * 0.5f / ((i + 1) / 2) * (i % 2 == 1 ? -1 : 1);
+                Vector3 projectileDirection = Quaternion.AngleAxis(angle, Vector3.up) * direction;
+                float boundaryDistance = DistanceToBoundary(source.position, projectileDirection, run.Ground.bounds);
+                float travelDistance = piercing ? boundaryDistance : Mathf.Min(attack.range, boundaryDistance);
+                if (travelDistance <= 0) continue;
+                Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
+                    Quaternion.LookRotation(projectileDirection), combatRoot).transform;
+                shots.Add(new Shot { visual = visual, direction = projectileDirection, definition = attack,
+                    remaining = travelDistance,
+                    damage = damage, target = enemyTarget, piercing = piercing,
+                    suppression = suppression, explosion = explosion });
+                ShotsFired++;
+            }
         }
         private static float DistanceToBoundary(Vector3 origin, Vector3 direction, Bounds bounds)
         {
@@ -504,8 +672,7 @@ namespace ArmySurvivor.Army
                     {
                         if (shot.piercing)
                         {
-                            shot.hitEnemies.Add(state);
-                            ApplyDamage(state, shot.damage, shot.direction, shot.definition.knockback);
+                            ProcessShotHit(shot, state);
                         }
                         else { hit = state; earliest = along; }
                     }
@@ -514,12 +681,50 @@ namespace ArmySurvivor.Army
                 shot.remaining -= distance;
                 if (hit != null)
                 {
-                    ApplyDamage(hit, shot.damage, shot.direction, shot.definition.knockback);
+                    ProcessShotHit(shot, hit);
                 }
                 if (hit != null || shot.remaining <= 0) { Destroy(shot.visual.gameObject); shots.RemoveAt(i); }
             }
         }
-        private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback)
+        private void ProcessShotHit(Shot shot, EnemyState target)
+        {
+            if (!shot.hitEnemies.Add(target)) return;
+            Vector3 impact = target.root.position;
+            ApplyDamage(target, shot.damage, shot.direction, shot.definition.knockback, shot.suppression);
+            if (shot.explosion) Explode(shot, impact);
+        }
+
+        private void Explode(Shot shot, Vector3 center)
+        {
+            if (explosionEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(explosionEffectPrefab,
+                    center + Vector3.up * explosionEffectHeight,
+                    explosionEffectPrefab.transform.rotation, combatRoot);
+                effect.transform.localScale *= explosionEffectScale;
+                // 원본은 반복 재생된다. 명중 시에는 복제본만 한 번 재생한다.
+                foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    var main = particle.main;
+                    main.loop = false;
+                    particle.Clear(true);
+                    particle.Play(true);
+                }
+                Destroy(effect, explosionEffectLifetime);
+            }
+            float splashDamage = shot.damage * explosionDamageMultiplier;
+            if (splashDamage <= 0) return;
+            foreach (EnemyState enemyState in enemies)
+            {
+                if (enemyState.health <= 0 || shot.hitEnemies.Contains(enemyState) ||
+                    shot.splashedEnemies.Contains(enemyState) ||
+                    FlatDistance(center, enemyState.root.position) > explosionRadius) continue;
+                shot.splashedEnemies.Add(enemyState);
+                ApplyDamage(enemyState, splashDamage, shot.direction, 0);
+            }
+        }
+
+        private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback, bool suppression = false)
         {
             if (target.health <= 0 || damage <= 0) return;
             Hits++;
@@ -535,19 +740,47 @@ namespace ArmySurvivor.Army
             }
             if (target.health <= 0)
             {
+                ClearSuppression(target);
                 Kills++;
                 EnemyKilled?.Invoke(target.root.position);
                 target.attackTarget = null;
                 target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);
             }
-            else if (knockback > 0)
+            else
             {
-                Vector3 position = target.root.position + direction * knockback;
-                Bounds bounds = run.Ground.bounds;
-                position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
-                position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
-                target.root.position = position;
+                if (suppression) ApplySuppression(target);
+                if (knockback > 0)
+                {
+                    Vector3 position = target.root.position + direction * knockback;
+                    Bounds bounds = run.Ground.bounds;
+                    position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
+                    position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
+                    target.root.position = position;
+                }
             }
+        }
+        private void ApplySuppression(EnemyState target)
+        {
+            // 중복 명중은 감속을 누적하지 않고 지속시간만 갱신한다.
+            target.suppressionRemaining = suppressionDuration;
+            if (target.suppressionEffect != null || suppressionDebuffPrefab == null) return;
+            Transform effect = Instantiate(suppressionDebuffPrefab, target.root).transform;
+            effect.localPosition = suppressionDebuffLocalPosition;
+            effect.localScale = suppressionDebuffScale;
+            target.suppressionEffect = effect;
+            foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                particle.Clear(true);
+                particle.Play(true);
+            }
+        }
+        private static void ClearSuppression(EnemyState target)
+        {
+            target.suppressionRemaining = 0;
+            if (target.suppressionEffect == null) return;
+            target.suppressionEffect.gameObject.SetActive(false);
+            Destroy(target.suppressionEffect.gameObject);
+            target.suppressionEffect = null;
         }
         private static float FlatDistance(Vector3 a, Vector3 b)
         { a.y = b.y = 0; return Vector3.Distance(a, b); }
@@ -566,7 +799,8 @@ namespace ArmySurvivor.Army
                 ally.Value.enabled = false;
             }
             allies.Clear();
-            enemies.Clear(); shots.Clear(); cooldowns.Clear(); attackers.Clear(); pending.Clear();
+            enemies.Clear(); shots.Clear(); cooldowns.Clear(); weaponStrikeCooldowns.Clear();
+            pendingWeaponStrikes.Clear(); attackers.Clear(); pending.Clear();
         }
     }
 }

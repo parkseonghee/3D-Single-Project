@@ -9,6 +9,11 @@ namespace ArmySurvivor.Army
         public GameObject prefab;
         public string displayName;
         public bool canLearnPiercing;
+        public bool canLearnMultiShot;
+        public bool canLearnFocus;
+        public bool canLearnSuppression;
+        public bool canLearnExplosion;
+        public bool canLearnWeaponStrike;
         [Min(1)] public float health = 150;
         public AttackDefinition attack;
         public BuildingDefinition requiredBuilding;

@@ -46,6 +46,7 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<Transform, Animator[]> animators = new Dictionary<Transform, Animator[]>();
         private readonly Dictionary<Transform, Quaternion> facingCorrections = new Dictionary<Transform, Quaternion>();
         private readonly Dictionary<Transform, Vector3> moveDirections = new Dictionary<Transform, Vector3>();
+        private readonly HashSet<Transform> movingUnits = new HashSet<Transform>();
         private readonly List<Vector3> preparationPositions = new List<Vector3>();
         private readonly List<Quaternion> preparationRotations = new List<Quaternion>();
         private Vector3 commanderPosition, cameraPosition;
@@ -67,6 +68,7 @@ namespace ArmySurvivor.Army
         public float Elapsed { get; private set; }
         public int TacticIndex { get; private set; }
         public Tactic CurrentTactic => tactics[TacticIndex];
+        public bool IsMoving(Transform unit) => unit != null && movingUnits.Contains(unit);
 
         private void Start()
         {
@@ -90,6 +92,7 @@ namespace ArmySurvivor.Army
             animators.Clear();
             facingCorrections.Clear();
             moveDirections.Clear();
+            movingUnits.Clear();
             preparationPositions.Clear();
             preparationRotations.Clear();
             foreach (Transform soldier in recruitment.SoldiersRoot)
@@ -225,7 +228,12 @@ namespace ArmySurvivor.Army
         {
             Vector3 direction = target - unit.position;
             bool moving = direction.sqrMagnitude > 0.00001f;
-            if (moving) moveDirections[unit] = direction.normalized;
+            if (moving)
+            {
+                moveDirections[unit] = direction.normalized;
+                movingUnits.Add(unit);
+            }
+            else movingUnits.Remove(unit);
             unit.position = target;
             if (moving) unit.rotation = Quaternion.RotateTowards(unit.rotation,
                 Quaternion.LookRotation(direction) * facingCorrections[unit], 540 * deltaTime);
@@ -266,6 +274,7 @@ namespace ArmySurvivor.Army
                 if (soldiers[i] != null) soldiers[i].SetPositionAndRotation(preparationPositions[i], preparationRotations[i]);
             foreach (var group in animators.Values)
                 foreach (Animator animator in group) if (animator != null) animator.SetBool(Moving, false);
+            movingUnits.Clear();
             playCamera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
             playCamera.orthographic = cameraOrthographic;
             playCamera.orthographicSize = preparationCameraSize;

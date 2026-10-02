@@ -23,6 +23,10 @@ namespace ArmySurvivor.Army
         [Min(0.1f)] public float approachSpeed = 6;
         [Min(0.1f)] public float returnSpeed = 8;
         [Min(0.1f)] public float stoppingDistance = 1.5f;
+        public bool maintainDistance;
+        [Min(0)] public float stoppingTolerance = 0.05f;
         [Min(0.1f)] public float effectScale = 1;
+        [Min(0)] public float effectForwardOffset;
+        [Min(0.1f)] public float effectLifetime = 1f;
     }
 }
