@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ArmySurvivor.Army
 {
     // 소규모 전투의 실행 상태를 관리하며 공유 정의 에셋은 변경하지 않는다.
-    public class CombatController : MonoBehaviour
+    public partial class CombatController : MonoBehaviour
     {
         [SerializeField] private RunController run;
         [SerializeField] private RecruitmentController recruitment;
@@ -19,6 +19,30 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0)] private float bloodHeight = 1;
         [SerializeField, Min(0.01f)] private float bloodScale = 1;
         [SerializeField, Min(0.1f)] private float bloodLifetime = 1.5f;
+        [Header("병사 피의 갈증")]
+        [SerializeField] private GameObject healingEffectPrefab;
+        [SerializeField, Min(0.01f)] private float healingEffectScale = 1f;
+        [SerializeField, Min(0.1f)] private float healingEffectLifetime = 5f;
+        [Header("병사 회전검")]
+        [SerializeField] private GameObject spinningSwordPrefab;
+        [SerializeField, Min(0.1f)] private float spinningSwordRadius = 1.5f;
+        [SerializeField, Min(1f)] private float spinningSwordSpeed = 180f;
+        [SerializeField, Min(0.1f)] private float spinningSwordDamageMultiplier = 0.5f;
+        [SerializeField, Min(0.1f)] private float spinningSwordHitRadius = 1.05f;
+        [SerializeField, Min(0.1f)] private float spinningSwordHitInterval = 0.5f;
+        [SerializeField, Min(0.01f)] private float spinningSwordScale = 1f;
+        [Header("병사 회전 베기")]
+        [SerializeField] private GameObject spinSlashEffectPrefab;
+        [SerializeField, Min(0.1f)] private float spinSlashBaseRadius = 3f;
+        [SerializeField, Min(0)] private float spinSlashRadiusPerLevel = 0.5f;
+        [SerializeField, Min(1f)] private float spinSlashDamageMultiplier = 1.75f;
+        [SerializeField, Min(0)] private float spinSlashAttackSpeedPerLevel = 0.12f;
+        [SerializeField, Min(0.1f)] private float spinSlashEffectLifetime = 2f;
+        [Header("병사 전투 깃발")]
+        [SerializeField] private GameObject bannerPrefab;
+        [SerializeField, Min(0.1f)] private float bannerInterval = 10f;
+        [SerializeField, Min(0.01f)] private float bannerScale = 0.45f;
+        [SerializeField, Min(0)] private float bannerAttackSpeedPerLevel = 0.1f;
         [Header("궁수 제압 사격")]
         [SerializeField] private GameObject suppressionDebuffPrefab;
         [SerializeField] private Vector3 suppressionDebuffLocalPosition = new Vector3(0, 0.1f, 0);
@@ -53,10 +77,17 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<Transform, UnitHealth> allies = new Dictionary<Transform, UnitHealth>();
         private BattleExperience experience;
         private void Awake() => experience = GetComponent<BattleExperience>();
-        private static float AttackInterval(AttackDefinition attack) => attack.interval;
+        private float AttackInterval(Transform unit, AttackDefinition attack)
+        {
+            int level = experience != null ? experience.SpinSlashLevel(unit) : 0;
+            float speedBonus = Mathf.Max(0, level - 1) * spinSlashAttackSpeedPerLevel + bannerAttackSpeedBonus;
+            if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
+            return attack.interval / (1f + speedBonus);
+        }
         private float AttackDamage(Transform unit, AttackDefinition attack)
         {
             float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            if (teamAttackRemaining > 0) damage *= 1f + teamAttackBonus;
             if (experience != null && Random.value < experience.FocusCriticalChance(unit))
                 damage *= experience.FocusCriticalMultiplier(unit);
             return damage;
@@ -82,6 +113,7 @@ namespace ArmySurvivor.Army
         }
         private class Shot
         {
+            public Transform source;
             public Transform visual;
             public Vector3 direction;
             public AttackDefinition definition;
@@ -98,8 +130,27 @@ namespace ArmySurvivor.Army
         private readonly List<Shot> shots = new List<Shot>();
         private readonly Dictionary<Transform, float> cooldowns = new Dictionary<Transform, float>();
         private readonly Dictionary<Transform, float> weaponStrikeCooldowns = new Dictionary<Transform, float>();
+        private readonly Dictionary<Transform, int> basicAttackCounts = new Dictionary<Transform, int>();
+        private class BannerState
+        {
+            public GameObject visual;
+            public float remaining;
+            public int level;
+        }
+        private readonly Dictionary<Transform, BannerState> banners = new Dictionary<Transform, BannerState>();
+        private float bannerAttackSpeedBonus;
+        private class SpinningSword
+        {
+            public Transform visual;
+            public Vector3 previousPosition;
+            public bool positioned;
+            public readonly Dictionary<EnemyState, float> nextHit = new Dictionary<EnemyState, float>();
+        }
+        private readonly Dictionary<Transform, List<SpinningSword>> spinningSwords = new Dictionary<Transform, List<SpinningSword>>();
+        private float swordAngle;
         private class PendingWeaponStrike
         {
+            public Transform source;
             public Vector3 impactPoint;
             public float remaining;
             public float damage;
@@ -116,6 +167,8 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<Transform, PendingAttack> pending = new Dictionary<Transform, PendingAttack>();
         private class MeleeAttack
         {
+            public int chainHits;
+            public Vector3 flameTrailPosition;
             public EnemyState target;
             public bool returning;
             public float windup = -1;
@@ -194,7 +247,17 @@ namespace ArmySurvivor.Army
                 spawnTimer = spawnInterval;
             }
             MoveEnemies(dt);
+            UpdateMagicTraps(dt);
+            UpdateLasers(dt);
+            UpdateTeamShields(dt);
+            UpdateTeamAttack(dt);
+            UpdateTeamAttackSpeed(dt);
+            UpdateShouts(dt);
+            UpdateFlameTrails(dt);
+            UpdateMarchingHorn(dt);
+            UpdateBanners(dt);
             AdvanceWeaponStrikes(dt);
+            UpdateSpinningSwords(dt);
             if (allies[run.Commander].IsDead)
             {
                 Defeated = true;
@@ -237,9 +300,99 @@ namespace ArmySurvivor.Army
                     foreach (Animator animator in attackers[unit.Key]) animator.SetTrigger(attack.animationTrigger);
                 pending[unit.Key] = new PendingAttack { remaining = attack.windup,
                     target = target.root.position, enemyTarget = target, definition = attack };
-                cooldowns[unit.Key] = Mathf.Max(AttackInterval(attack), attack.windup);
+                cooldowns[unit.Key] = Mathf.Max(AttackInterval(unit.Key, attack), attack.windup);
             }
             MoveShots(dt);
+        }
+        private void UpdateBanners(float dt)
+        {
+            bannerAttackSpeedBonus = 0;
+            if (experience == null || bannerPrefab == null) return;
+            foreach (var entry in recruitment.Units)
+            {
+                Transform unit = entry.Key;
+                if (unit == null || !allies.TryGetValue(unit, out UnitHealth health)) continue;
+                int level = unit.gameObject.activeSelf && !health.IsDead ? experience.BannerLevel(unit) : 0;
+                if (!banners.TryGetValue(unit, out BannerState state))
+                {
+                    if (level == 0) continue;
+                    state = new BannerState { remaining = bannerInterval };
+                    banners.Add(unit, state);
+                }
+                state.remaining -= dt;
+                if (state.remaining <= 0)
+                {
+                    if (state.visual != null)
+                    {
+                        state.visual.SetActive(false);
+                        Destroy(state.visual);
+                    }
+                    state.visual = null;
+                    state.remaining = bannerInterval;
+                    if (level > 0)
+                    {
+                        Vector3 position = unit.position + unit.right * 1.25f;
+                        Bounds ground = run.Ground.bounds;
+                        position.x = Mathf.Clamp(position.x, ground.min.x, ground.max.x);
+                        position.z = Mathf.Clamp(position.z, ground.min.z, ground.max.z);
+                        state.visual = Instantiate(bannerPrefab, position, bannerPrefab.transform.rotation, combatRoot);
+                        state.visual.transform.localScale *= bannerScale;
+                    }
+                }
+                if (state.visual != null)
+                {
+                    state.level = Mathf.Max(state.level, level);
+                    bannerAttackSpeedBonus = Mathf.Max(bannerAttackSpeedBonus,
+                        state.level * bannerAttackSpeedPerLevel);
+                }
+            }
+        }
+        private void UpdateSpinningSwords(float dt)
+        {
+            if (experience == null || spinningSwordPrefab == null) return;
+            swordAngle = Mathf.Repeat(swordAngle + spinningSwordSpeed * dt, 360f);
+            foreach (var entry in recruitment.Units)
+            {
+                Transform unit = entry.Key;
+                int count = unit != null && allies.TryGetValue(unit, out UnitHealth health) &&
+                    unit.gameObject.activeSelf && !health.IsDead ? experience.SpinningSwordCount(unit) : 0;
+                if (!spinningSwords.TryGetValue(unit, out List<SpinningSword> swords))
+                {
+                    swords = new List<SpinningSword>();
+                    spinningSwords[unit] = swords;
+                }
+                while (swords.Count > count)
+                {
+                    Destroy(swords[swords.Count - 1].visual.gameObject);
+                    swords.RemoveAt(swords.Count - 1);
+                }
+                while (swords.Count < count)
+                {
+                    Transform visual = Instantiate(spinningSwordPrefab, combatRoot).transform;
+                    visual.localScale *= spinningSwordScale;
+                    swords.Add(new SpinningSword { visual = visual });
+                }
+                for (int i = 0; i < swords.Count; i++)
+                {
+                    float angle = swordAngle + 360f * i / swords.Count;
+                    Vector3 direction = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+                    Transform visual = swords[i].visual;
+                    visual.position = unit.position + direction * spinningSwordRadius + Vector3.up * 0.85f;
+                    visual.rotation = Quaternion.Euler(0, angle, -55f);
+                    Vector3 previous = swords[i].positioned ? swords[i].previousPosition : visual.position;
+                    foreach (EnemyState target in enemies)
+                    {
+                        if (target.root == null || target.health <= 0 ||
+                            FlatDistanceToSegment(target.root.position, previous, visual.position) > spinningSwordHitRadius ||
+                            (swords[i].nextHit.TryGetValue(target, out float next) && Time.time < next)) continue;
+                        swords[i].nextHit[target] = Time.time + spinningSwordHitInterval;
+                        ApplyDamage(target, AttackDamage(unit, entry.Value.attack) * spinningSwordDamageMultiplier,
+                            direction, 0, false, unit);
+                    }
+                    swords[i].previousPosition = visual.position;
+                    swords[i].positioned = true;
+                }
+            }
         }
         private void UpdateWeaponStrike(Transform unit, AttackDefinition attack, float dt)
         {
@@ -271,6 +424,7 @@ namespace ArmySurvivor.Army
             float impactDelay = WeaponStrikeImpactDelay;
             pendingWeaponStrikes.Add(new PendingWeaponStrike
             {
+                source = unit,
                 impactPoint = impactPoint,
                 remaining = impactDelay,
                 damage = AttackDamage(unit, attack) * weaponStrikeDamageMultiplier
@@ -310,7 +464,7 @@ namespace ArmySurvivor.Army
                         FlatDistance(strike.impactPoint, target.root.position) > weaponStrikeRadius) continue;
                     Vector3 direction = target.root.position - strike.impactPoint;
                     direction.y = 0;
-                    ApplyDamage(target, strike.damage, direction.normalized, 0);
+                    ApplyDamage(target, strike.damage, direction.normalized, 0, false, strike.source);
                 }
                 pendingWeaponStrikes.RemoveAt(i);
             }
@@ -348,13 +502,15 @@ namespace ArmySurvivor.Army
 
         private void UpdateMelee(Transform unit, AttackDefinition attack, float dt)
         {
+            UnitHealth unitHealth = allies[unit];
+            unitHealth.IsInvulnerable = false;
             MeleeAttack state;
             if (!melee.TryGetValue(unit, out state))
             {
                 if (cooldowns[unit] > 0) return;
                 EnemyState target = NearestEnemy(unit.position, attack.detectionRange);
                 if (target == null) return;
-                state = new MeleeAttack { target = target };
+                state = new MeleeAttack { target = target, flameTrailPosition = unit.position };
                 melee.Add(unit, state);
                 run.SetAttacking(unit, true);
             }
@@ -370,11 +526,14 @@ namespace ArmySurvivor.Army
                 {
                     melee.Remove(unit);
                     run.SetAttacking(unit, false);
-                    cooldowns[unit] = AttackInterval(attack);
+                    cooldowns[unit] = AttackInterval(unit, attack);
                 }
                 return;
             }
 
+            bool chargeInvulnerability = attack.style == AttackDefinition.AttackStyle.Charge &&
+                experience != null && experience.HasChargeInvulnerability(unit);
+            unitHealth.IsInvulnerable = chargeInvulnerability;
             Vector3 offset = unit.position - state.target.root.position;
             offset.y = 0;
             Vector3 away = offset.sqrMagnitude > 0.0001f ? offset.normalized : -unit.forward;
@@ -385,6 +544,7 @@ namespace ArmySurvivor.Army
             if (state.windup < 0 && (tooFar || tooClose))
             {
                 run.MoveAttacker(unit, destination, attack.approachSpeed, dt);
+                if (attack.style == AttackDefinition.AttackStyle.Charge) LeaveFlameTrail(unit, state, false);
                 return;
             }
             run.MoveAttacker(unit, unit.position, 0, dt);
@@ -403,17 +563,73 @@ namespace ArmySurvivor.Army
             float damage = AttackDamage(unit, attack);
             if (attack.style == AttackDefinition.AttackStyle.Charge)
             {
+                unitHealth.IsInvulnerable = false;
+                LeaveFlameTrail(unit, state, true);
+                damage *= MomentumDamageMultiplier(unit);
+                bool chainCharge = experience != null && experience.HasChainCharge(unit);
+                if (chainCharge) damage *= chainChargeFirstMultiplier * Mathf.Pow(chainChargeDecay, state.chainHits);
+                bool killedByCharge = false;
                 if (FlatDistance(unit.position, state.target.root.position) <= attack.range)
-                    ApplyDamage(state.target, damage, direction, attack.knockback);
+                {
+                    ApplyDamage(state.target, damage, direction, attack.knockback, false, unit);
+                    killedByCharge = state.target.health <= 0;
+                }
                 state.returning = true;
+                if (chainCharge && killedByCharge)
+                {
+                    EnemyState next = FindChainChargeTarget(unit, attack);
+                    if (next != null)
+                    {
+                        state.target = next;
+                        state.chainHits++;
+                        unitHealth.IsInvulnerable = chargeInvulnerability;
+                        state.returning = false;
+                        state.windup = -1;
+                        cooldowns[unit] = 0;
+                        return;
+                    }
+                }
             }
             else
             {
-                ExecuteAttack(unit, state.target.root.position, attack, state.target);
+                if (!TrySpinSlash(unit, attack))
+                    ExecuteAttack(unit, state.target.root.position, attack, state.target);
                 state.returning = state.target.health <= 0;
             }
             state.windup = -1;
-            cooldowns[unit] = AttackInterval(attack);
+            cooldowns[unit] = AttackInterval(unit, attack);
+        }
+
+        private bool TrySpinSlash(Transform unit, AttackDefinition attack)
+        {
+            int level = experience != null ? experience.SpinSlashLevel(unit) : 0;
+            if (level == 0) return false;
+            int count = basicAttackCounts.TryGetValue(unit, out int previous) ? previous + 1 : 1;
+            if (count < 3) { basicAttackCounts[unit] = count; return false; }
+            basicAttackCounts[unit] = 0;
+            float radius = spinSlashBaseRadius + (level - 1) * spinSlashRadiusPerLevel;
+            float damage = AttackDamage(unit, attack) * spinSlashDamageMultiplier;
+            foreach (EnemyState target in enemies)
+            {
+                if (target.root == null || target.health <= 0 ||
+                    FlatDistance(unit.position, target.root.position) > radius) continue;
+                Vector3 direction = target.root.position - unit.position;
+                direction.y = 0;
+                ApplyDamage(target, damage, direction.normalized, 0, false, unit);
+            }
+            if (spinSlashEffectPrefab == null) return true;
+            GameObject effect = Instantiate(spinSlashEffectPrefab, unit.position + Vector3.up * 0.5f,
+                spinSlashEffectPrefab.transform.rotation, combatRoot);
+            effect.transform.localScale *= radius / spinSlashBaseRadius;
+            foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particle.main;
+                main.loop = false;
+                particle.Clear(true);
+                particle.Play(true);
+            }
+            Destroy(effect, spinSlashEffectLifetime);
+            return true;
         }
 
         private void Spawn(EnemyDefinition definition, bool isBoss)
@@ -445,6 +661,8 @@ namespace ArmySurvivor.Army
                         if (state.isBoss) BossDefeated = true;
                         Destroy(state.root.gameObject);
                         enemies.RemoveAt(i);
+                        foreach (var group in spinningSwords.Values)
+                            foreach (SpinningSword sword in group) sword.nextHit.Remove(state);
                     }
                     continue;
                 }
@@ -570,12 +788,17 @@ namespace ArmySurvivor.Army
             direction.Normalize();
             run.FaceTarget(source, target);
             float damage = AttackDamage(source, attack);
+            if (projectile && experience != null && experience.HasChainLightning(source) && chainLightningPrefab != null)
+            {
+                AttackWithChainLightning(source, enemyTarget, attack, damage);
+                return;
+            }
             if (attack.style == AttackDefinition.AttackStyle.MeleeArc || attack.style == AttackDefinition.AttackStyle.MeleeLine ||
                 attack.style == AttackDefinition.AttackStyle.ApproachArc)
             {
                 foreach (EnemyState state in enemies)
                     if (state.health > 0 && InMelee(source.position, direction, state.root.position, attack))
-                        ApplyDamage(state, damage, direction, attack.knockback);
+                        ApplyDamage(state, damage, direction, attack.knockback, false, source);
                 // 접근 공격은 피해 판정과 별개로 지정된 이펙트를 한 번 재생한다.
                 if (attack.style == AttackDefinition.AttackStyle.ApproachArc && attack.projectilePrefab != null)
                 {
@@ -623,7 +846,7 @@ namespace ArmySurvivor.Army
                 if (travelDistance <= 0) continue;
                 Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
                     Quaternion.LookRotation(projectileDirection), combatRoot).transform;
-                shots.Add(new Shot { visual = visual, direction = projectileDirection, definition = attack,
+                shots.Add(new Shot { source = source, visual = visual, direction = projectileDirection, definition = attack,
                     remaining = travelDistance,
                     damage = damage, target = enemyTarget, piercing = piercing,
                     suppression = suppression, explosion = explosion });
@@ -690,7 +913,7 @@ namespace ArmySurvivor.Army
         {
             if (!shot.hitEnemies.Add(target)) return;
             Vector3 impact = target.root.position;
-            ApplyDamage(target, shot.damage, shot.direction, shot.definition.knockback, shot.suppression);
+            ApplyDamage(target, shot.damage, shot.direction, shot.definition.knockback, shot.suppression, shot.source);
             if (shot.explosion) Explode(shot, impact);
         }
 
@@ -720,15 +943,16 @@ namespace ArmySurvivor.Army
                     shot.splashedEnemies.Contains(enemyState) ||
                     FlatDistance(center, enemyState.root.position) > explosionRadius) continue;
                 shot.splashedEnemies.Add(enemyState);
-                ApplyDamage(enemyState, splashDamage, shot.direction, 0);
+                ApplyDamage(enemyState, splashDamage, shot.direction, 0, false, shot.source);
             }
         }
 
-        private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback, bool suppression = false)
+        private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback,
+            bool suppression = false, Transform source = null)
         {
             if (target.health <= 0 || damage <= 0) return;
             Hits++;
-            target.vitality.TakeDamage(damage);
+            target.vitality.TakeDamage(damage * ShoutArmorMultiplier(target));
             if (bloodEffect != null)
             {
                 Quaternion rotation = direction.sqrMagnitude > 0.0001f
@@ -741,8 +965,10 @@ namespace ArmySurvivor.Army
             if (target.health <= 0)
             {
                 ClearSuppression(target);
+                ClearShoutDebuff(target);
                 Kills++;
                 EnemyKilled?.Invoke(target.root.position);
+                HealOnKill(source);
                 target.attackTarget = null;
                 target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);
             }
@@ -758,6 +984,23 @@ namespace ArmySurvivor.Army
                     target.root.position = position;
                 }
             }
+        }
+        private void HealOnKill(Transform source)
+        {
+            if (source == null || experience == null || !allies.TryGetValue(source, out UnitHealth health)) return;
+            float ratio = experience.BloodthirstHealRatio(source);
+            if (health.Heal(health.Maximum * ratio) <= 0 || healingEffectPrefab == null) return;
+            GameObject effect = Instantiate(healingEffectPrefab, source.position,
+                healingEffectPrefab.transform.rotation, combatRoot);
+            effect.transform.localScale *= healingEffectScale;
+            foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particle.main;
+                main.loop = false;
+                particle.Clear(true);
+                particle.Play(true);
+            }
+            Destroy(effect, healingEffectLifetime);
         }
         private void ApplySuppression(EnemyState target)
         {
@@ -784,6 +1027,14 @@ namespace ArmySurvivor.Army
         }
         private static float FlatDistance(Vector3 a, Vector3 b)
         { a.y = b.y = 0; return Vector3.Distance(a, b); }
+        private static float FlatDistanceToSegment(Vector3 point, Vector3 start, Vector3 end)
+        {
+            point.y = start.y = end.y = 0;
+            Vector3 path = end - start;
+            if (path.sqrMagnitude < 0.0001f) return Vector3.Distance(point, end);
+            float t = Mathf.Clamp01(Vector3.Dot(point - start, path) / path.sqrMagnitude);
+            return Vector3.Distance(point, start + path * t);
+        }
         private void Clear()
         {
             if (combatRoot != null) { combatRoot.gameObject.SetActive(false); Destroy(combatRoot.gameObject); }
@@ -800,6 +1051,17 @@ namespace ArmySurvivor.Army
             }
             allies.Clear();
             enemies.Clear(); shots.Clear(); cooldowns.Clear(); weaponStrikeCooldowns.Clear();
+            basicAttackCounts.Clear();
+            magicTrapCooldowns.Clear(); magicTraps.Clear();
+            laserCooldowns.Clear(); lasers.Clear();
+            teamShieldCooldowns.Clear();
+            ClearTeamAttack(); teamAttackCooldown = -1f;
+            ClearTeamAttackSpeed(); teamAttackSpeedCooldown = -1f;
+            ClearShouts();
+            flameTrails.Clear(); flameTrailTickTime = 0;
+            ClearMarchingHorn(); marchingHornCooldown = -1f;
+            banners.Clear(); bannerAttackSpeedBonus = 0;
+            spinningSwords.Clear(); swordAngle = 0;
             pendingWeaponStrikes.Clear(); attackers.Clear(); pending.Clear();
         }
     }

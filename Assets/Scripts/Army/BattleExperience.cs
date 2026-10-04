@@ -32,6 +32,24 @@ namespace ArmySurvivor.Army
             public bool Suppression { get; internal set; }
             public bool Explosion { get; internal set; }
             public bool WeaponStrike { get; internal set; }
+            public int BloodthirstLevel { get; internal set; }
+            public int SpinningSwordLevel { get; internal set; }
+            public int SpinSlashLevel { get; internal set; }
+            public int BannerLevel { get; internal set; }
+            public bool MagicTrap { get; internal set; }
+            public bool LaserAOE { get; internal set; }
+            public bool ChainLightning { get; internal set; }
+            public bool TeamShield { get; internal set; }
+            public bool TeamAttack { get; internal set; }
+            public bool IntimidatingShout { get; internal set; }
+            public bool IronWall { get; internal set; }
+            public bool TeamAttackSpeed { get; internal set; }
+            public bool ChainCharge { get; internal set; }
+            public int FlameHoovesLevel { get; internal set; }
+            public bool ChargeInvulnerability { get; internal set; }
+            public bool MarchingHorn { get; internal set; }
+            public bool Momentum { get; internal set; }
+            public int ManaCycleLevel { get; internal set; }
         }
 
         [SerializeField] private RunController run;
@@ -68,6 +86,59 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(1)] private float focusBaseCriticalMultiplier = 1.5f;
         [SerializeField, Min(0)] private float focusCriticalMultiplierPerLevel = 0.5f;
         [SerializeField, Min(1)] private int focusMaximumLevel = 3;
+        [Header("병사 피의 갈증")]
+        [SerializeField] private GameObject bloodthirstCard;
+        [SerializeField] private Button bloodthirstButton;
+        [SerializeField, Range(0, 1)] private float bloodthirstInitialHeal = 0.1f;
+        [SerializeField, Range(0, 1)] private float bloodthirstHealPerLevel = 0.05f;
+        [SerializeField, Min(1)] private int bloodthirstMaximumLevel = 3;
+        [Header("병사 회전검")]
+        [SerializeField] private GameObject spinningSwordCard;
+        [SerializeField] private Button spinningSwordButton;
+        [SerializeField, Min(1)] private int spinningSwordMaximumLevel = 4;
+        [Header("병사 회전 베기")]
+        [SerializeField] private GameObject spinSlashCard;
+        [SerializeField] private Button spinSlashButton;
+        [SerializeField, Min(1)] private int spinSlashMaximumLevel = 4;
+        [Header("병사 전투 깃발")]
+        [SerializeField] private GameObject bannerCard;
+        [SerializeField] private Button bannerButton;
+        [SerializeField, Min(1)] private int bannerMaximumLevel = 4;
+        [Header("마법사 마법 함정")]
+        [SerializeField] private GameObject magicTrapCard;
+        [SerializeField] private Button magicTrapButton;
+        [Header("마법사 광역 레이저")]
+        [SerializeField] private GameObject laserCard;
+        [SerializeField] private Button laserButton;
+        [SerializeField] private GameObject chainLightningCard;
+        [SerializeField] private Button chainLightningButton;
+        [SerializeField] private GameObject teamShieldCard;
+        [SerializeField] private Button teamShieldButton;
+        [SerializeField] private GameObject teamAttackCard;
+        [SerializeField] private Button teamAttackButton;
+        [SerializeField] private GameObject shoutCard;
+        [SerializeField] private Button shoutButton;
+        [Header("방패병 철벽")]
+        [SerializeField] private GameObject ironWallCard;
+        [SerializeField] private Button ironWallButton;
+        [SerializeField] private GameObject teamAttackSpeedCard;
+        [SerializeField] private Button teamAttackSpeedButton;
+        [SerializeField] private GameObject chainChargeCard;
+        [SerializeField] private Button chainChargeButton;
+        [SerializeField] private GameObject flameHoovesCard;
+        [SerializeField] private Button flameHoovesButton;
+        [SerializeField] private GameObject chargeInvulnerabilityCard;
+        [SerializeField] private Button chargeInvulnerabilityButton;
+        [SerializeField] private GameObject marchingHornCard;
+        [SerializeField] private Button marchingHornButton;
+        [SerializeField] private GameObject momentumCard;
+        [SerializeField] private Button momentumButton;
+        [SerializeField, Range(0, 1)] private float ironWallDamageReduction = 0.1f;
+        [Header("마법사 마나 순환")]
+        [SerializeField] private GameObject manaCycleCard;
+        [SerializeField] private Button manaCycleButton;
+        [SerializeField, Range(0, 0.25f)] private float manaCycleReductionPerLevel = 0.1f;
+        [SerializeField, Min(1)] private int manaCycleMaximumLevel = 3;
 
         private struct LevelUpRequest
         {
@@ -116,6 +187,24 @@ namespace ArmySurvivor.Army
             if (suppressionButton != null) suppressionButton.onClick.AddListener(() => ChooseUpgrade(6));
             if (explosionButton != null) explosionButton.onClick.AddListener(() => ChooseUpgrade(7));
             if (weaponStrikeButton != null) weaponStrikeButton.onClick.AddListener(() => ChooseUpgrade(8));
+            if (bloodthirstButton != null) bloodthirstButton.onClick.AddListener(() => ChooseUpgrade(9));
+            if (spinningSwordButton != null) spinningSwordButton.onClick.AddListener(() => ChooseUpgrade(10));
+            if (spinSlashButton != null) spinSlashButton.onClick.AddListener(() => ChooseUpgrade(11));
+            if (bannerButton != null) bannerButton.onClick.AddListener(() => ChooseUpgrade(12));
+            if (magicTrapButton != null) magicTrapButton.onClick.AddListener(() => ChooseUpgrade(13));
+            if (manaCycleButton != null) manaCycleButton.onClick.AddListener(() => ChooseUpgrade(14));
+            if (laserButton != null) laserButton.onClick.AddListener(() => ChooseUpgrade(15));
+            if (chainLightningButton != null) chainLightningButton.onClick.AddListener(() => ChooseUpgrade(16));
+            if (teamShieldButton != null) teamShieldButton.onClick.AddListener(() => ChooseUpgrade(17));
+            if (teamAttackButton != null) teamAttackButton.onClick.AddListener(() => ChooseUpgrade(18));
+            if (shoutButton != null) shoutButton.onClick.AddListener(() => ChooseUpgrade(19));
+            if (ironWallButton != null) ironWallButton.onClick.AddListener(() => ChooseUpgrade(20));
+            if (teamAttackSpeedButton != null) teamAttackSpeedButton.onClick.AddListener(() => ChooseUpgrade(21));
+            if (chainChargeButton != null) chainChargeButton.onClick.AddListener(() => ChooseUpgrade(22));
+            if (flameHoovesButton != null) flameHoovesButton.onClick.AddListener(() => ChooseUpgrade(23));
+            if (chargeInvulnerabilityButton != null) chargeInvulnerabilityButton.onClick.AddListener(() => ChooseUpgrade(24));
+            if (marchingHornButton != null) marchingHornButton.onClick.AddListener(() => ChooseUpgrade(25));
+            if (momentumButton != null) momentumButton.onClick.AddListener(() => ChooseUpgrade(26));
         }
 
         private void OnEnable()
@@ -321,6 +410,24 @@ namespace ArmySurvivor.Army
         public bool HasSuppression(Transform unit) => GetProgress(unit)?.Suppression == true;
         public bool HasExplosion(Transform unit) => GetProgress(unit)?.Explosion == true;
         public bool HasWeaponStrike(Transform unit) => GetProgress(unit)?.WeaponStrike == true;
+        public float BloodthirstHealRatio(Transform unit)
+        {
+            int level = GetProgress(unit)?.BloodthirstLevel ?? 0;
+            return level == 0 ? 0 : bloodthirstInitialHeal + (level - 1) * bloodthirstHealPerLevel;
+        }
+        public int SpinningSwordCount(Transform unit)
+        {
+            int level = GetProgress(unit)?.SpinningSwordLevel ?? 0;
+            return level == 0 ? 0 : Mathf.Min(level + 1, 5);
+        }
+        public int SpinSlashLevel(Transform unit) => GetProgress(unit)?.SpinSlashLevel ?? 0;
+        public int BannerLevel(Transform unit) => GetProgress(unit)?.BannerLevel ?? 0;
+        public bool HasMagicTrap(Transform unit) => GetProgress(unit)?.MagicTrap == true;
+        public float SkillCooldownMultiplier(Transform unit)
+        {
+            int level = GetProgress(unit)?.ManaCycleLevel ?? 0;
+            return 1f - Mathf.Min(0.8f, level * manaCycleReductionPerLevel);
+        }
         public bool IsFocusActive(Transform unit) => HasFocus(unit) &&
             focusStationaryTimes.TryGetValue(unit, out float time) && time >= focusStationaryDelay;
         public float FocusCriticalChance(Transform unit) => IsFocusActive(unit) ? focusCriticalChance : 0;
@@ -353,6 +460,75 @@ namespace ArmySurvivor.Army
         private bool CanLearnWeaponStrike(Transform unit) => unit != null &&
             recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnWeaponStrike &&
             GetProgress(unit) != null && !HasWeaponStrike(unit);
+        private bool CanLearnBloodthirst(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnBloodthirst &&
+            GetProgress(unit) is UnitProgress progress && progress.BloodthirstLevel < bloodthirstMaximumLevel;
+        private bool CanLearnSpinningSword(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnSpinningSword &&
+            GetProgress(unit) is UnitProgress progress && progress.SpinningSwordLevel < spinningSwordMaximumLevel;
+        private bool CanLearnSpinSlash(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnSpinSlash &&
+            GetProgress(unit) is UnitProgress progress && progress.SpinSlashLevel < spinSlashMaximumLevel;
+        private bool CanLearnBanner(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnBanner &&
+            GetProgress(unit) is UnitProgress progress && progress.BannerLevel < bannerMaximumLevel;
+
+        private bool CanLearnMagicTrap(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnMagicTrap &&
+            GetProgress(unit) != null && !HasMagicTrap(unit);
+
+        private bool CanLearnManaCycle(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnManaCycle &&
+            GetProgress(unit) is UnitProgress progress && progress.ManaCycleLevel < manaCycleMaximumLevel;
+
+        public bool HasLaserAOE(Transform unit) => GetProgress(unit)?.LaserAOE == true;
+        public bool HasChainLightning(Transform unit) => GetProgress(unit)?.ChainLightning == true;
+        public bool HasTeamShield(Transform unit) => GetProgress(unit)?.TeamShield == true;
+        public bool HasTeamAttack(Transform unit) => GetProgress(unit)?.TeamAttack == true;
+        public bool HasIntimidatingShout(Transform unit) => GetProgress(unit)?.IntimidatingShout == true;
+        private bool CanLearnIronWall(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnIronWall &&
+            GetProgress(unit) is UnitProgress progress && !progress.IronWall;
+
+        public bool HasTeamAttackSpeed(Transform unit) => GetProgress(unit)?.TeamAttackSpeed == true;
+        public bool HasChainCharge(Transform unit) => GetProgress(unit)?.ChainCharge == true;
+        public int FlameHoovesLevel(Transform unit) => GetProgress(unit)?.FlameHoovesLevel ?? 0;
+        public bool HasChargeInvulnerability(Transform unit) => GetProgress(unit)?.ChargeInvulnerability == true;
+        public bool HasMarchingHorn(Transform unit) => GetProgress(unit)?.MarchingHorn == true;
+        public bool HasMomentum(Transform unit) => GetProgress(unit)?.Momentum == true;
+        private bool CanLearnMomentum(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnMomentum &&
+            GetProgress(unit) != null && !HasMomentum(unit);
+        private bool CanLearnMarchingHorn(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnMarchingHorn &&
+            GetProgress(unit) != null && !HasMarchingHorn(unit);
+        private bool CanLearnChargeInvulnerability(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnChargeInvulnerability &&
+            GetProgress(unit) != null && !HasChargeInvulnerability(unit);
+        private bool CanLearnFlameHooves(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnFlameHooves &&
+            GetProgress(unit) != null && FlameHoovesLevel(unit) < 3;
+        private bool CanLearnChainCharge(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnChainCharge &&
+            GetProgress(unit) != null && !HasChainCharge(unit);
+        private bool CanLearnTeamAttackSpeed(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnTeamAttackSpeed &&
+            GetProgress(unit) != null && !HasTeamAttackSpeed(unit);
+        private bool CanLearnIntimidatingShout(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnIntimidatingShout &&
+            GetProgress(unit) != null && !HasIntimidatingShout(unit);
+        private bool CanLearnTeamAttack(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnTeamAttack &&
+            GetProgress(unit) != null && !HasTeamAttack(unit);
+        private bool CanLearnTeamShield(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnTeamShield &&
+            GetProgress(unit) != null && !HasTeamShield(unit);
+        private bool CanLearnChainLightning(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnChainLightning &&
+            GetProgress(unit) != null && !HasChainLightning(unit);
+        private bool CanLearnLaserAOE(Transform unit) => unit != null &&
+            recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnLaserAOE &&
+            GetProgress(unit) != null && !HasLaserAOE(unit);
 
         private GameObject CardFor(int choice)
         {
@@ -364,6 +540,24 @@ namespace ArmySurvivor.Army
                 case 6: return suppressionCard;
                 case 7: return explosionCard;
                 case 8: return weaponStrikeCard;
+                case 9: return bloodthirstCard;
+                case 10: return spinningSwordCard;
+                case 11: return spinSlashCard;
+                case 12: return bannerCard;
+                case 13: return magicTrapCard;
+                case 14: return manaCycleCard;
+                case 15: return laserCard;
+                case 16: return chainLightningCard;
+                case 17: return teamShieldCard;
+                case 18: return teamAttackCard;
+                case 19: return shoutCard;
+                case 20: return ironWallCard;
+                case 21: return teamAttackSpeedCard;
+                case 22: return chainChargeCard;
+                case 23: return flameHoovesCard;
+                case 24: return chargeInvulnerabilityCard;
+                case 25: return marchingHornCard;
+                case 26: return momentumCard;
                 default: return null;
             }
         }
@@ -381,6 +575,24 @@ namespace ArmySurvivor.Army
                 if (suppressionCard != null && CanLearnSuppression(request.unit)) candidates.Add(6);
                 if (explosionCard != null && CanLearnExplosion(request.unit)) candidates.Add(7);
                 if (weaponStrikeCard != null && CanLearnWeaponStrike(request.unit)) candidates.Add(8);
+                if (bloodthirstCard != null && CanLearnBloodthirst(request.unit)) candidates.Add(9);
+                if (spinningSwordCard != null && CanLearnSpinningSword(request.unit)) candidates.Add(10);
+                if (spinSlashCard != null && CanLearnSpinSlash(request.unit)) candidates.Add(11);
+                if (bannerCard != null && CanLearnBanner(request.unit)) candidates.Add(12);
+                if (magicTrapCard != null && CanLearnMagicTrap(request.unit)) candidates.Add(13);
+                if (manaCycleCard != null && CanLearnManaCycle(request.unit)) candidates.Add(14);
+                if (laserCard != null && CanLearnLaserAOE(request.unit)) candidates.Add(15);
+                if (chainLightningCard != null && CanLearnChainLightning(request.unit)) candidates.Add(16);
+                if (teamShieldCard != null && CanLearnTeamShield(request.unit)) candidates.Add(17);
+                if (teamAttackCard != null && CanLearnTeamAttack(request.unit)) candidates.Add(18);
+                if (shoutCard != null && CanLearnIntimidatingShout(request.unit)) candidates.Add(19);
+                if (ironWallCard != null && CanLearnIronWall(request.unit)) candidates.Add(20);
+                if (teamAttackSpeedCard != null && CanLearnTeamAttackSpeed(request.unit)) candidates.Add(21);
+                if (chainChargeCard != null && CanLearnChainCharge(request.unit)) candidates.Add(22);
+                if (flameHoovesCard != null && CanLearnFlameHooves(unit: request.unit)) candidates.Add(23);
+                if (chargeInvulnerabilityCard != null && CanLearnChargeInvulnerability(request.unit)) candidates.Add(24);
+                if (marchingHornCard != null && CanLearnMarchingHorn(request.unit)) candidates.Add(25);
+                if (momentumCard != null && CanLearnMomentum(request.unit)) candidates.Add(26);
                 if (candidates.Count == 0)
                 {
                     // 모든 스킬을 배웠거나 이 병사에게 배울 수 있는 스킬이 없다.
@@ -394,7 +606,7 @@ namespace ArmySurvivor.Army
                     IsChoosingUpgrade = true;
                     run.IsChoosingUpgrade = true;
                 }
-                for (int choice = 3; choice <= 8; choice++)
+                for (int choice = 3; choice <= 26; choice++)
                     if (CardFor(choice) != null) CardFor(choice).SetActive(false);
                 // 부분 Fisher-Yates 셔플로 후보 중 최대 3개를 균등하게 선택한다.
                 int count = Mathf.Min(maximumCardChoices, candidates.Count);
@@ -460,6 +672,24 @@ namespace ArmySurvivor.Army
             if (choice == 6 && !CanLearnSuppression(levelUps.Peek().unit)) return false;
             if (choice == 7 && !CanLearnExplosion(levelUps.Peek().unit)) return false;
             if (choice == 8 && !CanLearnWeaponStrike(levelUps.Peek().unit)) return false;
+            if (choice == 9 && !CanLearnBloodthirst(levelUps.Peek().unit)) return false;
+            if (choice == 10 && !CanLearnSpinningSword(levelUps.Peek().unit)) return false;
+            if (choice == 11 && !CanLearnSpinSlash(levelUps.Peek().unit)) return false;
+            if (choice == 12 && !CanLearnBanner(levelUps.Peek().unit)) return false;
+            if (choice == 13 && !CanLearnMagicTrap(levelUps.Peek().unit)) return false;
+            if (choice == 14 && !CanLearnManaCycle(levelUps.Peek().unit)) return false;
+            if (choice == 15 && !CanLearnLaserAOE(levelUps.Peek().unit)) return false;
+            if (choice == 16 && !CanLearnChainLightning(levelUps.Peek().unit)) return false;
+            if (choice == 17 && !CanLearnTeamShield(levelUps.Peek().unit)) return false;
+            if (choice == 18 && !CanLearnTeamAttack(levelUps.Peek().unit)) return false;
+            if (choice == 19 && !CanLearnIntimidatingShout(levelUps.Peek().unit)) return false;
+            if (choice == 20 && !CanLearnIronWall(levelUps.Peek().unit)) return false;
+            if (choice == 21 && !CanLearnTeamAttackSpeed(levelUps.Peek().unit)) return false;
+            if (choice == 22 && !CanLearnChainCharge(levelUps.Peek().unit)) return false;
+            if (choice == 23 && !CanLearnFlameHooves(levelUps.Peek().unit)) return false;
+            if (choice == 24 && !CanLearnChargeInvulnerability(levelUps.Peek().unit)) return false;
+            if (choice == 25 && !CanLearnMarchingHorn(levelUps.Peek().unit)) return false;
+            if (choice == 26 && !CanLearnMomentum(levelUps.Peek().unit)) return false;
             LevelUpRequest request = levelUps.Dequeue();
             UnitProgress progress = GetProgress(request.unit);
             if (progress != null)
@@ -470,6 +700,29 @@ namespace ArmySurvivor.Army
                 else if (choice == 6) progress.Suppression = true;
                 else if (choice == 7) progress.Explosion = true;
                 else if (choice == 8) progress.WeaponStrike = true;
+                else if (choice == 9) progress.BloodthirstLevel++;
+                else if (choice == 10) progress.SpinningSwordLevel++;
+                else if (choice == 11) progress.SpinSlashLevel++;
+                else if (choice == 12) progress.BannerLevel++;
+                else if (choice == 13) progress.MagicTrap = true;
+                else if (choice == 14) progress.ManaCycleLevel++;
+                else if (choice == 15) progress.LaserAOE = true;
+                else if (choice == 16) progress.ChainLightning = true;
+                else if (choice == 17) progress.TeamShield = true;
+                else if (choice == 18) progress.TeamAttack = true;
+                else if (choice == 19) progress.IntimidatingShout = true;
+                else if (choice == 21) progress.TeamAttackSpeed = true;
+                else if (choice == 22) progress.ChainCharge = true;
+                else if (choice == 23) progress.FlameHoovesLevel++;
+                else if (choice == 24) progress.ChargeInvulnerability = true;
+                else if (choice == 25) progress.MarchingHorn = true;
+                else if (choice == 26) progress.Momentum = true;
+                else if (choice == 20)
+                {
+                    progress.IronWall = true;
+                    if (request.unit.TryGetComponent<UnitHealth>(out var health))
+                        health.DamageReduction = ironWallDamageReduction;
+                }
             }
             if (levelUps.Count > 0) ShowNextUpgrade();
             else CloseUpgrade();

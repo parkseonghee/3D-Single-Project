@@ -60,6 +60,7 @@ namespace ArmySurvivor.Army
         public bool IsChoosingUpgrade { get; set; }
         public bool IsPaused { get; set; }
         public bool CanStart { get; set; } = true;
+        public float TeamMoveMultiplier { get; internal set; } = 1f;
         public Transform Commander => commander;
         public bool CommanderDead => commander.TryGetComponent<UnitHealth>(out var health) && health.IsDead;
         public Collider Ground => ground;
@@ -168,7 +169,7 @@ namespace ArmySurvivor.Army
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             input = Vector2.ClampMagnitude(input, 1);
             Vector3 direction = right * input.x + forward * input.y;
-            Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * deltaTime);
+            Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier * deltaTime);
             // 가장 넓은 진형도 땅 밖으로 나가지 않도록 지휘관의 이동 범위를 제한한다.
             float margin = 1;
             foreach (Tactic tactic in tactics) margin = Mathf.Max(margin, tactic.radius + 1);
@@ -184,7 +185,7 @@ namespace ArmySurvivor.Army
                 Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius;
                 Vector3 destination = commander.position + offset;
                 Vector3 next = Vector3.MoveTowards(soldiers[i].position, destination,
-                    followSpeed * CurrentTactic.moveMultiplier * deltaTime);
+                    followSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier * deltaTime);
                 Move(soldiers[i], next, deltaTime);
             }
             formationRing.transform.position = commander.position + Vector3.up * 0.04f;
@@ -221,7 +222,7 @@ namespace ArmySurvivor.Army
             destination.x = Mathf.Clamp(destination.x, bounds.min.x + 1, bounds.max.x - 1);
             destination.z = Mathf.Clamp(destination.z, bounds.min.z + 1, bounds.max.z - 1);
             destination.y = commander.position.y;
-            Move(unit, Vector3.MoveTowards(unit.position, destination, speed * dt), dt);
+            Move(unit, Vector3.MoveTowards(unit.position, destination, speed * TeamMoveMultiplier * dt), dt);
         }
 
         private void Move(Transform unit, Vector3 target, float deltaTime)

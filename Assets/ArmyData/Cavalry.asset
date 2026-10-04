@@ -14,6 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.UnitDefinition
   prefab: {fileID: 9161802960214006406, guid: 03a9d36179659c041bb136f8401ad713, type: 3}
   displayName: "\uAE30\uB9C8\uBCD1"
+  canLearnPiercing: 0
+  canLearnMultiShot: 0
+  canLearnFocus: 0
+  canLearnSuppression: 0
+  canLearnExplosion: 0
+  canLearnWeaponStrike: 0
+  canLearnBloodthirst: 0
+  canLearnSpinningSword: 0
+  canLearnSpinSlash: 0
+  canLearnBanner: 0
+  canLearnMagicTrap: 0
+  canLearnLaserAOE: 0
+  canLearnChainLightning: 0
+  canLearnTeamShield: 0
+  canLearnTeamAttack: 0
+  canLearnIntimidatingShout: 0
+  canLearnIronWall: 0
+  canLearnTeamAttackSpeed: 0
+  canLearnChainCharge: 1
+  canLearnFlameHooves: 1
+  canLearnChargeInvulnerability: 1
+  canLearnMarchingHorn: 1
+  canLearnMomentum: 1
+  canLearnManaCycle: 0
   health: 220
   attack: {fileID: 11400000, guid: 595ea6cae7d04164d96ae61a9571c56d, type: 2}
   requiredBuilding: {fileID: 11400000, guid: 46420be553e53284cad50da127a2bbc8, type: 2}
