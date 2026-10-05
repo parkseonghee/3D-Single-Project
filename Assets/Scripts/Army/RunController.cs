@@ -114,7 +114,8 @@ namespace ArmySurvivor.Army
             IsRunning = true;
             Elapsed = 0;
             shownSecond = -1;
-            foreach (GameObject ui in preparationUI) ui.SetActive(false);
+            foreach (GameObject ui in preparationUI)
+                if (ui != null) ui.SetActive(false);
             runUI.SetActive(true);
             formationRing.gameObject.SetActive(true);
             playCamera.orthographic = true;
@@ -281,7 +282,8 @@ namespace ArmySurvivor.Army
             playCamera.orthographicSize = preparationCameraSize;
             runUI.SetActive(false);
             formationRing.gameObject.SetActive(false);
-            foreach (GameObject ui in preparationUI) ui.SetActive(true);
+            foreach (GameObject ui in preparationUI)
+                if (ui != null) ui.SetActive(true);
         }
     }
 }

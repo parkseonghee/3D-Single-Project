@@ -175,8 +175,17 @@ namespace ArmySurvivor.Army
         }
         private readonly Dictionary<Transform, MeleeAttack> melee = new Dictionary<Transform, MeleeAttack>();
         private Transform combatRoot;
+        private readonly List<GameObject> healingEffects = new List<GameObject>();
         private float spawnTimer;
         private DaySettings.EnemySpawn[] enemyPool;
+        private DaySettings.Wave[] waves;
+        private float waveDuration = 90;
+        private int enemySafetyLimit = 120;
+        private int maximumWave = 4;
+        public int WaveNumber { get; private set; }
+        public float CurrentSpawnInterval { get; private set; }
+        public int CurrentBatchSize { get; private set; }
+        public int CurrentEnemyLimit { get; private set; }
         public int ShotsFired { get; private set; }
         public int Kills { get; private set; }
         public int Hits { get; private set; }
@@ -184,12 +193,41 @@ namespace ArmySurvivor.Army
         public int ProjectileCount => shots.Count;
         public bool BossDefeated { get; private set; }
 
-        public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null)
+        public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null,
+            float duration = 90, DaySettings.Wave[] waveSettings = null, int safetyLimit = 120, int waveLimit = 4)
         {
             enemy = definition;
             spawnInterval = interval;
             maximumEnemies = limit;
             enemyPool = pool;
+            waves = waveSettings;
+            waveDuration = Mathf.Max(1, duration);
+            enemySafetyLimit = Mathf.Max(1, safetyLimit);
+            maximumWave = Mathf.Max(1, waveLimit);
+            spawnTimer = 0;
+            UpdateWave(0);
+        }
+
+        private void UpdateWave(float elapsed)
+        {
+            float progress = Mathf.Clamp01(elapsed / waveDuration);
+            DaySettings.Wave selected = null;
+            WaveNumber = 1;
+            if (waves != null)
+                for (int i = 0; i < Mathf.Min(waves.Length, maximumWave); i++)
+                {
+                    var wave = waves[i];
+                    if (wave == null || wave.startProgress > progress) continue;
+                    if (selected != null && wave.startProgress < selected.startProgress) continue;
+                    selected = wave;
+                    WaveNumber = i + 1;
+                }
+            CurrentSpawnInterval = Mathf.Max(0.1f, spawnInterval * (selected == null ? 1 : selected.intervalMultiplier));
+            CurrentBatchSize = Mathf.Max(1, selected == null ? 1 : selected.batchSize);
+            CurrentEnemyLimit = Mathf.Clamp(Mathf.CeilToInt(maximumEnemies *
+                (selected == null ? 1 : selected.capacityMultiplier)), 1, enemySafetyLimit);
+            // 더 빠른 웨이브로 넘어갈 때 이전 단계의 긴 대기 시간을 남기지 않는다.
+            spawnTimer = Mathf.Min(spawnTimer, CurrentSpawnInterval);
         }
 
         public bool SpawnBoss(EnemyDefinition definition)
@@ -240,11 +278,14 @@ namespace ArmySurvivor.Army
                 if (allies[run.Commander].DeathFinished) run.ReturnToPreparation();
                 return;
             }
+            UpdateWave(run.Elapsed);
             spawnTimer -= dt;
             if (spawnTimer <= 0)
             {
-                if (enemies.Count < maximumEnemies) Spawn();
-                spawnTimer = spawnInterval;
+                int count = Mathf.Min(CurrentBatchSize, CurrentEnemyLimit - enemies.Count);
+                for (int i = 0; i < count; i++) Spawn();
+                // 일시 정지나 프레임 지연 뒤 밀린 몬스터가 한꺼번에 생성되지 않게 한다.
+                spawnTimer = CurrentSpawnInterval;
             }
             MoveEnemies(dt);
             UpdateMagicTraps(dt);
@@ -991,12 +1032,15 @@ namespace ArmySurvivor.Army
             float ratio = experience.BloodthirstHealRatio(source);
             if (health.Heal(health.Maximum * ratio) <= 0 || healingEffectPrefab == null) return;
             GameObject effect = Instantiate(healingEffectPrefab, source.position,
-                healingEffectPrefab.transform.rotation, combatRoot);
+                healingEffectPrefab.transform.rotation, source);
             effect.transform.localScale *= healingEffectScale;
+            healingEffects.RemoveAll(item => item == null);
+            healingEffects.Add(effect);
             foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
             {
                 var main = particle.main;
                 main.loop = false;
+                main.simulationSpace = ParticleSystemSimulationSpace.Local;
                 particle.Clear(true);
                 particle.Play(true);
             }
@@ -1037,6 +1081,9 @@ namespace ArmySurvivor.Army
         }
         private void Clear()
         {
+            foreach (GameObject effect in healingEffects)
+                if (effect != null) { effect.SetActive(false); Destroy(effect); }
+            healingEffects.Clear();
             if (combatRoot != null) { combatRoot.gameObject.SetActive(false); Destroy(combatRoot.gameObject); }
             combatRoot = null;
             BossDefeated = false;

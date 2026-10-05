@@ -59,7 +59,8 @@ namespace ArmySurvivor.Army
         {
             RefreshDay();
             bossSpawned = false;
-            combat.Configure(stage.enemy, stage.spawnInterval, stage.maximumEnemies, stage.enemies);
+            combat.Configure(stage.enemy, stage.spawnInterval, stage.maximumEnemies, stage.enemies,
+                stage.survivalSeconds, settings.waves, settings.enemySafetyLimit, settings.GetWaveLimit(Day));
             UpdateProgress();
         }
 

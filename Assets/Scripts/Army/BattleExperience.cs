@@ -163,9 +163,8 @@ namespace ArmySurvivor.Army
         private GameObject explosionCard;
         private Button explosionButton;
         private TMP_Text explosionDescription;
-        private GameObject weaponStrikeCard;
-        private Button weaponStrikeButton;
-        private TMP_Text weaponStrikeDescription;
+        [SerializeField] private GameObject weaponStrikeCard;
+        [SerializeField] private Button weaponStrikeButton;
         private Transform dropRoot;
         public int Bottles { get; private set; }
         public int DropCount => drops.Count;
@@ -176,7 +175,6 @@ namespace ArmySurvivor.Army
             CreateFocusCard();
             CreateSuppressionCard();
             explosionCard = CreateSkillCard("Explosion Card", "폭발 사격", out explosionButton, out explosionDescription);
-            weaponStrikeCard = CreateSkillCard("Weapon Strike Card", "낙하 창", out weaponStrikeButton, out weaponStrikeDescription);
             foreach (ClassRow row in rows)
                 row.invest.onClick.AddListener(() => Invest(row.unit));
             panel.SetActive(false);
@@ -633,8 +631,6 @@ namespace ArmySurvivor.Army
                     suppressionDescription.text = $"화살에 맞은 적의 이동 속도 {combat.SuppressionSlowPercent:0}% 감소\n\n{combat.SuppressionDuration:0.0}초 지속 · 재명중 시 시간 갱신\n관통·멀티샷에도 적용";
                 if (explosionDescription != null && CanLearnExplosion(request.unit))
                     explosionDescription.text = $"화살 명중 시 주변 적에게 피해\n\n반경 {combat.ExplosionRadius:0.0} · 화살 피해의 {combat.ExplosionDamagePercent:0}%\n관통·멀티샷에도 적용";
-                if (weaponStrikeDescription != null && CanLearnWeaponStrike(request.unit))
-                    weaponStrikeDescription.text = $"{combat.WeaponStrikeInterval:0}초마다 무작위 적 위치에 창 낙하\n\n{combat.WeaponStrikeImpactDelay:0.0}초 뒤 착탄 · 반경 {combat.WeaponStrikeRadius:0.0} 광역 피해\n이 병사에게만 적용";
                 foreach (ClassRow row in rows)
                     if (row.unit == request.unit) levelUpTarget.text = $"{row.title.text} · Lv.{request.level}";
                 levelUpPanel.SetActive(true);

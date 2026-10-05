@@ -12,6 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0d40b60f705b3479e0f6ee7aac1d19, type: 3}
   m_Name: DaySettings
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.DaySettings
+  waves:
+  - startProgress: 0
+    intervalMultiplier: 1
+    batchSize: 1
+    capacityMultiplier: 1
+  - startProgress: 0.25
+    intervalMultiplier: 0.8
+    batchSize: 2
+    capacityMultiplier: 2
+  - startProgress: 0.5
+    intervalMultiplier: 0.6
+    batchSize: 3
+    capacityMultiplier: 3
+  - startProgress: 0.75
+    intervalMultiplier: 0.4
+    batchSize: 5
+    capacityMultiplier: 5
+  enemySafetyLimit: 120
   finalDay: 100
   bossInterval: 10
   stages:
