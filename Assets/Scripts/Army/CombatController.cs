@@ -123,6 +123,8 @@ namespace ArmySurvivor.Army
             public bool piercing;
             public bool suppression;
             public bool explosion;
+            public bool focusAssigned;
+            public int focusGeneration;
             public readonly HashSet<EnemyState> hitEnemies = new HashSet<EnemyState>();
             public readonly HashSet<EnemyState> splashedEnemies = new HashSet<EnemyState>();
         }
@@ -163,6 +165,8 @@ namespace ArmySurvivor.Army
             public Vector3 target;
             public EnemyState enemyTarget;
             public AttackDefinition definition;
+            public bool focusAssigned;
+            public int focusGeneration;
         }
         private readonly Dictionary<Transform, PendingAttack> pending = new Dictionary<Transform, PendingAttack>();
         private class MeleeAttack
@@ -172,6 +176,8 @@ namespace ArmySurvivor.Army
             public EnemyState target;
             public bool returning;
             public float windup = -1;
+            public bool focusAssigned;
+            public int focusGeneration;
         }
         private readonly Dictionary<Transform, MeleeAttack> melee = new Dictionary<Transform, MeleeAttack>();
         private Transform combatRoot;
@@ -288,6 +294,7 @@ namespace ArmySurvivor.Army
                 spawnTimer = CurrentSpawnInterval;
             }
             MoveEnemies(dt);
+            UpdateFocusCommand(dt);
             UpdateMagicTraps(dt);
             UpdateLasers(dt);
             UpdateTeamShields(dt);
@@ -331,7 +338,10 @@ namespace ArmySurvivor.Army
                     continue;
                 }
                 if (cooldowns[unit.Key] > 0) continue;
-                EnemyState target = NearestEnemy(unit.Key.position, attack.range);
+                if (!FocusUnitReady(unit.Key)) continue;
+                float targetRange = focusActive && !IsFocusRallyUnit(attack)
+                    ? float.PositiveInfinity : attack.range;
+                EnemyState target = SelectEnemyForUnit(unit.Key, targetRange, out bool focused);
                 if (target == null) continue;
                 if (attack.style == AttackDefinition.AttackStyle.MeleeLine &&
                     !HasLineTarget(unit.Key, attack)) continue;
@@ -340,7 +350,8 @@ namespace ArmySurvivor.Army
                 if (!string.IsNullOrEmpty(attack.animationTrigger))
                     foreach (Animator animator in attackers[unit.Key]) animator.SetTrigger(attack.animationTrigger);
                 pending[unit.Key] = new PendingAttack { remaining = attack.windup,
-                    target = target.root.position, enemyTarget = target, definition = attack };
+                    target = target.root.position, enemyTarget = target, definition = attack,
+                    focusAssigned = focused, focusGeneration = focusGeneration };
                 cooldowns[unit.Key] = Mathf.Max(AttackInterval(unit.Key, attack), attack.windup);
             }
             MoveShots(dt);
@@ -545,28 +556,52 @@ namespace ArmySurvivor.Army
         {
             UnitHealth unitHealth = allies[unit];
             unitHealth.IsInvulnerable = false;
+            float searchRange = focusActive ? Mathf.Max(attack.detectionRange, focusRadius * 2f) :
+                attack.detectionRange;
             MeleeAttack state;
             if (!melee.TryGetValue(unit, out state))
             {
-                if (cooldowns[unit] > 0) return;
-                EnemyState target = NearestEnemy(unit.position, attack.detectionRange);
+                if (cooldowns[unit] > 0 || !FocusUnitReady(unit)) return;
+                EnemyState target = SelectEnemyForUnit(unit, searchRange, out bool focused);
                 if (target == null) return;
-                state = new MeleeAttack { target = target, flameTrailPosition = unit.position };
+                state = new MeleeAttack { target = target, flameTrailPosition = unit.position,
+                    focusAssigned = focused, focusGeneration = focusGeneration };
                 melee.Add(unit, state);
                 run.SetAttacking(unit, true);
             }
+            if (!state.returning && state.windup < 0)
+            {
+                bool changedCommand = state.focusGeneration != focusGeneration;
+                bool invalidFocus = state.focusAssigned &&
+                    !FocusTargetInRange(unit, state.target, searchRange);
+                bool readyToAttack = cooldowns[unit] <= 0 && state.target != null &&
+                    state.target.root != null && FlatDistance(unit.position, state.target.root.position) <=
+                    attack.stoppingDistance + attack.stoppingTolerance;
+                if (changedCommand || invalidFocus || focusActive && readyToAttack)
+                {
+                    EnemyState next = SelectEnemyForUnit(unit, searchRange, out bool focused);
+                    if (next != null)
+                    {
+                        state.target = next;
+                        state.focusAssigned = focused;
+                        state.focusGeneration = focusGeneration;
+                    }
+                    else state.returning = true;
+                }
+            }
             if (state.target.root == null || state.target.health <= 0 ||
-                FlatDistance(unit.position, run.Commander.position) > attack.detectionRange + run.CurrentTactic.radius)
+                (!focusActive && FlatDistance(unit.position, run.Commander.position) >
+                    attack.detectionRange + run.CurrentTactic.radius))
                 state.returning = true;
 
             if (state.returning)
             {
-                Vector3 home = run.FormationPosition(unit);
+                Vector3 home = focusActive ? FocusSlot(unit) : run.FormationPosition(unit);
                 run.MoveAttacker(unit, home, attack.returnSpeed, dt);
                 if (FlatDistance(unit.position, home) < 0.1f)
                 {
                     melee.Remove(unit);
-                    run.SetAttacking(unit, false);
+                    if (!focusActive) run.SetAttacking(unit, false);
                     cooldowns[unit] = AttackInterval(unit, attack);
                 }
                 return;
@@ -579,10 +614,13 @@ namespace ArmySurvivor.Army
             offset.y = 0;
             Vector3 away = offset.sqrMagnitude > 0.0001f ? offset.normalized : -unit.forward;
             Vector3 destination = state.target.root.position + away * attack.stoppingDistance;
+            if (focusActive) destination = ClampToFocus(destination);
             float distance = offset.magnitude;
             bool tooFar = distance > attack.stoppingDistance + attack.stoppingTolerance;
             bool tooClose = attack.maintainDistance && distance < attack.stoppingDistance - attack.stoppingTolerance;
-            if (state.windup < 0 && (tooFar || tooClose))
+            bool atFocusLimit = focusActive &&
+                FlatDistance(unit.position, destination) <= attack.stoppingTolerance;
+            if (state.windup < 0 && (tooFar || tooClose) && !atFocusLimit)
             {
                 run.MoveAttacker(unit, destination, attack.approachSpeed, dt);
                 if (attack.style == AttackDefinition.AttackStyle.Charge) LeaveFlameTrail(unit, state, false);
@@ -599,6 +637,12 @@ namespace ArmySurvivor.Army
             }
             state.windup -= dt;
             if (state.windup > 0) return;
+            if (focusActive && !FocusTargetInRange(unit, state.target, searchRange))
+            {
+                state.returning = true;
+                state.windup = -1;
+                return;
+            }
 
             Vector3 direction = (state.target.root.position - unit.position).normalized;
             float damage = AttackDamage(unit, attack);
@@ -622,6 +666,8 @@ namespace ArmySurvivor.Army
                     if (next != null)
                     {
                         state.target = next;
+                        state.focusAssigned = focusActive;
+                        state.focusGeneration = focusGeneration;
                         state.chainHits++;
                         unitHealth.IsInvulnerable = chargeInvulnerability;
                         state.returning = false;
@@ -815,11 +861,17 @@ namespace ArmySurvivor.Army
             // 준비 동작 중 이동한 거리를 반영한다. 관통도 조준 사거리는 동일하다.
             bool projectile = attack.style == AttackDefinition.AttackStyle.StraightProjectile ||
                 attack.style == AttackDefinition.AttackStyle.HomingProjectile;
+            bool focusedShot = pending.TryGetValue(source, out PendingAttack preparation) &&
+                preparation.focusAssigned && preparation.focusGeneration == focusGeneration;
+            bool unrestrictedFocusShot = projectile && focusActive && focusedShot;
             if (projectile && enemyTarget != null)
             {
                 if (enemyTarget.root == null || enemyTarget.health <= 0 ||
-                    FlatDistance(source.position, enemyTarget.root.position) > attack.range)
-                    enemyTarget = NearestEnemy(source.position, attack.range);
+                    (!unrestrictedFocusShot &&
+                     FlatDistance(source.position, enemyTarget.root.position) > attack.range) ||
+                    (focusActive && FlatDistance(focusCenter, enemyTarget.root.position) > focusRadius))
+                    enemyTarget = SelectEnemyForUnit(source,
+                        unrestrictedFocusShot ? float.PositiveInfinity : attack.range, out focusedShot);
                 if (enemyTarget == null) return;
                 target = enemyTarget.root.position;
             }
@@ -883,14 +935,16 @@ namespace ArmySurvivor.Army
                 float angle = i == 0 ? 0 : spread * 0.5f / ((i + 1) / 2) * (i % 2 == 1 ? -1 : 1);
                 Vector3 projectileDirection = Quaternion.AngleAxis(angle, Vector3.up) * direction;
                 float boundaryDistance = DistanceToBoundary(source.position, projectileDirection, run.Ground.bounds);
-                float travelDistance = piercing ? boundaryDistance : Mathf.Min(attack.range, boundaryDistance);
+                float travelDistance = piercing || unrestrictedFocusShot
+                    ? boundaryDistance : Mathf.Min(attack.range, boundaryDistance);
                 if (travelDistance <= 0) continue;
                 Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
                     Quaternion.LookRotation(projectileDirection), combatRoot).transform;
                 shots.Add(new Shot { source = source, visual = visual, direction = projectileDirection, definition = attack,
                     remaining = travelDistance,
                     damage = damage, target = enemyTarget, piercing = piercing,
-                    suppression = suppression, explosion = explosion });
+                    suppression = suppression, explosion = explosion,
+                    focusAssigned = focusedShot && i == 0, focusGeneration = focusGeneration });
                 ShotsFired++;
             }
         }
@@ -912,7 +966,10 @@ namespace ArmySurvivor.Army
                 if (shot.definition.style == AttackDefinition.AttackStyle.HomingProjectile)
                 {
                     if (shot.target == null || shot.target.root == null || shot.target.health <= 0)
-                        shot.target = NearestEnemy(start, shot.remaining);
+                        shot.target = shot.focusAssigned && focusActive &&
+                            shot.focusGeneration == focusGeneration
+                            ? NearestFocusEnemy(start, shot.remaining)
+                            : NearestEnemy(start, shot.remaining);
                     if (shot.target != null)
                     {
                         Vector3 aim = shot.target.root.position - start;
@@ -1081,6 +1138,7 @@ namespace ArmySurvivor.Army
         }
         private void Clear()
         {
+            ClearFocusCommand();
             foreach (GameObject effect in healingEffects)
                 if (effect != null) { effect.SetActive(false); Destroy(effect); }
             healingEffects.Clear();

@@ -206,9 +206,14 @@ namespace ArmySurvivor.Army
 
         public Vector3 FormationPosition(Transform unit)
         {
+            return FormationPosition(unit, commander.position, CurrentTactic.radius);
+        }
+
+        public Vector3 FormationPosition(Transform unit, Vector3 center, float radius)
+        {
             int index = soldiers.IndexOf(unit);
             float angle = Mathf.Max(0, index) * Mathf.PI * 2 / Mathf.Max(1, soldiers.Count);
-            return commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius;
+            return center + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
         }
 
         public void SetAttacking(Transform unit, bool attacking)

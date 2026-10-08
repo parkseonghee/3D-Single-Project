@@ -26,8 +26,10 @@ namespace ArmySurvivor.Army
             foreach (EnemyState enemy in enemies)
             {
                 if (enemy.root == null || enemy.health <= 0) continue;
-                // 연쇄 도중에도 기존 진형 이탈 한계를 지킨다.
-                if (FlatDistance(enemy.root.position, run.Commander.position) > formationLimit) continue;
+                // 집중 명령 중에는 집결 구역만, 평상시에는 지휘관 진형 범위만 살핀다.
+                if (focusActive
+                    ? FlatDistance(enemy.root.position, focusCenter) > focusRadius
+                    : FlatDistance(enemy.root.position, run.Commander.position) > formationLimit) continue;
                 float distance = FlatDistance(unit.position, enemy.root.position);
                 if (distance > nearestDistance) continue;
                 nearestDistance = distance;

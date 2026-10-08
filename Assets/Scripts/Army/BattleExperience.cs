@@ -69,6 +69,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private GameObject levelUpPanel;
         [SerializeField] private TMP_Text levelUpTarget;
         [SerializeField, Range(1, 3)] private int maximumCardChoices = 3;
+        [SerializeField] private CardMotion.Config cardMotionConfig = new CardMotion.Config();
         [SerializeField] private Button piercingButton;
         [SerializeField] private GameObject piercingCard;
         [SerializeField] private Button multiShotButton;
@@ -147,7 +148,9 @@ namespace ArmySurvivor.Army
         }
         private readonly Queue<LevelUpRequest> levelUps = new Queue<LevelUpRequest>();
         private readonly HashSet<int> shownChoices = new HashSet<int>();
+        private readonly Dictionary<int, CardMotion> cardViews = new Dictionary<int, CardMotion>();
         private float previousTimeScale = 1;
+        private bool selectionInProgress;
         public bool IsChoosingUpgrade { get; private set; }
 
         private readonly Dictionary<Transform, UnitProgress> units = new Dictionary<Transform, UnitProgress>();
@@ -172,6 +175,7 @@ namespace ArmySurvivor.Army
 
         private void Awake()
         {
+            if (cardMotionConfig == null) cardMotionConfig = new CardMotion.Config();
             CreateFocusCard();
             CreateSuppressionCard();
             explosionCard = CreateSkillCard("Explosion Card", "폭발 사격", out explosionButton, out explosionDescription);
@@ -179,30 +183,72 @@ namespace ArmySurvivor.Army
                 row.invest.onClick.AddListener(() => Invest(row.unit));
             panel.SetActive(false);
             levelUpPanel.SetActive(false);
-            if (piercingButton != null) piercingButton.onClick.AddListener(() => ChooseUpgrade(3));
-            if (multiShotButton != null) multiShotButton.onClick.AddListener(() => ChooseUpgrade(4));
-            if (focusButton != null) focusButton.onClick.AddListener(() => ChooseUpgrade(5));
-            if (suppressionButton != null) suppressionButton.onClick.AddListener(() => ChooseUpgrade(6));
-            if (explosionButton != null) explosionButton.onClick.AddListener(() => ChooseUpgrade(7));
-            if (weaponStrikeButton != null) weaponStrikeButton.onClick.AddListener(() => ChooseUpgrade(8));
-            if (bloodthirstButton != null) bloodthirstButton.onClick.AddListener(() => ChooseUpgrade(9));
-            if (spinningSwordButton != null) spinningSwordButton.onClick.AddListener(() => ChooseUpgrade(10));
-            if (spinSlashButton != null) spinSlashButton.onClick.AddListener(() => ChooseUpgrade(11));
-            if (bannerButton != null) bannerButton.onClick.AddListener(() => ChooseUpgrade(12));
-            if (magicTrapButton != null) magicTrapButton.onClick.AddListener(() => ChooseUpgrade(13));
-            if (manaCycleButton != null) manaCycleButton.onClick.AddListener(() => ChooseUpgrade(14));
-            if (laserButton != null) laserButton.onClick.AddListener(() => ChooseUpgrade(15));
-            if (chainLightningButton != null) chainLightningButton.onClick.AddListener(() => ChooseUpgrade(16));
-            if (teamShieldButton != null) teamShieldButton.onClick.AddListener(() => ChooseUpgrade(17));
-            if (teamAttackButton != null) teamAttackButton.onClick.AddListener(() => ChooseUpgrade(18));
-            if (shoutButton != null) shoutButton.onClick.AddListener(() => ChooseUpgrade(19));
-            if (ironWallButton != null) ironWallButton.onClick.AddListener(() => ChooseUpgrade(20));
-            if (teamAttackSpeedButton != null) teamAttackSpeedButton.onClick.AddListener(() => ChooseUpgrade(21));
-            if (chainChargeButton != null) chainChargeButton.onClick.AddListener(() => ChooseUpgrade(22));
-            if (flameHoovesButton != null) flameHoovesButton.onClick.AddListener(() => ChooseUpgrade(23));
-            if (chargeInvulnerabilityButton != null) chargeInvulnerabilityButton.onClick.AddListener(() => ChooseUpgrade(24));
-            if (marchingHornButton != null) marchingHornButton.onClick.AddListener(() => ChooseUpgrade(25));
-            if (momentumButton != null) momentumButton.onClick.AddListener(() => ChooseUpgrade(26));
+            BindCard(3, piercingCard, piercingButton);
+            BindCard(4, multiShotCard, multiShotButton);
+            BindCard(5, focusCard, focusButton);
+            BindCard(6, suppressionCard, suppressionButton);
+            BindCard(7, explosionCard, explosionButton);
+            BindCard(8, weaponStrikeCard, weaponStrikeButton);
+            BindCard(9, bloodthirstCard, bloodthirstButton);
+            BindCard(10, spinningSwordCard, spinningSwordButton);
+            BindCard(11, spinSlashCard, spinSlashButton);
+            BindCard(12, bannerCard, bannerButton);
+            BindCard(13, magicTrapCard, magicTrapButton);
+            BindCard(14, manaCycleCard, manaCycleButton);
+            BindCard(15, laserCard, laserButton);
+            BindCard(16, chainLightningCard, chainLightningButton);
+            BindCard(17, teamShieldCard, teamShieldButton);
+            BindCard(18, teamAttackCard, teamAttackButton);
+            BindCard(19, shoutCard, shoutButton);
+            BindCard(20, ironWallCard, ironWallButton);
+            BindCard(21, teamAttackSpeedCard, teamAttackSpeedButton);
+            BindCard(22, chainChargeCard, chainChargeButton);
+            BindCard(23, flameHoovesCard, flameHoovesButton);
+            BindCard(24, chargeInvulnerabilityCard, chargeInvulnerabilityButton);
+            BindCard(25, marchingHornCard, marchingHornButton);
+            BindCard(26, momentumCard, momentumButton);
+        }
+
+        private void BindCard(int choice, GameObject card, Button legacyButton)
+        {
+            if (card == null) return;
+            CardMotion view = card.GetComponent<CardMotion>();
+            if (view == null) view = card.AddComponent<CardMotion>();
+            view.Configure(legacyButton, () => SelectCard(choice), cardMotionConfig);
+            cardViews[choice] = view;
+        }
+
+        private void SelectCard(int choice)
+        {
+            if (!run.IsRunning || !IsChoosingUpgrade || selectionInProgress || !shownChoices.Contains(choice)) return;
+            selectionInProgress = true;
+            foreach (CardMotion view in cardViews.Values) view.LockInteraction();
+            cardViews[choice].PlaySelection(() =>
+            {
+                if (!isActiveAndEnabled || !IsChoosingUpgrade) return;
+                int remaining = 0;
+                foreach (int other in shownChoices)
+                    if (other != choice && cardViews.ContainsKey(other)) remaining++;
+                if (remaining == 0)
+                {
+                    FinishCardSelection(choice);
+                    return;
+                }
+                foreach (int other in shownChoices)
+                {
+                    if (other == choice || !cardViews.TryGetValue(other, out CardMotion view)) continue;
+                    view.FadeOut(() =>
+                    {
+                        remaining--;
+                        if (remaining == 0) FinishCardSelection(choice);
+                    });
+                }
+            });
+        }
+
+        private void FinishCardSelection(int choice)
+        {
+            if (isActiveAndEnabled && !ChooseUpgrade(choice)) selectionInProgress = false;
         }
 
         private void OnEnable()
@@ -562,6 +608,7 @@ namespace ArmySurvivor.Army
 
         private void ShowNextUpgrade()
         {
+            selectionInProgress = false;
             shownChoices.Clear();
             while (levelUps.Count > 0)
             {
@@ -635,6 +682,14 @@ namespace ArmySurvivor.Army
                     if (row.unit == request.unit) levelUpTarget.text = $"{row.title.text} · Lv.{request.level}";
                 levelUpPanel.SetActive(true);
                 levelUpPanel.transform.SetAsLastSibling();
+                if (focusCardTemplate.transform.parent is RectTransform cardRow)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(cardRow);
+                for (int i = 0; i < shownChoices.Count; i++)
+                {
+                    int choice = candidates[i];
+                    if (cardViews.TryGetValue(choice, out CardMotion view))
+                        view.PlayEntrance(i);
+                }
                 return;
             }
             CloseUpgrade();
@@ -728,6 +783,7 @@ namespace ArmySurvivor.Army
 
         private void CloseUpgrade()
         {
+            selectionInProgress = false;
             shownChoices.Clear();
             if (IsChoosingUpgrade) Time.timeScale = previousTimeScale;
             IsChoosingUpgrade = false;
