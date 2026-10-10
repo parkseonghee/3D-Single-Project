@@ -8,19 +8,6 @@ namespace ArmySurvivor.Army
 {
     public class BattleExperience : MonoBehaviour
     {
-        [Serializable]
-        private class ClassRow
-        {
-            [NonSerialized] public Transform unit;
-            public GameObject root;
-            public Button invest;
-            public TMP_Text progress;
-            public TMP_Text title;
-            public Image fill;
-            public TMP_Text healthText;
-            public Image healthFill;
-        }
-
         public class UnitProgress
         {
             public int Level { get; internal set; } = 1;
@@ -58,7 +45,6 @@ namespace ArmySurvivor.Army
         [SerializeField] private GameObject bottlePrefab;
         [SerializeField] private GameObject panel;
         [SerializeField] private TMP_Text bottleCount;
-        [SerializeField] private ClassRow[] rows;
         [SerializeField, Min(1)] private int experiencePerBottle = 100;
         [SerializeField, Min(0.1f)] private float pickupRadius = 1.2f;
         [Header("경험치 병 표시")]
@@ -157,13 +143,13 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<Transform, float> focusStationaryTimes = new Dictionary<Transform, float>();
         private readonly Dictionary<Transform, Transform> focusEffects = new Dictionary<Transform, Transform>();
         private readonly List<Transform> drops = new List<Transform>();
-        private GameObject focusCard;
+        [SerializeField] private GameObject focusCard;
         private Button focusButton;
         private TMP_Text focusDescription;
-        private GameObject suppressionCard;
+        [SerializeField] private GameObject suppressionCard;
         private Button suppressionButton;
         private TMP_Text suppressionDescription;
-        private GameObject explosionCard;
+        [SerializeField] private GameObject explosionCard;
         private Button explosionButton;
         private TMP_Text explosionDescription;
         [SerializeField] private GameObject weaponStrikeCard;
@@ -172,15 +158,17 @@ namespace ArmySurvivor.Army
         public int Bottles { get; private set; }
         public int DropCount => drops.Count;
         public event Action<Transform, int> UnitLeveledUp;
+        public event Action RosterChanged;
+        public IEnumerable<Transform> TrackedUnits => units.Keys;
+        public UnitDefinition DefinitionFor(Transform unit) =>
+            recruitment.Units.TryGetValue(unit, out var definition) ? definition : null;
 
         private void Awake()
         {
             if (cardMotionConfig == null) cardMotionConfig = new CardMotion.Config();
             CreateFocusCard();
             CreateSuppressionCard();
-            explosionCard = CreateSkillCard("Explosion Card", "폭발 사격", out explosionButton, out explosionDescription);
-            foreach (ClassRow row in rows)
-                row.invest.onClick.AddListener(() => Invest(row.unit));
+            explosionCard = CreateSkillCard("Explosion Card", "폭발 사격", out explosionButton, out explosionDescription, explosionCard);
             panel.SetActive(false);
             levelUpPanel.SetActive(false);
             BindCard(3, piercingCard, piercingButton);
@@ -269,23 +257,17 @@ namespace ArmySurvivor.Army
         private void Begin()
         {
             Clear();
-            int index = 0;
             foreach (Transform unit in recruitment.SoldiersRoot)
             {
                 if (!recruitment.Units.TryGetValue(unit, out UnitDefinition definition)) continue;
                 units.Add(unit, new UnitProgress());
                 focusStationaryTimes[unit] = 0;
-                if (index < rows.Length)
-                {
-                    rows[index].unit = unit;
-                    rows[index].title.text = $"{definition.displayName} {index + 1}";
-                    index++;
-                }
             }
             dropRoot = new GameObject("Experience Drops").transform;
             dropRoot.SetParent(transform, false);
             panel.SetActive(true);
             RefreshUI();
+            RosterChanged?.Invoke();
         }
 
         public UnitProgress GetProgress(Transform unit)
@@ -307,25 +289,24 @@ namespace ArmySurvivor.Army
             MoveBottles(Time.deltaTime);
             CollectNearby();
             UpdateFocusState(Time.deltaTime);
-            if (run.IsRunning) RefreshUI();
         }
 
         private void CreateFocusCard()
         {
-            focusCard = CreateSkillCard("Focus Card", "집중", out focusButton, out focusDescription);
+            focusCard = CreateSkillCard("Focus Card", "집중", out focusButton, out focusDescription, focusCard);
         }
 
         private void CreateSuppressionCard()
         {
-            suppressionCard = CreateSkillCard("Suppression Card", "제압 사격", out suppressionButton, out suppressionDescription);
+            suppressionCard = CreateSkillCard("Suppression Card", "제압 사격", out suppressionButton, out suppressionDescription, suppressionCard);
         }
 
-        private GameObject CreateSkillCard(string objectName, string title, out Button button, out TMP_Text description)
+        private GameObject CreateSkillCard(string objectName, string title, out Button button, out TMP_Text description, GameObject existingCard = null)
         {
             button = null;
             description = null;
-            if (focusCardTemplate == null) return null;
-            GameObject card = Instantiate(focusCardTemplate, focusCardTemplate.transform.parent);
+            if (existingCard == null && focusCardTemplate == null) return null;
+            GameObject card = existingCard != null ? existingCard : Instantiate(focusCardTemplate, focusCardTemplate.transform.parent);
             card.name = objectName;
             button = card.GetComponentInChildren<Button>(true);
             foreach (TMP_Text text in card.GetComponentsInChildren<TMP_Text>(true))
@@ -430,23 +411,6 @@ namespace ArmySurvivor.Army
         private void RefreshUI()
         {
             bottleCount.text = Bottles.ToString();
-            foreach (ClassRow row in rows)
-            {
-                UnitProgress progress = GetProgress(row.unit);
-                row.root.SetActive(progress != null);
-                row.invest.interactable = run.IsRunning && !IsChoosingUpgrade && Bottles > 0 && progress != null && row.unit.gameObject.activeSelf;
-                if (progress != null)
-                {
-                    row.progress.text = $"Lv.{progress.Level}   {progress.Experience} / {progress.Required} EXP";
-                    SetBar(row.fill, (float)progress.Experience / progress.Required);
-                    var health = row.unit.GetComponent<UnitHealth>();
-                    if (health != null)
-                    {
-                        row.healthText.text = $"HP {Mathf.CeilToInt(health.Current)} / {Mathf.CeilToInt(health.Maximum)}";
-                        SetBar(row.healthFill, health.Current / health.Maximum);
-                    }
-                }
-            }
         }
 
         public bool HasPiercing(Transform unit) => GetProgress(unit)?.Piercing == true;
@@ -678,8 +642,7 @@ namespace ArmySurvivor.Army
                     suppressionDescription.text = $"화살에 맞은 적의 이동 속도 {combat.SuppressionSlowPercent:0}% 감소\n\n{combat.SuppressionDuration:0.0}초 지속 · 재명중 시 시간 갱신\n관통·멀티샷에도 적용";
                 if (explosionDescription != null && CanLearnExplosion(request.unit))
                     explosionDescription.text = $"화살 명중 시 주변 적에게 피해\n\n반경 {combat.ExplosionRadius:0.0} · 화살 피해의 {combat.ExplosionDamagePercent:0}%\n관통·멀티샷에도 적용";
-                foreach (ClassRow row in rows)
-                    if (row.unit == request.unit) levelUpTarget.text = $"{row.title.text} · Lv.{request.level}";
+                levelUpTarget.text = $"{DefinitionFor(request.unit)?.displayName} · Lv.{request.level}";
                 levelUpPanel.SetActive(true);
                 levelUpPanel.transform.SetAsLastSibling();
                 if (focusCardTemplate.transform.parent is RectTransform cardRow)
@@ -813,7 +776,7 @@ namespace ArmySurvivor.Army
             focusEffects.Clear();
             focusStationaryTimes.Clear();
             units.Clear();
-            foreach (ClassRow row in rows) row.unit = null;
+            RosterChanged?.Invoke();
             Bottles = 0;
             if (panel != null) panel.SetActive(false);
         }

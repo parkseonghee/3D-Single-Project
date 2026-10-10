@@ -31,6 +31,14 @@ namespace ArmySurvivor.Building
         [SerializeField] private BuildingManagementUI buildingMenu;
         [SerializeField] private VillageCameraDrag cameraDrag;
 
+        [Header("건설 · 철거 이펙트")]
+        [SerializeField] private GameObject constructionEffectPrefab;
+        [SerializeField] private GameObject demolitionEffectPrefab;
+        [SerializeField] private Vector3 constructionEffectOffset = new Vector3(0, 1.5f, 0);
+        [SerializeField] private Vector3 demolitionEffectOffset = new Vector3(0, 0.05f, 0);
+        [SerializeField, Min(0.01f)] private float constructionEffectScale = 3f;
+        [SerializeField, Min(0.01f)] private float demolitionEffectScale = 1f;
+
         [Header("입력")]
         [SerializeField] private InputActionReference pointer;
         [SerializeField] private InputActionReference confirm;
@@ -169,6 +177,7 @@ namespace ArmySurvivor.Building
             Rice = (int)System.Math.Min((long)Rice + state.definition.DemolitionRefund, int.MaxValue);
             // Destroy는 프레임 끝에 처리되므로 즉시 숨겨 중복 클릭과 충돌을 막는다.
             target.SetActive(false);
+            PlayBuildingEffect(demolitionEffectPrefab, target.transform.position + demolitionEffectOffset, demolitionEffectScale);
             Destroy(target);
             return true;
         }
@@ -434,7 +443,28 @@ namespace ArmySurvivor.Building
             buildCounts.TryGetValue(building, out int count);
             buildCounts[building] = count + 1;
             Cancel();
+            PlayBuildingEffect(constructionEffectPrefab, position + constructionEffectOffset, constructionEffectScale);
             return true;
+        }
+
+        private void PlayBuildingEffect(GameObject prefab, Vector3 position, float scale)
+        {
+            if (prefab == null) return;
+            GameObject effect = Instantiate(prefab, position, prefab.transform.rotation);
+            effect.transform.localScale *= scale;
+            // 건물이 철거되어도 이펙트는 끝까지 재생하고, 마을 씬 종료 시 함께 정리한다.
+            effect.transform.SetParent(transform, true);
+            float lifetime = 1f;
+            foreach (ParticleSystem particles in effect.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particles.main;
+                main.loop = false;
+                lifetime = Mathf.Max(lifetime,
+                    (main.startDelay.constantMax + main.duration + main.startLifetime.constantMax)
+                    / Mathf.Max(0.01f, main.simulationSpeed) + 1f);
+                particles.Play(false);
+            }
+            Destroy(effect, lifetime);
         }
 
         public void Cancel()

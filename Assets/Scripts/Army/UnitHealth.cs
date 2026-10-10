@@ -5,6 +5,7 @@ namespace ArmySurvivor.Army
 {
     public class UnitHealth : MonoBehaviour
     {
+        public event System.Action<UnitHealth> OnHpChanged;
         public float Maximum { get; private set; }
         public float Current { get; private set; }
         public bool IsDead => Current <= 0;
@@ -168,6 +169,7 @@ namespace ArmySurvivor.Army
 
         private void RefreshBar()
         {
+            OnHpChanged?.Invoke(this);
             if (healthBar == null) return;
             healthBar.gameObject.SetActive(enabled && !IsDead);
             fill.anchorMax = new Vector2(Mathf.Clamp01(Current / Maximum), 1);

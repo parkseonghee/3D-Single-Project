@@ -40780,6 +40780,12 @@ MonoBehaviour:
   buildingsRoot: {fileID: 519584133}
   buildingMenu: {fileID: 1757108269}
   cameraDrag: {fileID: 1310615688}
+  constructionEffectPrefab: {fileID: 871312489320899015, guid: 2d2512403e1ec3149916914c3e6331e9, type: 3}
+  demolitionEffectPrefab: {fileID: 160018, guid: 43cc1a347ac43cd498e91db9fb766337, type: 3}
+  constructionEffectOffset: {x: 0, y: 1.5, z: 0}
+  demolitionEffectOffset: {x: 0, y: 0.05, z: 0}
+  constructionEffectScale: 3
+  demolitionEffectScale: 1
   pointer: {fileID: 8611297662411252813, guid: f0bd20b9467d282428e42ce7f01f634d, type: 2}
   confirm: {fileID: 6555191763290391848, guid: f0bd20b9467d282428e42ce7f01f634d, type: 2}
   cancel: {fileID: -6550888560692388095, guid: f0bd20b9467d282428e42ce7f01f634d, type: 2}
