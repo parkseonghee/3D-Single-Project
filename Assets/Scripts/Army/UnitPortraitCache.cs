@@ -60,14 +60,13 @@ namespace ArmySurvivor.Army
                 // Prefer the rig head, so a mounted unit frames its rider instead of its horse.
                 Transform head = null;
                 foreach (var t in model.GetComponentsInChildren<Transform>())
-                    if (t.name.EndsWith(" Head", System.StringComparison.OrdinalIgnoreCase) || t.name == "Head")
+                    if (t.name == "HEAD_CONTAINER" || t.name == "Head" ||
+                        (t.name.Contains(" Head") && !t.name.Contains("Nub")))
                         if (head == null || t.position.y > head.position.y) head = t;
                 float height = Mathf.Max(0.3f, bounds.size.y);
                 Vector3 focus = head != null ? head.position : bounds.center + Vector3.up * height * 0.25f;
-                float halfHeight = head != null
-                    ? Mathf.Max(0.3f, (bounds.max.y - head.position.y) * 1.5f, height * 0.19f)
-                    : height * 0.33f;
-                focus.y += halfHeight * 0.02f;
+                float halfHeight = head != null ? 0.72f * Mathf.Max(0.1f, model.transform.lossyScale.y) : height * 0.33f;
+                focus.y += halfHeight * 0.18f;
                 var cameraObject = new GameObject("Portrait Camera", typeof(Camera));
                 cameraObject.transform.SetParent(stage.transform, false);
                 var capture = cameraObject.GetComponent<Camera>();
@@ -81,11 +80,11 @@ namespace ArmySurvivor.Army
                 capture.farClipPlane = height * 10 + 20;
                 capture.allowHDR = false;
                 capture.allowMSAA = false;
-                capture.transform.position = focus + new Vector3(0, 0.02f, 1) * (height * 3 + 3);
+                capture.transform.position = focus + new Vector3(0, 0.02f, -1) * (height * 3 + 3);
                 capture.transform.LookAt(focus);
                 var lampObject = new GameObject("Portrait Light", typeof(Light));
                 lampObject.transform.SetParent(stage.transform, false);
-                lampObject.transform.rotation = Quaternion.Euler(35, 160, 0);
+                lampObject.transform.rotation = Quaternion.Euler(35, -20, 0);
                 var lamp = lampObject.GetComponent<Light>();
                 lamp.type = LightType.Directional;
                 lamp.intensity = 1.8f;

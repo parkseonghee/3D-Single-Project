@@ -23,7 +23,11 @@ namespace ArmySurvivor.Army
         private float shieldMaximum;
         public float Shield { get; private set; }
         public float DamageReduction { get; set; }
+        public float DiabloDamageReduction { get; set; }
         public bool IsInvulnerable { get; set; }
+        private float rewardInvulnerableUntil;
+        public void GrantTemporaryInvulnerability(float seconds) =>
+            rewardInvulnerableUntil = Mathf.Max(rewardInvulnerableUntil, Time.time + seconds);
 
         public void GiveShield(float amount, float duration, GameObject effectPrefab)
         {
@@ -73,7 +77,9 @@ namespace ArmySurvivor.Army
         public void Initialize(float maximum, Color color)
         {
             DamageReduction = 0;
+            DiabloDamageReduction = 0;
             IsInvulnerable = false;
+            rewardInvulnerableUntil = 0;
             ClearShield();
             if (Maximum > 0 && IsDead)
                 foreach (var animator in GetComponentsInChildren<Animator>())
@@ -95,9 +101,9 @@ namespace ArmySurvivor.Army
 
         public void TakeDamage(float damage)
         {
-            if (IsDead || IsInvulnerable) return;
+            if (IsDead || IsInvulnerable || Time.time < rewardInvulnerableUntil) return;
             if (Shield > 0 && Time.time >= shieldExpiresAt) ClearShield();
-            damage = Mathf.Max(0, damage) * (1f - Mathf.Clamp01(DamageReduction));
+            damage = Mathf.Max(0, damage) * (1f - Mathf.Clamp01(DamageReduction)) * (1f - Mathf.Clamp01(DiabloDamageReduction));
             float absorbed = Mathf.Min(Shield, damage);
             Shield -= absorbed;
             if (Shield <= 0) ClearShield();

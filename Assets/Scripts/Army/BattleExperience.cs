@@ -157,7 +157,14 @@ namespace ArmySurvivor.Army
         private Transform dropRoot;
         public int Bottles { get; private set; }
         public int DropCount => drops.Count;
+        public void GrantBottles(int count)
+        {
+            if (!run.IsRunning || count <= 0) return;
+            Bottles += count;
+            RefreshUI();
+        }
         public event Action<Transform, int> UnitLeveledUp;
+        public event Action<Transform> UnitExperienceChanged;
         public event Action RosterChanged;
         public IEnumerable<Transform> TrackedUnits => units.Keys;
         public UnitDefinition DefinitionFor(Transform unit) =>
@@ -391,7 +398,7 @@ namespace ArmySurvivor.Army
 
         public bool Invest(Transform unit)
         {
-            if (!run.IsRunning || run.IsPaused || IsChoosingUpgrade || Bottles <= 0 || unit == null || !unit.gameObject.activeSelf ||
+            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || IsChoosingUpgrade || Bottles <= 0 || unit == null || !unit.gameObject.activeSelf ||
                 !units.TryGetValue(unit, out UnitProgress progress))
                 return false;
             Bottles--;
@@ -403,6 +410,7 @@ namespace ArmySurvivor.Army
                 levelUps.Enqueue(new LevelUpRequest { unit = unit, level = progress.Level });
                 UnitLeveledUp?.Invoke(unit, progress.Level);
             }
+            UnitExperienceChanged?.Invoke(unit);
             ShowNextUpgrade();
             RefreshUI();
             return true;

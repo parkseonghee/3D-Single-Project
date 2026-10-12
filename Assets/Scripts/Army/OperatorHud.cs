@@ -25,6 +25,7 @@ namespace ArmySurvivor.Army
             public UnitPortraitCache.Portrait textures;
             public TMP_Text level;
             public Image hp;
+            public Image exp;
             public PortraitSelectionRing ring;
             public Button button;
             public System.Action<UnitHealth> healthChanged;
@@ -74,12 +75,13 @@ namespace ArmySurvivor.Army
         {
             experience.RosterChanged += ScheduleRebuild;
             experience.UnitLeveledUp += LevelChanged;
+            experience.UnitExperienceChanged += ExperienceChanged;
             ScheduleRebuild();
         }
 
         private void ScheduleRebuild()
         {
-            if (!isActiveAndEnabled || cache == null) return;
+            if (!Application.isPlaying || !gameObject.activeInHierarchy || !isActiveAndEnabled || cache == null) return;
             if (rebuild != null) StopCoroutine(rebuild);
             rebuild = StartCoroutine(RebuildAfterInitialization());
         }
@@ -130,13 +132,23 @@ namespace ArmySurvivor.Army
                 slot.hp.rectTransform.anchorMin = Vector2.zero;
                 slot.hp.rectTransform.anchorMax = Vector2.one;
                 slot.hp.rectTransform.offsetMin = slot.hp.rectTransform.offsetMax = Vector2.zero;
+                var expBackground = Rect("EXP", slot.root, new Vector2(0, -53), new Vector2(88, 3)).gameObject.AddComponent<Image>();
+                expBackground.color = new Color(0.02f, 0.05f, 0.06f, 0.9f);
+                expBackground.raycastTarget = false;
+                slot.exp = Rect("Fill", expBackground.transform, Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+                slot.exp.color = new Color(1f, 0.78f, 0.32f);
+                slot.exp.raycastTarget = false;
+                slot.exp.rectTransform.anchorMin = Vector2.zero;
+                slot.exp.rectTransform.anchorMax = Vector2.one;
+                slot.exp.rectTransform.offsetMin = slot.exp.rectTransform.offsetMax = Vector2.zero;
                 slot.healthChanged = health => UpdateHealth(slot);
                 if (slot.health != null) slot.health.OnHpChanged += slot.healthChanged;
                 slots.Add(slot);
                 UpdateHealth(slot);
+                ExperienceChanged(unit);
             }
             content.sizeDelta = new Vector2(24 + slots.Count * (slotWidth + 14), 116);
-            if (slots.Count > 0) Select(0);
+            Select(slots.FindIndex(s => s.health != null && !s.health.IsDead));
             rebuild = null;
         }
 
@@ -159,6 +171,16 @@ namespace ArmySurvivor.Army
         private void LevelChanged(Transform unit, int level)
         {
             foreach (var slot in slots) if (slot.unit == unit) slot.level.text = "Lv." + level;
+        }
+
+        private void ExperienceChanged(Transform unit)
+        {
+            var progress = experience.GetProgress(unit);
+            float ratio = progress != null && progress.Required > 0
+                ? (float)progress.Experience / progress.Required : 0f;
+            foreach (var slot in slots)
+                if (slot.unit == unit)
+                    slot.exp.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1);
         }
 
         public void Select(int index)
@@ -190,8 +212,22 @@ namespace ArmySurvivor.Army
         {
             // Only input is polled. HP and levels are updated exclusively by events.
             if (!run.IsRunning || run.IsPaused || experience.IsChoosingUpgrade || Keyboard.current == null) return;
+            bool feed = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
             for (int i = 0; i < Mathf.Min(5, slots.Count); i++)
-                if (Keyboard.current[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) Select(i);
+            {
+                if (!Keyboard.current[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) continue;
+                if (feed)
+                {
+                    // Feed this slot directly: a dead target must not feed the previously selected unit.
+                    var slot = slots[i];
+                    if (slot.unit != null && slot.health != null && !slot.health.IsDead)
+                    {
+                        Select(i);
+                        experience.Invest(slot.unit);
+                    }
+                }
+                else Select(i);
+            }
         }
 
         private RectTransform Rect(string name, Transform parent, Vector2 position, Vector2 size)
@@ -232,6 +268,7 @@ namespace ArmySurvivor.Army
         {
             experience.RosterChanged -= ScheduleRebuild;
             experience.UnitLeveledUp -= LevelChanged;
+            experience.UnitExperienceChanged -= ExperienceChanged;
             if (rebuild != null) StopCoroutine(rebuild);
             rebuild = null;
             ClearSlots();

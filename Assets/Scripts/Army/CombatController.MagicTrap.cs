@@ -34,6 +34,7 @@ namespace ArmySurvivor.Army
             public float remaining;
             public float damageTimer;
             public float spinAngle;
+            public float damageMultiplier = 1f;
         }
         private readonly Dictionary<Transform, float> magicTrapCooldowns = new Dictionary<Transform, float>();
         private readonly List<MagicTrapState> magicTraps = new List<MagicTrapState>();
@@ -70,21 +71,7 @@ namespace ArmySurvivor.Army
                     }
                     else if (NearestEnemy(trap.position, magicTrapTriggerRadius) != null)
                     {
-                        RemoveTrapVisual(trap);
-                        trap.phase = TrapPhase.Falling;
-                        trap.visual = Instantiate(trapFireballPrefab, trap.position + Vector3.up * trapFireballHeight,
-                            Quaternion.Euler(90, 0, 0), combatRoot);
-                        trap.visual.transform.localScale *= trapFireballScale;
-                        trap.areaMarker = Instantiate(trapPortalPrefab, trap.position,
-                            trapPortalPrefab.transform.rotation, combatRoot);
-                        // 포탈은 낙하 피해의 범위 표시다. 자체 피해나 착탄 후 장판은 없다.
-                        trap.areaMarker.transform.localScale = Vector3.one * (trapDamageRadius / 0.75f);
-                        foreach (ParticleSystem particle in trap.visual.GetComponentsInChildren<ParticleSystem>(true))
-                        {
-                            var main = particle.main;
-                            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-                            main.simulationSpace = ParticleSystemSimulationSpace.Local;
-                        }
+                        BeginMeteorFall(trap);
                     }
                     continue;
                 }
@@ -128,12 +115,34 @@ namespace ArmySurvivor.Army
             Destroy(effect, Mathf.Max(1f, lifetime + 0.5f));
         }
 
+        private void BeginMeteorFall(MagicTrapState trap)
+        {
+            RemoveTrapVisual(trap);
+            trap.phase = TrapPhase.Falling;
+            trap.visual = Instantiate(trapFireballPrefab, trap.position + Vector3.up * trapFireballHeight,
+                Quaternion.Euler(90, 0, 0), combatRoot);
+            trap.visual.transform.localScale *= trapFireballScale;
+            trap.areaMarker = Instantiate(trapPortalPrefab, trap.position, trapPortalPrefab.transform.rotation, combatRoot);
+            trap.areaMarker.transform.localScale = Vector3.one * (trapDamageRadius / 0.75f);
+            foreach (ParticleSystem particle in trap.visual.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particle.main;
+                main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+                main.simulationSpace = ParticleSystemSimulationSpace.Local;
+            }
+        }
+
         private void PlaceMagicTrap(Transform unit)
         {
             EnemyState target = NearestEnemy(unit.position, 12f);
             Vector3 direction = target != null ? target.root.position - unit.position : unit.forward;
             direction.y = 0;
             Vector3 position = unit.position + direction.normalized * 2f;
+            PlaceMagicTrapAt(unit, position);
+        }
+
+        private void PlaceMagicTrapAt(Transform unit, Vector3 position)
+        {
             Bounds ground = run.Ground.bounds;
             position.x = Mathf.Clamp(position.x, ground.min.x + 1f, ground.max.x - 1f);
             position.z = Mathf.Clamp(position.z, ground.min.z + 1f, ground.max.z - 1f);
@@ -151,7 +160,7 @@ namespace ArmySurvivor.Army
         {
             foreach (EnemyState enemy in enemies)
                 if (enemy.root != null && enemy.health > 0 && FlatDistance(trap.position, enemy.root.position) <= trapDamageRadius)
-                    ApplyDamage(enemy, damage, (enemy.root.position - trap.position).normalized, 0, false, trap.owner);
+                    ApplyDamage(enemy, damage * trap.damageMultiplier, (enemy.root.position - trap.position).normalized, 0, false, trap.owner);
         }
 
         private static void RemoveTrapVisual(MagicTrapState trap)

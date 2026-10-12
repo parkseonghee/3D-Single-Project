@@ -58,9 +58,21 @@ namespace ArmySurvivor.Army
 
         public bool IsRunning { get; private set; }
         public bool IsChoosingUpgrade { get; set; }
+        public bool IsDiablo { get; internal set; }
+        public float DiabloMoveMultiplier { get; internal set; } = 1f;
         public bool IsPaused { get; set; }
         public bool CanStart { get; set; } = true;
-        public float TeamMoveMultiplier { get; internal set; } = 1f;
+        private float baseTeamMoveMultiplier = 1f;
+        private float rewardMoveUntil;
+        private float rewardMoveBonus;
+        public float TeamMoveMultiplier
+        {
+            get => baseTeamMoveMultiplier * (Time.time < rewardMoveUntil ? 1f + rewardMoveBonus : 1f);
+            internal set => baseTeamMoveMultiplier = value;
+        }
+        public void GrantRewardSpeed(float duration, float bonus)
+        { rewardMoveUntil = Time.time + duration; rewardMoveBonus = bonus; }
+        public void ClearRewardSpeed() { rewardMoveUntil = 0; rewardMoveBonus = 0; }
         public Transform Commander => commander;
         public bool CommanderDead => commander.TryGetComponent<UnitHealth>(out var health) && health.IsDead;
         public Collider Ground => ground;
@@ -170,7 +182,7 @@ namespace ArmySurvivor.Army
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             input = Vector2.ClampMagnitude(input, 1);
             Vector3 direction = right * input.x + forward * input.y;
-            Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier * deltaTime);
+            Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier * DiabloMoveMultiplier * deltaTime);
             // 가장 넓은 진형도 땅 밖으로 나가지 않도록 지휘관의 이동 범위를 제한한다.
             float margin = 1;
             foreach (Tactic tactic in tactics) margin = Mathf.Max(margin, tactic.radius + 1);

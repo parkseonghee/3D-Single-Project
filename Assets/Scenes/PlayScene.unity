@@ -2998,6 +2998,7 @@ GameObject:
   - component: {fileID: 89511459}
   - component: {fileID: 89511461}
   - component: {fileID: 89511460}
+  - component: {fileID: 89511462}
   m_Layer: 0
   m_Name: Controls
   m_TagString: Untagged
@@ -3125,6 +3126,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89511458}
   m_CullTransparentMesh: 1
+--- !u!225 &89511462
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89511458}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &97773984
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11493,6 +11506,7 @@ GameObject:
   - component: {fileID: 317076219}
   - component: {fileID: 317076221}
   - component: {fileID: 317076220}
+  - component: {fileID: 317076222}
   m_Layer: 0
   m_Name: Time Label
   m_TagString: Untagged
@@ -11619,6 +11633,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 317076218}
   m_CullTransparentMesh: 1
+--- !u!225 &317076222
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 317076218}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &320483073
 GameObject:
   m_ObjectHideFlags: 0
@@ -23317,6 +23343,7 @@ GameObject:
   - component: {fileID: 646531012}
   - component: {fileID: 646531011}
   - component: {fileID: 646531013}
+  - component: {fileID: 646531014}
   m_Layer: 0
   m_Name: Tactic 2
   m_TagString: Untagged
@@ -23427,6 +23454,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &646531014
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 646531009}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &649407742
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35427,6 +35466,7 @@ GameObject:
   - component: {fileID: 987255627}
   - component: {fileID: 987255628}
   - component: {fileID: 987255629}
+  - component: {fileID: 987255630}
   m_Layer: 0
   m_Name: Elapsed
   m_TagString: Untagged
@@ -35553,6 +35593,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!225 &987255630
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 987255626}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &989841494
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52263,6 +52315,7 @@ GameObject:
   - component: {fileID: 1408001924}
   - component: {fileID: 1408001923}
   - component: {fileID: 1408001925}
+  - component: {fileID: 1408001926}
   m_Layer: 0
   m_Name: Tactic 0
   m_TagString: Untagged
@@ -52373,6 +52426,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &1408001926
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408001921}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &1409367868
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -60657,6 +60722,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 35}
   m_SizeDelta: {x: 340, y: 70}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!225 &1616747798
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8200000001}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &1624926766
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71905,6 +71982,7 @@ GameObject:
   - component: {fileID: 1934462442}
   - component: {fileID: 1934462444}
   - component: {fileID: 1934462443}
+  - component: {fileID: 1934462445}
   m_Layer: 0
   m_Name: Experience Panel
   m_TagString: Untagged
@@ -71975,6 +72053,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1934462441}
   m_CullTransparentMesh: 1
+--- !u!225 &1934462445
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1934462441}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &1938310278
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74327,6 +74417,7 @@ GameObject:
   - component: {fileID: 2009669496}
   - component: {fileID: 2009669495}
   - component: {fileID: 2009669497}
+  - component: {fileID: 2009669498}
   m_Layer: 0
   m_Name: Tactic 1
   m_TagString: Untagged
@@ -74437,6 +74528,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &2009669498
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009669493}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &2019242386
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77035,6 +77138,9 @@ GameObject:
   - component: {fileID: 2091199923}
   - component: {fileID: 8200000071}
   - component: {fileID: 8200000072}
+  - component: {fileID: 8200000073}
+  - component: {fileID: 8200000075}
+  - component: {fileID: 8200000074}
   m_Layer: 0
   m_Name: Recruitment System
   m_TagString: Untagged
@@ -79108,6 +79214,7 @@ GameObject:
   - component: {fileID: 8200000002}
   - component: {fileID: 8200000003}
   - component: {fileID: 8200000004}
+  - component: {fileID: 1616747798}
   m_Layer: 0
   m_Name: Battle Top HUD
   m_TagString: Untagged
@@ -80447,6 +80554,97 @@ MonoBehaviour:
   bottleButton: {fileID: 1891435623}
   portraitLayer: UnitPortrait
   slotWidth: 120
+--- !u!114 &8200000073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091199917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f64ea1d2cba2b418033c2aaad2ba99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.MiniBossController
+  spawnProgress: 0.5
+  healthMultiplier: 5
+  damageMultiplier: 1.5
+  explosionDamage: 500
+  invulnerabilitySeconds: 5
+  bottleReward: 10
+  speedDuration: 15
+  speedBonus: 0.5
+  warCryDuration: 20
+  warCryBonus: 0.5
+  commonWeight: 55
+  rareWeight: 30
+  epicWeight: 15
+  guaranteeDiablo: 1
+  font: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+--- !u!114 &8200000074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091199917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad9a026b77f94804180fa8c7dd672d8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.DiabloController
+  duration: 10
+  absorptionSeconds: 0.4
+  hitStopSeconds: 0.15
+  sizeMultiplier: 1.5
+  moveMultiplier: 1.5
+  damageReduction: 0.8
+  auraPrefab: {fileID: 3744133877081091469, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
+  auraOffset: {x: 0, y: 0.05, z: 0}
+  auraScale: 1
+  arrow: {fileID: 11400000, guid: a212d2acdc7df9a489df237954df323c, type: 2}
+  arrowCount: 12
+  arrowDistance: 2
+  arrowDamage: 35
+  firePrefab: {fileID: 8172849020266659018, guid: 2af5562ce69fc2d448481a1587a352a5, type: 3}
+  fireCount: 3
+  fireSpread: 40
+  fireCooldown: 0.3
+  fireDamage: 50
+  fireSpeed: 12
+  fireRange: 15
+  fireHitRadius: 0.7
+  fireHeight: 0.8
+  fireScale: 1
+  fireAttackState: Base Layer.Attack
+  attackBlendSeconds: 0.03
+  meteorInterval: 1
+  meteorRadius: 15
+  meteorDamageMultiplier: 2
+--- !u!114 &8200000075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091199917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60009a018f41bc458b7275070e104e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.DiabloHud
+  originalHud:
+  - {fileID: 987255630}
+  - {fileID: 89511462}
+  - {fileID: 317076222}
+  - {fileID: 1616747798}
+  - {fileID: 1408001926}
+  - {fileID: 2009669498}
+  - {fileID: 646531014}
+  - {fileID: 1934462445}
+  font: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+  fadeSeconds: 0.25
+  titleSeconds: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -61,6 +61,9 @@ namespace ArmySurvivor.Army
             bossSpawned = false;
             combat.Configure(stage.enemy, stage.spawnInterval, stage.maximumEnemies, stage.enemies,
                 stage.survivalSeconds, settings.waves, settings.enemySafetyLimit, settings.GetWaveLimit(Day));
+            var miniBoss = GetComponent<MiniBossController>();
+            if (miniBoss == null) miniBoss = gameObject.AddComponent<MiniBossController>();
+            miniBoss.Configure(stage.enemy, stage.survivalSeconds);
             UpdateProgress();
         }
 

@@ -82,11 +82,13 @@ namespace ArmySurvivor.Army
             int level = experience != null ? experience.SpinSlashLevel(unit) : 0;
             float speedBonus = Mathf.Max(0, level - 1) * spinSlashAttackSpeedPerLevel + bannerAttackSpeedBonus;
             if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
+            if (Time.time < rewardWarCryUntil) speedBonus += rewardWarCryBonus;
             return attack.interval / (1f + speedBonus);
         }
         private float AttackDamage(Transform unit, AttackDefinition attack)
         {
             float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            if (Time.time < rewardWarCryUntil) damage *= 1f + rewardWarCryBonus;
             if (teamAttackRemaining > 0) damage *= 1f + teamAttackBonus;
             if (experience != null && Random.value < experience.FocusCriticalChance(unit))
                 damage *= experience.FocusCriticalMultiplier(unit);
@@ -94,6 +96,7 @@ namespace ArmySurvivor.Army
         }
         public bool Defeated { get; private set; }
         public event System.Action<Vector3> EnemyKilled;
+        public event System.Action MiniBossKilled;
 
         private class EnemyState
         {
@@ -108,6 +111,7 @@ namespace ArmySurvivor.Army
             public float deathTime;
             public EnemyDefinition definition;
             public bool isBoss;
+            public bool isMiniBoss;
             public float suppressionRemaining;
             public Transform suppressionEffect;
         }
@@ -296,6 +300,8 @@ namespace ArmySurvivor.Army
             MoveEnemies(dt);
             UpdateFocusCommand(dt);
             UpdateMagicTraps(dt);
+            if (!run.IsDiablo)
+            {
             UpdateLasers(dt);
             UpdateTeamShields(dt);
             UpdateTeamAttack(dt);
@@ -306,6 +312,7 @@ namespace ArmySurvivor.Army
             UpdateBanners(dt);
             AdvanceWeaponStrikes(dt);
             UpdateSpinningSwords(dt);
+            }
             if (allies[run.Commander].IsDead)
             {
                 Defeated = true;
@@ -719,7 +726,7 @@ namespace ArmySurvivor.Army
             return true;
         }
 
-        private void Spawn(EnemyDefinition definition, bool isBoss)
+        private void Spawn(EnemyDefinition definition, bool isBoss, bool isMiniBoss = false)
         {
             float angle = Random.value * Mathf.PI * 2;
             Vector3 position = run.Commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * spawnDistance;
@@ -728,10 +735,11 @@ namespace ArmySurvivor.Army
             position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
             position.y = run.Commander.position.y;
             GameObject model = Instantiate(definition.prefab, position, Quaternion.identity, combatRoot);
+            if (isMiniBoss) { model.name = "중간 보스 - 정예 오크"; model.transform.localScale *= 1.5f; }
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
-            health.Initialize(definition.health, new Color(0.95f, 0.2f, 0.2f));
-            enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, definition = definition, isBoss = isBoss });
+            health.Initialize(definition.health, isMiniBoss ? new Color(1f, 0.65f, 0.1f) : new Color(0.95f, 0.2f, 0.2f));
+            enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss });
         }
         private void MoveEnemies(float dt)
         {
@@ -1066,6 +1074,7 @@ namespace ArmySurvivor.Army
                 ClearShoutDebuff(target);
                 Kills++;
                 EnemyKilled?.Invoke(target.root.position);
+                if (target.isMiniBoss) MiniBossKilled?.Invoke();
                 HealOnKill(source);
                 target.attackTarget = null;
                 target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);
@@ -1138,6 +1147,8 @@ namespace ArmySurvivor.Army
         }
         private void Clear()
         {
+            rewardWarCryUntil = 0;
+            if (run != null) run.ClearRewardSpeed();
             ClearFocusCommand();
             foreach (GameObject effect in healingEffects)
                 if (effect != null) { effect.SetActive(false); Destroy(effect); }

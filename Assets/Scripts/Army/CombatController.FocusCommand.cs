@@ -35,6 +35,7 @@ namespace ArmySurvivor.Army
 
         private void UpdateFocusCommand(float dt)
         {
+            if (run.IsDiablo) return;
             Mouse mouse = Mouse.current;
             if (mouse != null && !PointerOverInteractiveUI(mouse.position.ReadValue()))
             {
