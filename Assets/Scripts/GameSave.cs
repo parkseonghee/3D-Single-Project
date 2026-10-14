@@ -16,6 +16,7 @@ namespace ArmySurvivor.Saving
     {
         public int version = 1;
         public string savedAt;
+        public string gameMode; // absent in legacy saves => Adventure
         public int rice, gold, special, day, dailyTotal, remainingCount, remainingRice, portion;
         public List<BuildingRecord> buildings = new List<BuildingRecord>();
         public List<CountRecord> purchases = new List<CountRecord>();
@@ -129,7 +130,8 @@ namespace ArmySurvivor.Saving
             try
             {
                 village.Cancel();
-                var data = new SaveData { savedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") };
+                var data = new SaveData { savedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    gameMode = GameModeManager.Current.ToString() };
                 village.CaptureSave(data, this);
                 harvest.CaptureSave(data);
                 var army = FindFirstObjectByType<RecruitmentController>(FindObjectsInactive.Include);
@@ -154,6 +156,8 @@ namespace ArmySurvivor.Saving
                 var data = Read(index);
                 if (!Application.CanStreamedLevelBeLoaded(villageScene)) throw new InvalidDataException();
                 pending = data;
+                GameModeManager.Select(Enum.TryParse(data.gameMode, out GameMode savedMode)
+                    ? savedMode : GameMode.Adventure);
                 pendingTroops = null;
                 loading = true;
                 RefreshSlots();

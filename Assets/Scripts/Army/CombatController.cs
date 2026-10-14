@@ -97,6 +97,7 @@ namespace ArmySurvivor.Army
         public bool Defeated { get; private set; }
         public event System.Action<Vector3> EnemyKilled;
         public event System.Action MiniBossKilled;
+        public event System.Action<bool, bool> EnemyDefeated; // elite, boss
 
         private class EnemyState
         {
@@ -185,6 +186,12 @@ namespace ArmySurvivor.Army
         }
         private readonly Dictionary<Transform, MeleeAttack> melee = new Dictionary<Transform, MeleeAttack>();
         private Transform combatRoot;
+        private Transform poolRoot;
+        private readonly Dictionary<GameObject, Stack<GameObject>> enemyObjects = new Dictionary<GameObject, Stack<GameObject>>();
+        private IWaveRule waveRule;
+        private SurvivalSettings survivalSettings;
+        private Camera spawnCamera;
+        private bool survivalBossAlive;
         private readonly List<GameObject> healingEffects = new List<GameObject>();
         private float spawnTimer;
         private DaySettings.EnemySpawn[] enemyPool;
@@ -206,6 +213,9 @@ namespace ArmySurvivor.Army
         public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null,
             float duration = 90, DaySettings.Wave[] waveSettings = null, int safetyLimit = 120, int waveLimit = 4)
         {
+            waveRule = new AdventureDayWaveRule(definition, interval, limit, pool, duration,
+                waveSettings, safetyLimit, waveLimit);
+            survivalSettings = null;
             enemy = definition;
             spawnInterval = interval;
             maximumEnemies = limit;
@@ -218,8 +228,30 @@ namespace ArmySurvivor.Army
             UpdateWave(0);
         }
 
+        public void ConfigureSurvival(IWaveRule rule, SurvivalSettings settings, Camera camera)
+        {
+            waveRule = rule;
+            survivalSettings = settings;
+            spawnCamera = camera;
+            enemy = rule.ChooseEnemy(0);
+            spawnTimer = 0;
+            UpdateWave(0);
+        }
+
+        public void SetSurvivalBossAlive(bool alive) => survivalBossAlive = alive;
+
         private void UpdateWave(float elapsed)
         {
+            if (waveRule != null)
+            {
+                WaveState state = waveRule.Evaluate(elapsed, survivalBossAlive);
+                WaveNumber = state.number;
+                CurrentSpawnInterval = state.interval;
+                CurrentBatchSize = state.batch;
+                CurrentEnemyLimit = state.capacity;
+                spawnTimer = Mathf.Min(spawnTimer, CurrentSpawnInterval);
+                return;
+            }
             float progress = Mathf.Clamp01(elapsed / waveDuration);
             DaySettings.Wave selected = null;
             WaveNumber = 1;
@@ -263,7 +295,8 @@ namespace ArmySurvivor.Army
             Clear();
             ShotsFired = Kills = Hits = 0;
             Defeated = false;
-            if (enemy == null || enemy.prefab == null || spawnInterval <= 0) return;
+            if (GameModeManager.Current == GameMode.Adventure &&
+                (enemy == null || enemy.prefab == null || spawnInterval <= 0)) return;
             combatRoot = new GameObject("Run Combat").transform;
             combatRoot.SetParent(transform, false);
             RegisterHealth(run.Commander, commanderHealth, new Color(1, 0.8f, 0.2f));
@@ -535,6 +568,7 @@ namespace ArmySurvivor.Army
 
         private EnemyDefinition ChooseEnemy()
         {
+            if (waveRule != null) return waveRule.ChooseEnemy(run.Elapsed);
             float total = 0;
             if (enemyPool == null) return enemy;
             foreach (var entry in enemyPool)
@@ -726,19 +760,31 @@ namespace ArmySurvivor.Army
             return true;
         }
 
+        public GameObject SpawnSpecial(EnemyDefinition definition, bool isBoss, bool isMiniBoss = false)
+        {
+            if (definition == null || definition.prefab == null || combatRoot == null) return null;
+            Spawn(definition, isBoss, isMiniBoss);
+            return enemies.Count > 0 ? enemies[enemies.Count - 1].root.gameObject : null;
+        }
+
         private void Spawn(EnemyDefinition definition, bool isBoss, bool isMiniBoss = false)
         {
+            if (definition == null || definition.prefab == null) return;
             float angle = Random.value * Mathf.PI * 2;
             Vector3 position = run.Commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * spawnDistance;
+            if (survivalSettings != null) position = SurvivalSpawnPosition();
             Bounds bounds = run.Ground.bounds;
             position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
             position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
             position.y = run.Commander.position.y;
-            GameObject model = Instantiate(definition.prefab, position, Quaternion.identity, combatRoot);
+            GameObject model = TakeEnemyObject(definition.prefab, position);
             if (isMiniBoss) { model.name = "중간 보스 - 정예 오크"; model.transform.localScale *= 1.5f; }
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
-            health.Initialize(definition.health, isMiniBoss ? new Color(1f, 0.65f, 0.1f) : new Color(0.95f, 0.2f, 0.2f));
+            float hitPoints = definition.health;
+            if (survivalSettings != null && !isBoss && !isMiniBoss)
+                hitPoints *= survivalSettings.HealthMultiplier(run.Elapsed);
+            health.Initialize(hitPoints, isMiniBoss ? new Color(1f, 0.65f, 0.1f) : new Color(0.95f, 0.2f, 0.2f));
             enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss });
         }
         private void MoveEnemies(float dt)
@@ -754,7 +800,7 @@ namespace ArmySurvivor.Army
                     if (state.deathTime <= 0)
                     {
                         if (state.isBoss) BossDefeated = true;
-                        Destroy(state.root.gameObject);
+                        RecycleEnemyObject(state.root.gameObject, state.definition.prefab);
                         enemies.RemoveAt(i);
                         foreach (var group in spinningSwords.Values)
                             foreach (SpinningSword sword in group) sword.nextHit.Remove(state);
@@ -1074,6 +1120,7 @@ namespace ArmySurvivor.Army
                 ClearShoutDebuff(target);
                 Kills++;
                 EnemyKilled?.Invoke(target.root.position);
+                EnemyDefeated?.Invoke(target.isMiniBoss, target.isBoss);
                 if (target.isMiniBoss) MiniBossKilled?.Invoke();
                 HealOnKill(source);
                 target.attackTarget = null;

@@ -62,6 +62,7 @@ namespace ArmySurvivor.Army
         public float DiabloMoveMultiplier { get; internal set; } = 1f;
         public bool IsPaused { get; set; }
         public bool CanStart { get; set; } = true;
+        private bool CanBeginRun => CanStart && recruitment != null && recruitment.HasAssignedSoldier;
         private float baseTeamMoveMultiplier = 1f;
         private float rewardMoveUntil;
         private float rewardMoveBonus;
@@ -74,11 +75,16 @@ namespace ArmySurvivor.Army
         { rewardMoveUntil = Time.time + duration; rewardMoveBonus = bonus; }
         public void ClearRewardSpeed() { rewardMoveUntil = 0; rewardMoveBonus = 0; }
         public Transform Commander => commander;
+        public Camera PlayCamera => playCamera;
+        public void HideDefaultElapsed() { if (elapsedText != null) elapsedText.gameObject.SetActive(false); }
         public bool CommanderDead => commander.TryGetComponent<UnitHealth>(out var health) && health.IsDead;
         public Collider Ground => ground;
         public event Action RunStarted;
         public event Action RunEnded;
         public float Elapsed { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public void JumpElapsedForTesting(float seconds) => Elapsed = Mathf.Max(Elapsed, seconds);
+#endif
         public int TacticIndex { get; private set; }
         public Tactic CurrentTactic => tactics[TacticIndex];
         public bool IsMoving(Transform unit) => unit != null && movingUnits.Contains(unit);
@@ -86,6 +92,7 @@ namespace ArmySurvivor.Army
         private void Start()
         {
             startButton.onClick.AddListener(BeginRun);
+            startButton.interactable = CanBeginRun;
             prepareButton.onClick.AddListener(ReturnToPreparation);
             for (int i = 0; i < tactics.Length; i++)
             {
@@ -98,7 +105,8 @@ namespace ArmySurvivor.Army
 
         public void BeginRun()
         {
-            if (IsRunning || !CanStart) return;
+            // UI 클릭 외에 코드에서 직접 호출해도 빈 편성으로 전투를 시작하지 않는다.
+            if (IsRunning || !CanBeginRun) return;
             recruitment.FinishAppearances();
             soldiers.Clear();
             attackingUnits.Clear();
@@ -152,7 +160,7 @@ namespace ArmySurvivor.Army
 
         private void Update()
         {
-            startButton.interactable = CanStart;
+            startButton.interactable = CanBeginRun;
             if (!IsRunning || IsPaused || IsChoosingUpgrade) return;
             Vector2 input = Vector2.zero;
             Keyboard keyboard = Keyboard.current;

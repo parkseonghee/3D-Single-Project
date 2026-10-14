@@ -77431,6 +77431,7 @@ MonoBehaviour:
   run: {fileID: 2091199920}
   combat: {fileID: 2091199921}
   dayNumber: {fileID: 1195324868}
+  dayLabel: {fileID: 1518430614}
   remainingTime: {fileID: 743021458}
   bossNotice: {fileID: 1241228184}
   resultPanel: {fileID: 2054462969}

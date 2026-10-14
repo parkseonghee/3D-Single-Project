@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42db8fce6524f2e872be3a595301a52, type: 3}
+  m_Name: SurvivalSettings
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.SurvivalSettings
+  monsters:
+  - definition: {fileID: 11400000, guid: 2c4a1cc99ffcade439bda2e1eff30efa, type: 2}
+    firstAppearanceSeconds: 0
+    weight: 50
+    tier1Health: 60
+    tier2Health: 90
+    tier3Health: 140
+  - definition: {fileID: 11400000, guid: 663b7788a15435a4d8f947056972a82a, type: 2}
+    firstAppearanceSeconds: 120
+    weight: 25
+    tier1Health: 40
+    tier2Health: 60
+    tier3Health: 93
+  - definition: {fileID: 11400000, guid: a1bc91b9a6a2b9349a52577526719c4f, type: 2}
+    firstAppearanceSeconds: 300
+    weight: 15
+    tier1Health: 90
+    tier2Health: 135
+    tier3Health: 210
+  - definition: {fileID: 11400000, guid: 3efdd06fc1a1f354187cf6e057400428, type: 2}
+    firstAppearanceSeconds: 480
+    weight: 10
+    tier1Health: 180
+    tier2Health: 270
+    tier3Health: 420
+  elite:
+    definition: {fileID: 11400000, guid: 2c4a1cc99ffcade439bda2e1eff30efa, type: 2}
+    firstAppearanceSeconds: 60
+    weight: 0
+    tier1Health: 300
+    tier2Health: 450
+    tier3Health: 700
+  boss:
+    definition: {fileID: 11400000, guid: e95dc2bb8c0e49845b2637e370f783c6, type: 2}
+    firstAppearanceSeconds: 900
+    weight: 0
+    tier1Health: 350
+    tier2Health: 650
+    tier3Health: 1000
+  tier2Seconds: 300
+  tier3Seconds: 600
+  adventureTier2Day: 11
+  adventureTier3Day: 51
+  scalingStartSeconds: 900
+  healthIncreasePerMinute: 0.1
+  spawnBands:
+  - startSeconds: 0
+    interval: 2.5
+    batchSize: 1
+    capacity: 18
+  - startSeconds: 300
+    interval: 1.7
+    batchSize: 2
+    capacity: 35
+  - startSeconds: 600
+    interval: 1.1
+    batchSize: 3
+    capacity: 55
+  - startSeconds: 900
+    interval: 0.8
+    batchSize: 4
+    capacity: 75
+  intervalDecreasePerMinute: 0.02
+  capacityIncreasePerMinute: 1
+  batchIncreaseEveryMinutes: 5
+  minimumSpawnInterval: 0.25
+  absoluteCapacity: 200
+  minimumSpawnRadius: 16
+  cameraOutsideMargin: 4
+  spawnPositionAttempts: 16
+  eliteInterval: 60
+  enableBoss: 1
+  firstBossSeconds: 900
+  bossRepeatSeconds: 600
+  bossHealthMultiplier: 1.5
+  bossPrefab: {fileID: 0}
+  fallbackBossScale: 1.8
+  fallbackBossTint: {r: 1, g: 0.18, b: 0.18, a: 1}
+  spawnStrengthDuringBoss: 0.5
+  secondsScore: 10
+  normalKillScore: 1
+  eliteKillScore: 50
+  bossKillScore: 500

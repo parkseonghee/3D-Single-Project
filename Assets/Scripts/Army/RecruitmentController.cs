@@ -39,6 +39,15 @@ namespace ArmySurvivor.Army
         public Transform SoldiersRoot => soldiersRoot;
         public readonly System.Collections.Generic.Dictionary<Transform, UnitDefinition> Units =
             new System.Collections.Generic.Dictionary<Transform, UnitDefinition>();
+        public bool HasAssignedSoldier
+        {
+            get
+            {
+                foreach (var unit in Units)
+                    if (unit.Key != null && unit.Key.gameObject.activeInHierarchy) return true;
+                return false;
+            }
+        }
         private readonly System.Collections.Generic.Dictionary<Transform, UnitDefinition> reserves =
             new System.Collections.Generic.Dictionary<Transform, UnitDefinition>();
         private Transform reserveRoot;

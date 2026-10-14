@@ -38,7 +38,8 @@ namespace ArmySurvivor.Army
         private EnemyDefinition definition;
         private float spawnAt;
         private bool spawned;
-        private bool pending;
+        private bool survivalMode;
+        private int pending;
         private bool choosing;
         private float previousTimeScale;
         private GameObject panel;
@@ -61,14 +62,32 @@ namespace ArmySurvivor.Army
         }
 
         public void Configure(EnemyDefinition source, float survivalSeconds)
+            => Configure(source, survivalSeconds, 0);
+
+        public void Configure(EnemyDefinition source, float survivalSeconds, float sharedHealth)
         {
             ResetRun();
+            survivalMode = false;
             if (source == null) return;
             definition = Instantiate(source);
             definition.name = "MiniBoss Runtime Definition";
-            definition.health *= healthMultiplier;
+            definition.health = sharedHealth > 0 ? sharedHealth : definition.health * healthMultiplier;
             definition.damage *= damageMultiplier;
             spawnAt = survivalSeconds * spawnProgress;
+        }
+
+        public void ConfigureSurvival()
+        {
+            ResetRun();
+            survivalMode = true;
+        }
+
+        public bool SpawnSurvivalElite(EnemyDefinition eliteDefinition)
+        {
+            if (!survivalMode || eliteDefinition == null) return false;
+            bool created = combat.SpawnMiniBoss(eliteDefinition);
+            if (created) ShowNotice("중간 보스 · 정예 오크 등장!");
+            return created;
         }
 
         private void Update()
@@ -76,27 +95,27 @@ namespace ArmySurvivor.Army
             if (!run.IsRunning || run.CommanderDead) return;
             if (notice != null && Time.time >= noticeUntil) notice.gameObject.SetActive(false);
             if (run.IsPaused || run.IsChoosingUpgrade) return;
-            if (!spawned && definition != null && run.Elapsed >= spawnAt)
+            if (!survivalMode && !spawned && definition != null && run.Elapsed >= spawnAt)
             {
                 spawned = combat.SpawnMiniBoss(definition);
                 if (spawned) ShowNotice("중간 보스 · 정예 오크 등장!");
             }
-            if (pending && !experience.IsChoosingUpgrade) OpenReward();
+            if (pending > 0 && !experience.IsChoosingUpgrade) OpenReward();
         }
 
         private void QueueReward()
         {
-            pending = true;
+            pending++;
             // Stop the stage timer immediately, including on the final survival frame.
             if (!run.IsPaused && !run.IsChoosingUpgrade && !experience.IsChoosingUpgrade) OpenReward();
         }
 
         private void OpenReward()
         {
-            if (choosing || !run.IsRunning) return;
+            if (choosing || pending <= 0 || !run.IsRunning) return;
             EnsureUI();
             RollRewards();
-            pending = false;
+            pending--;
             choosing = true;
             previousTimeScale = Time.timeScale;
             Time.timeScale = 0;
@@ -135,7 +154,8 @@ namespace ArmySurvivor.Army
                 Time.timeScale = previousTimeScale;
                 run.IsChoosingUpgrade = false;
             }
-            choosing = pending = spawned = false;
+            choosing = spawned = false;
+            pending = 0;
             offered.Clear();
             if (panel != null) panel.SetActive(false);
             if (notice != null) notice.gameObject.SetActive(false);
