@@ -95,6 +95,7 @@ namespace ArmySurvivor.Army
             return damage;
         }
         public bool Defeated { get; private set; }
+        public event System.Action CommanderDeathFinished;
         public event System.Action<Vector3> EnemyKilled;
         public event System.Action MiniBossKilled;
         public event System.Action<bool, bool> EnemyDefeated; // elite, boss
@@ -318,7 +319,14 @@ namespace ArmySurvivor.Army
             if (run.CommanderDead)
             {
                 Defeated = true;
-                if (allies[run.Commander].DeathFinished) run.ReturnToPreparation();
+                if (allies[run.Commander].DeathFinished)
+                {
+                    // 모험 모드의 회차 종료는 DayController가 담당한다.
+                    if (GameModeManager.Current == GameMode.Adventure && CommanderDeathFinished != null)
+                        CommanderDeathFinished.Invoke();
+                    else
+                        run.ReturnToPreparation();
+                }
                 return;
             }
             UpdateWave(run.Elapsed);

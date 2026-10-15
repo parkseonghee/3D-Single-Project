@@ -4,6 +4,7 @@
 
 - `GameModeManager`는 StartScene에서 고른 모드를 씬 전환 동안 유지한다. 새 게임 기본값은 서바이벌이며, 기존 저장 파일의 모드 정보가 없으면 모험으로 읽는다.
 - `DayController`는 모험 모드의 기존 Day 보상·진행을 맡는다. 서바이벌에서는 `SurvivalController`를 붙이고 Day UI를 숨긴다.
+- 모험 모드에서는 지휘관 사망 연출이 끝나면 `CombatController.CommanderDeathFinished`를 통해 `DayController`가 회차 패배를 확정한다. 보상·Day 진행·재전투를 막고 패배 패널에서 시작 화면으로 이동한다. 기존 저장 슬롯 파일은 자동 삭제하지 않는다.
 - `CombatController`는 두 모드가 공유하는 생성·이동·피해·풀링을 맡는다. `IWaveRule`의 `AdventureDayWaveRule`과 `SurvivalWaveRule`이 각 모드의 시간·종류·수량을 결정한다.
 - `SurvivalSettings`는 두 모드가 공유하는 몬스터 체력표, 서바이벌 스폰/보스/점수 설정이다. 모험 모드도 이 에셋에서 체력을 읽어 런타임 정의를 만들며 원본 `EnemyDefinition`을 수정하지 않는다.
 - `RecordManager`는 최고 생존 시간 기록 한 건과 최근 다섯 건을 `Application.persistentDataPath/survival_records.json`에 저장한다. 테스트 기록은 지웠다.
@@ -14,8 +15,10 @@
 1. `Assets/Resources/SurvivalSettings.asset`을 선택한다. 몬스터 네 종, 정예, 보스의 `definition`과 체력표가 연결되어 있다. 새로운 데이터가 필요하면 **Create > Army Survivor > Survival Settings**로 에셋을 만들고 같은 이름으로 Resources에 둔다.
 2. `monsters`의 `firstAppearanceSeconds`, `spawnBands`, 구간 경계와 성장률을 조정한다. 기본값은 오크 0초, 닌자 120초, 해골 오크 300초, 예티 480초이다. 모험 Day 구간 경계는 11일/51일이다.
 3. `bossPrefab`이 비어 있으면 정예 오크 모델을 확대·붉은색으로 표시한다. 실제 보스 프리팹을 넣으면 코드 변경 없이 그 프리팹을 사용한다. `enableBoss`로 등장 자체를 끌 수 있다.
-4. StartScene의 기존 `NewGameButton` 디자인을 복제하여 서바이벌/모험 버튼으로 표시한다. 기존 이어하기·설정·종료 버튼은 아래로 이동하고, 최고 생존 시간은 서바이벌 버튼 아래에 표시한다.
-5. PlayScene의 `DayController`가 모드에 따라 기존 Day UI 또는 서바이벌 HUD/보스 바/사망 결과 UI를 준비한다. 결과 UI 버튼은 `다시 하기`와 `시작 화면`이다. 별도 씬 참조를 수동 연결할 필요는 없다.
+4. StartScene에 서바이벌/모험 버튼과 최고 생존 시간 텍스트가 직접 배치되어 있다. 위치·디자인은 씬의 RectTransform에서 수정하고, `StartMenu`는 모드 선택과 기록 문구만 갱신한다.
+5. PlayScene의 `Recruitment System > SurvivalController`에 서바이벌 HUD·보스 바·사망 결과 UI가 직렬화 참조로 연결되어 있다. 레이아웃은 `Battle Top HUD` 아래의 생존/처치/최고 기록 텍스트와 `Survival UI` 캔버스의 RectTransform에서 직접 편집한다. 모험 모드에서는 이 컴포넌트가 비활성화되고 기존 Day UI를 사용한다. 결과 UI 버튼은 `다시 하기`와 `시작 화면`이다.
+6. 병사 레벨업 필요 경험치는 PlayScene의 `BattleExperience`에서 `Required Experience Per Level`과 `Required Level Offset`으로 조절한다. 현재 값은 `100 × (레벨 + 2)`다. 모험 웨이브 공개 단계 수는 `Assets/CombatData/DaySettings.asset`의 각 Stage `Available Wave Count`에서 조절한다(현재 2/3/4).
+7. PlayScene의 `Recruitment UI > Adventure Defeat`에서 모험 패배 문구와 버튼 디자인을 편집한다. `Recruitment System > DayController`의 패배 패널·Day 텍스트·시작 화면 버튼 참조와 시작 씬 이름이 연결되어 있다.
 
 ## 테스트 키
 

@@ -2,6 +2,7 @@ using ArmySurvivor.Building;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ArmySurvivor.Army
@@ -21,6 +22,11 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text specialAmount;
         [SerializeField] private GameObject endingLabel;
         [SerializeField] private Button returnButton;
+        [Header("모험 모드 패배")]
+        [SerializeField] private GameObject defeatPanel;
+        [SerializeField] private TMP_Text defeatedDay;
+        [SerializeField] private Button defeatToStartButton;
+        [SerializeField] private string startSceneName = "StartScene";
 
         private SceneTravel travel;
         private RiceHarvest harvest;
@@ -32,6 +38,7 @@ namespace ArmySurvivor.Army
         public int Day { get; private set; } = 1;
         public bool AwaitingResult { get; private set; }
         public bool CampaignComplete { get; private set; }
+        public bool CampaignDefeated { get; private set; }
         public bool IsBossDay => Day % settings.bossInterval == 0;
         public RectTransform BattleTopHud => dayNumber != null ? dayNumber.transform.parent as RectTransform : null;
 
@@ -40,6 +47,7 @@ namespace ArmySurvivor.Army
             if (GameModeManager.Current == GameMode.Survival)
             {
                 resultPanel.SetActive(false);
+                if (defeatPanel != null) defeatPanel.SetActive(false);
                 bossNotice.SetActive(false);
                 dayNumber.gameObject.SetActive(false);
                 if (dayLabel != null) dayLabel.gameObject.SetActive(false);
@@ -53,8 +61,11 @@ namespace ArmySurvivor.Army
             if (harvest != null) Day = Mathf.Max(1, harvest.Day);
             run.RunStarted += BeginStage;
             run.RunEnded += EndStage;
+            combat.CommanderDeathFinished += DefeatCampaign;
             returnButton.onClick.AddListener(CollectAndReturn);
+            defeatToStartButton.onClick.AddListener(ReturnToStart);
             resultPanel.SetActive(false);
+            defeatPanel.SetActive(false);
             RefreshDay();
         }
 
@@ -63,6 +74,9 @@ namespace ArmySurvivor.Army
             if (run == null) return;
             run.RunStarted -= BeginStage;
             run.RunEnded -= EndStage;
+            if (combat != null) combat.CommanderDeathFinished -= DefeatCampaign;
+            if (returnButton != null) returnButton.onClick.RemoveListener(CollectAndReturn);
+            if (defeatToStartButton != null) defeatToStartButton.onClick.RemoveListener(ReturnToStart);
             ReleaseRuntimeDefinitions();
         }
 
@@ -126,7 +140,7 @@ namespace ArmySurvivor.Army
         public void UpdateProgress()
         {
             if (GameModeManager.Current != GameMode.Adventure) return;
-            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || run.CommanderDead || AwaitingResult || CampaignComplete) return;
+            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || run.CommanderDead || AwaitingResult || CampaignComplete || CampaignDefeated) return;
             int seconds = Mathf.CeilToInt(Mathf.Max(0, stage.survivalSeconds - run.Elapsed));
             remainingTime.text = $"{seconds / 60:00}:{seconds % 60:00}";
             if (run.Elapsed < stage.survivalSeconds) return;
@@ -143,6 +157,23 @@ namespace ArmySurvivor.Army
             specialAmount.text = (IsBossDay ? stage.bossSpecialReward : 0).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
             resultPanel.SetActive(true);
+        }
+
+        private void DefeatCampaign()
+        {
+            if (GameModeManager.Current != GameMode.Adventure || CampaignDefeated || AwaitingResult || CampaignComplete) return;
+            CampaignDefeated = true;
+            run.CanStart = false;
+            run.ReturnToPreparation();
+            resultPanel.SetActive(false);
+            defeatedDay.text = Day.ToString();
+            defeatPanel.SetActive(true);
+        }
+
+        private void ReturnToStart()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(startSceneName, LoadSceneMode.Single);
         }
 
         public void CollectAndReturn()

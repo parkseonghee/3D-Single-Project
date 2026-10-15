@@ -145,6 +145,16 @@ namespace ArmySurvivor.Building
             return false;
         }
 
+        public int GetHighestLevel(BuildingDefinition building)
+        {
+            int level = 0;
+            if (building == null) return level;
+            foreach (var placed in placedBuildings)
+                if (placed.Key != null && placed.Key.activeSelf && placed.Value.definition == building)
+                    level = Mathf.Max(level, placed.Value.level);
+            return level;
+        }
+
         public BuildingDefinition GetDefinition(GameObject target)
         {
             return target != null && placedBuildings.TryGetValue(target, out BuildingState state)

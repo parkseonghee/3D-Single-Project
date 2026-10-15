@@ -10,6 +10,21 @@ namespace ArmySurvivor.Army
     public sealed class SurvivalController : MonoBehaviour
     {
         [SerializeField] private SurvivalSettings settings;
+        [Header("씬에 배치한 서바이벌 UI")]
+        [SerializeField] private GameObject overlayRoot;
+        [SerializeField] private TMP_Text timeText;
+        [SerializeField] private TMP_Text killsText;
+        [SerializeField] private TMP_Text bestText;
+        [SerializeField] private TMP_Text alert;
+        [SerializeField] private TMP_Text bossTitle;
+        [SerializeField] private TMP_Text resultText;
+        [SerializeField] private Image bossFill;
+        [SerializeField] private GameObject bossBar;
+        [SerializeField] private GameObject resultPanel;
+        [SerializeField] private Button retryButton;
+        [SerializeField] private Button startSceneButton;
+        [SerializeField, Min(0f)] private float alertDuration = 2.5f;
+        [SerializeField] private string startSceneName = "StartScene";
         private RunController run;
         private CombatController combat;
         private MiniBossController eliteCards;
@@ -25,14 +40,15 @@ namespace ArmySurvivor.Army
         private float bestAtStart;
         private float originalTimeScale = 1;
         private BossUnit activeBoss;
-        private Canvas canvas;
-        private TMP_Text timeText, killsText, bestText, alert, bossTitle, resultText;
-        private Image bossFill;
-        private GameObject bossBar, resultPanel;
         private float alertUntil;
 
         private void Awake()
         {
+            if (GameModeManager.Current != GameMode.Survival)
+            {
+                enabled = false;
+                return;
+            }
             if (settings == null) settings = Resources.Load<SurvivalSettings>("SurvivalSettings");
             run = GetComponent<RunController>();
             combat = GetComponent<CombatController>();
@@ -49,6 +65,14 @@ namespace ArmySurvivor.Army
                 enabled = false;
                 return;
             }
+            if (overlayRoot == null || timeText == null || killsText == null || bestText == null ||
+                alert == null || bossTitle == null || resultText == null || bossFill == null ||
+                bossBar == null || resultPanel == null || retryButton == null || startSceneButton == null)
+            {
+                Debug.LogError("서바이벌 UI 참조를 PlayScene에서 연결하세요.", this);
+                enabled = false;
+                return;
+            }
             BuildDefinitions();
         }
 
@@ -56,7 +80,13 @@ namespace ArmySurvivor.Army
         {
             if (!enabled) return;
             run.HideDefaultElapsed();
-            BuildUI();
+            overlayRoot.SetActive(true);
+            SetHudVisible(false);
+            alert.gameObject.SetActive(false);
+            bossBar.SetActive(false);
+            resultPanel.SetActive(false);
+            retryButton.onClick.AddListener(Retry);
+            startSceneButton.onClick.AddListener(ToStart);
             run.RunStarted += Begin;
             run.RunEnded += OnRunEnded;
             combat.EnemyDefeated += CountKill;
@@ -67,6 +97,8 @@ namespace ArmySurvivor.Army
             if (run != null) { run.RunStarted -= Begin; run.RunEnded -= OnRunEnded; }
             if (combat != null) combat.EnemyDefeated -= CountKill;
             if (activeBoss != null) activeBoss.OnBossDefeated -= BossDefeated;
+            if (retryButton != null) retryButton.onClick.RemoveListener(Retry);
+            if (startSceneButton != null) startSceneButton.onClick.RemoveListener(ToStart);
             if (normalDefinitions != null)
                 foreach (var definition in normalDefinitions) if (definition != null) Destroy(definition);
             if (eliteDefinition != null) Destroy(eliteDefinition);
@@ -230,14 +262,14 @@ namespace ArmySurvivor.Army
         private void ToStart()
         {
             Time.timeScale = 1;
-            SceneManager.LoadScene("StartScene", LoadSceneMode.Single);
+            SceneManager.LoadScene(startSceneName, LoadSceneMode.Single);
         }
 
         private void ShowAlert(string value)
         {
             alert.text = value;
             alert.gameObject.SetActive(true);
-            alertUntil = Time.unscaledTime + 2.5f;
+            alertUntil = Time.unscaledTime + alertDuration;
         }
 
         private void SetHudVisible(bool visible)
@@ -267,90 +299,5 @@ namespace ArmySurvivor.Army
         }
 #endif
 
-        private void BuildUI()
-        {
-            var font = UiFontLocator.ExistingKoreanFont();
-            var root = new GameObject("Survival UI", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            root.transform.SetParent(transform, false);
-            canvas = root.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 250;
-            var scaler = root.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            var topHud = GetComponent<DayController>().BattleTopHud;
-            if (topHud == null) { Debug.LogError("Battle Top HUD 연결이 없습니다.", this); return; }
-            timeText = TopLabel(topHud, "Survival Time", new Vector2(16, -7), new Vector2(180, 26), 23, font);
-            killsText = TopLabel(topHud, "Survival Kills", new Vector2(205, -7), new Vector2(190, 26), 23, font);
-            bestText = TopLabel(topHud, "Survival Best", new Vector2(16, -35), new Vector2(380, 24), 20, font);
-            SetHudVisible(false);
-            alert = Label(root.transform, "Alert", "", 72, new Vector2(0, 260), new Vector2(900, 100), font);
-            alert.gameObject.SetActive(false);
-            var bossRect = Rect(root.transform, "Boss Health", new Vector2(0, 420), new Vector2(750, 65));
-            bossBar = bossRect.gameObject;
-            bossBar.AddComponent<Image>().color = new Color(0.04f, 0.05f, 0.08f, 0.93f);
-            bossTitle = Label(bossRect, "Boss Label", "BOSS", 28, new Vector2(0, 12), new Vector2(700, 36), font);
-            var fillRect = Rect(bossRect, "Fill", new Vector2(0, -18), new Vector2(690, 16));
-            bossFill = fillRect.gameObject.AddComponent<Image>();
-            bossFill.color = new Color(0.85f, 0.12f, 0.1f);
-            bossFill.type = Image.Type.Filled;
-            bossFill.fillMethod = Image.FillMethod.Horizontal;
-            bossBar.SetActive(false);
-            var resultRect = Rect(root.transform, "Survival Result", Vector2.zero, new Vector2(760, 600));
-            resultPanel = resultRect.gameObject;
-            resultPanel.AddComponent<Image>().color = new Color(0.025f, 0.06f, 0.08f, 0.97f);
-            resultText = Label(resultRect, "Results", "", 38, new Vector2(0, 90), new Vector2(700, 360), font);
-            Button(resultRect, "다시 하기", new Vector2(-180, -225), font, Retry);
-            Button(resultRect, "시작 화면", new Vector2(180, -225), font, ToStart);
-            resultPanel.SetActive(false);
-        }
-
-        private static RectTransform Rect(Transform parent, string name, Vector2 position, Vector2 size)
-        {
-            var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
-            rect.SetParent(parent, false);
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
-            return rect;
-        }
-
-        private static TMP_Text Label(Transform parent, string name, string value, float size, Vector2 position, Vector2 dimensions, TMP_FontAsset font)
-        {
-            var label = Rect(parent, name, position, dimensions).gameObject.AddComponent<TextMeshProUGUI>();
-            label.font = font;
-            label.fontSize = size;
-            label.text = value;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = new Color(1, 0.91f, 0.7f);
-            label.raycastTarget = false;
-            return label;
-        }
-
-        private static TMP_Text TopLabel(RectTransform parent, string name, Vector2 position, Vector2 dimensions,
-            float size, TMP_FontAsset font)
-        {
-            var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
-            rect.SetParent(parent, false);
-            rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
-            rect.pivot = new Vector2(0, 1);
-            rect.anchoredPosition = position;
-            rect.sizeDelta = dimensions;
-            var label = rect.gameObject.AddComponent<TextMeshProUGUI>();
-            label.font = font;
-            label.fontSize = size;
-            label.alignment = TextAlignmentOptions.Left;
-            label.color = new Color(1, 0.91f, 0.7f);
-            label.raycastTarget = false;
-            return label;
-        }
-
-        private static void Button(Transform parent, string value, Vector2 position, TMP_FontAsset font, UnityEngine.Events.UnityAction action)
-        {
-            var rect = Rect(parent, value, position, new Vector2(290, 70));
-            rect.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.16f, 0.26f);
-            rect.gameObject.AddComponent<Button>().onClick.AddListener(action);
-            Label(rect, "Label", value, 28, Vector2.zero, rect.sizeDelta, font);
-        }
     }
 }

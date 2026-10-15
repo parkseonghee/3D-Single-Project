@@ -48,6 +48,7 @@ MonoBehaviour:
     boss: {fileID: 11400000, guid: 826cd6dae143e06438012d5a4f3b4701, type: 2}
     spawnInterval: 2.5
     maximumEnemies: 12
+    availableWaveCount: 2
     goldReward: 100
     bossSpecialReward: 1
   - fromDay: 11
@@ -65,6 +66,7 @@ MonoBehaviour:
     boss: {fileID: 11400000, guid: 996ed3888ba337c49b28d238edb8595f, type: 2}
     spawnInterval: 2
     maximumEnemies: 16
+    availableWaveCount: 3
     goldReward: 160
     bossSpecialReward: 1
   - fromDay: 51
@@ -82,5 +84,6 @@ MonoBehaviour:
     boss: {fileID: 11400000, guid: e95dc2bb8c0e49845b2637e370f783c6, type: 2}
     spawnInterval: 1.6
     maximumEnemies: 20
+    availableWaveCount: 4
     goldReward: 240
     bossSpecialReward: 1

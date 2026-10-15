@@ -33,6 +33,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private GameObject runUI;
         [SerializeField] private TMP_Text elapsedText;
         [SerializeField] private LineRenderer formationRing;
+        [SerializeField] private RelicDraftController relicDraft;
 
         [Header("이동과 전술")]
         [SerializeField, Min(0.1f)] private float moveSpeed = 5;
@@ -107,6 +108,13 @@ namespace ArmySurvivor.Army
         {
             // UI 클릭 외에 코드에서 직접 호출해도 빈 편성으로 전투를 시작하지 않는다.
             if (IsRunning || !CanBeginRun) return;
+            BeginRunCore();
+            // 편성 화면을 닫고 전투 카메라·HUD를 표시한 뒤 유물 선택을 연다.
+            if (relicDraft != null) relicDraft.TryOpen();
+        }
+
+        private void BeginRunCore()
+        {
             recruitment.FinishAppearances();
             soldiers.Clear();
             attackingUnits.Clear();

@@ -25,7 +25,8 @@ namespace ArmySurvivor.Army
         };
         [Min(1)] public int enemySafetyLimit = 120;
 
-        public int GetWaveLimit(int day) => day <= 10 ? 2 : day <= 20 ? 3 : 4;
+        public int GetWaveLimit(int day) => Mathf.Clamp(GetStage(day).availableWaveCount, 1,
+            Mathf.Max(1, waves?.Length ?? 0));
 
         [Serializable]
         public class EnemySpawn
@@ -44,6 +45,7 @@ namespace ArmySurvivor.Army
             public EnemyDefinition boss;
             [Min(0.1f)] public float spawnInterval = 2.5f;
             [Min(1)] public int maximumEnemies = 12;
+            [Min(1)] public int availableWaveCount = 4;
             [Min(0)] public int goldReward = 100;
             [Min(0)] public int bossSpecialReward = 1;
         }

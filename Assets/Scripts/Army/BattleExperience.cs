@@ -10,9 +10,19 @@ namespace ArmySurvivor.Army
     {
         public class UnitProgress
         {
+            private readonly int requiredExperiencePerLevel;
+            private readonly int requiredLevelOffset;
+
+            public UnitProgress(int requiredExperiencePerLevel, int requiredLevelOffset)
+            {
+                this.requiredExperiencePerLevel = requiredExperiencePerLevel;
+                this.requiredLevelOffset = requiredLevelOffset;
+            }
+
             public int Level { get; internal set; } = 1;
             public int Experience { get; internal set; }
-            public int Required => 100 * (Level + 2);
+            public int Required => (int)Math.Min(int.MaxValue,
+                (long)requiredExperiencePerLevel * (Level + (long)requiredLevelOffset));
             public bool Piercing { get; internal set; }
             public int MultiShotLevel { get; internal set; }
             public int FocusLevel { get; internal set; }
@@ -46,6 +56,8 @@ namespace ArmySurvivor.Army
         [SerializeField] private GameObject panel;
         [SerializeField] private TMP_Text bottleCount;
         [SerializeField, Min(1)] private int experiencePerBottle = 100;
+        [SerializeField, Min(1)] private int requiredExperiencePerLevel = 100;
+        [SerializeField, Min(0)] private int requiredLevelOffset = 2;
         [SerializeField, Min(0.1f)] private float pickupRadius = 1.2f;
         [Header("경험치 병 표시")]
         [SerializeField] private float bottleWorldY = 0.65f;
@@ -267,7 +279,7 @@ namespace ArmySurvivor.Army
             foreach (Transform unit in recruitment.SoldiersRoot)
             {
                 if (!recruitment.Units.TryGetValue(unit, out UnitDefinition definition)) continue;
-                units.Add(unit, new UnitProgress());
+                units.Add(unit, new UnitProgress(requiredExperiencePerLevel, requiredLevelOffset));
                 focusStationaryTimes[unit] = 0;
             }
             dropRoot = new GameObject("Experience Drops").transform;
