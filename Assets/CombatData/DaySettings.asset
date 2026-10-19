@@ -30,6 +30,16 @@ MonoBehaviour:
     batchSize: 5
     capacityMultiplier: 5
   enemySafetyLimit: 120
+  healthPerDay: 0.04
+  damagePerDay: 0.02
+  swarmHealthMultiplier: 0.55
+  swarmDamageMultiplier: 0.65
+  swarmBatch: 4
+  swarmInterval: 2
+  swarmCapacity: 24
+  splitUnlockDay: 5
+  pincerUnlockDay: 11
+  surroundUnlockDay: 21
   finalDay: 100
   bossInterval: 10
   stages:

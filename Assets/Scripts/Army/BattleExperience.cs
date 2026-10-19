@@ -177,6 +177,8 @@ namespace ArmySurvivor.Army
         }
         public event Action<Transform, int> UnitLeveledUp;
         public event Action<Transform> UnitExperienceChanged;
+        public event Action<Transform> OnExpBottleInvested;
+        public event Action OnBottleCollected;
         public event Action RosterChanged;
         public IEnumerable<Transform> TrackedUnits => units.Keys;
         public UnitDefinition DefinitionFor(Transform unit) =>
@@ -392,17 +394,19 @@ namespace ArmySurvivor.Army
 
         public void CollectNearby()
         {
-            if (!run.IsRunning || run.IsPaused || IsChoosingUpgrade) return;
+            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || IsChoosingUpgrade) return;
             bool collected = false;
+            float radius = pickupRadius * (GetComponent<CommanderProgression>()?.PickupMultiplier ?? 1f);
             for (int i = drops.Count - 1; i >= 0; i--)
             {
                 Vector3 offset = drops[i].position - run.Commander.position;
                 offset.y = 0;
-                if (offset.sqrMagnitude > pickupRadius * pickupRadius) continue;
+                if (offset.sqrMagnitude > radius * radius) continue;
                 drops[i].gameObject.SetActive(false);
                 Destroy(drops[i].gameObject);
                 drops.RemoveAt(i);
                 Bottles++;
+                OnBottleCollected?.Invoke();
                 collected = true;
             }
             if (collected) RefreshUI();
@@ -413,8 +417,9 @@ namespace ArmySurvivor.Army
             if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || IsChoosingUpgrade || Bottles <= 0 || unit == null || !unit.gameObject.activeSelf ||
                 !units.TryGetValue(unit, out UnitProgress progress))
                 return false;
+            if (unit.TryGetComponent<UnitHealth>(out var health) && health.IsDead) return false;
             Bottles--;
-            progress.Experience += experiencePerBottle;
+            progress.Experience += Mathf.RoundToInt(experiencePerBottle * (GetComponent<CommanderProgression>()?.InvestmentMultiplier ?? 1f));
             while (progress.Experience >= progress.Required)
             {
                 progress.Experience -= progress.Required;
@@ -423,6 +428,7 @@ namespace ArmySurvivor.Army
                 UnitLeveledUp?.Invoke(unit, progress.Level);
             }
             UnitExperienceChanged?.Invoke(unit);
+            OnExpBottleInvested?.Invoke(unit);
             ShowNextUpgrade();
             RefreshUI();
             return true;

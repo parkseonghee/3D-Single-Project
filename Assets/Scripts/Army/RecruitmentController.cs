@@ -54,7 +54,7 @@ namespace ArmySurvivor.Army
 
         private void Start()
         {
-            travel = FindFirstObjectByType<SceneTravel>();
+            travel = FindFirstObjectByType<SceneTravel>(FindObjectsInactive.Include);
             village = travel != null ? travel.Village : null;
             foreach (HireOption option in options)
             {

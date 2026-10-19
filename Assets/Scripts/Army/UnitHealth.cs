@@ -6,6 +6,7 @@ namespace ArmySurvivor.Army
     public class UnitHealth : MonoBehaviour
     {
         public event System.Action<UnitHealth> OnHpChanged;
+        public event System.Action<UnitHealth, float, float> OnDamageTaken; // health lost, shield absorbed
         public float Maximum { get; private set; }
         public float Current { get; private set; }
         public bool IsDead => Current <= 0;
@@ -21,7 +22,42 @@ namespace ArmySurvivor.Army
         private GameObject shieldEffect;
         private float shieldExpiresAt;
         private float shieldMaximum;
-        public float Shield { get; private set; }
+        private float baseShield;
+        public float Shield => baseShield + ManualShieldAmount;
+        private sealed class ExternalShield { public float amount, maximum, until; }
+        private readonly System.Collections.Generic.Dictionary<object, ExternalShield> manualShields =
+            new System.Collections.Generic.Dictionary<object, ExternalShield>();
+        private readonly System.Collections.Generic.List<object> expiredShields = new System.Collections.Generic.List<object>();
+        private float ManualShieldAmount
+        {
+            get { float total = 0; foreach (var shield in manualShields.Values)
+                    if (Time.time < shield.until) total += shield.amount; return total; }
+        }
+        public void GiveManualShield(object source, float amount, float duration)
+        {
+            if (IsDead || amount <= 0 || duration <= 0) return;
+            manualShields[source] = new ExternalShield { amount = amount, maximum = amount, until = Time.time + duration };
+            RefreshBar();
+        }
+        public void RemoveManualShield(object source) { manualShields.Remove(source); RefreshBar(); }
+        public float ConsumeShield(float amount)
+            => ConsumeShield(amount, true);
+        private float ConsumeShield(float amount, bool notify)
+        {
+            if (Time.time >= shieldExpiresAt) ClearShield();
+            float remaining = Mathf.Max(0, amount), consumed = 0;
+            foreach (var shield in manualShields.Values)
+            {
+                if (Time.time >= shield.until) continue;
+                float used = Mathf.Min(remaining, shield.amount);
+                shield.amount -= used; remaining -= used; consumed += used;
+            }
+            float fromBase = Mathf.Min(remaining, baseShield);
+            baseShield -= fromBase; consumed += fromBase;
+            if (baseShield <= 0) ClearShield();
+            if (notify) RefreshBar();
+            return consumed;
+        }
         public float DamageReduction { get; set; }
         public float DiabloDamageReduction { get; set; }
         public bool IsInvulnerable { get; set; }
@@ -32,8 +68,8 @@ namespace ArmySurvivor.Army
         public void GiveShield(float amount, float duration, GameObject effectPrefab)
         {
             if (IsDead || amount <= 0 || duration <= 0) return;
-            Shield = Mathf.Max(Shield, amount);
-            shieldMaximum = Shield;
+            baseShield = Mathf.Max(baseShield, amount);
+            shieldMaximum = baseShield;
             shieldExpiresAt = Time.time + duration;
             if (shieldEffect == null && effectPrefab != null)
             {
@@ -59,19 +95,26 @@ namespace ArmySurvivor.Army
 
         private void ClearShield()
         {
-            Shield = 0;
+            baseShield = 0;
             if (shieldEffect != null)
             {
                 shieldEffect.SetActive(false);
                 Destroy(shieldEffect);
                 shieldEffect = null;
             }
-            if (shieldFill != null) shieldFill.gameObject.SetActive(false);
+            if (shieldFill != null) shieldFill.gameObject.SetActive(ManualShieldAmount > 0);
         }
 
         private void Update()
         {
-            if (Shield > 0 && Time.time >= shieldExpiresAt) ClearShield();
+            if (baseShield > 0 && Time.time >= shieldExpiresAt) { ClearShield(); RefreshBar(); }
+            if (manualShields.Count > 0)
+            {
+                expiredShields.Clear();
+                foreach (var pair in manualShields) if (Time.time >= pair.Value.until) expiredShields.Add(pair.Key);
+                foreach (var key in expiredShields) manualShields.Remove(key);
+                if (expiredShields.Count > 0) RefreshBar();
+            }
         }
 
         public void Initialize(float maximum, Color color)
@@ -80,6 +123,7 @@ namespace ArmySurvivor.Army
             DiabloDamageReduction = 0;
             IsInvulnerable = false;
             rewardInvulnerableUntil = 0;
+            manualShields.Clear();
             ClearShield();
             if (Maximum > 0 && IsDead)
                 foreach (var animator in GetComponentsInChildren<Animator>())
@@ -99,17 +143,31 @@ namespace ArmySurvivor.Army
             RefreshBar();
         }
 
+        public void Revive(float healthRatio)
+        {
+            if (!IsDead) return;
+            gameObject.SetActive(true);
+            Current = Maximum * Mathf.Clamp(healthRatio, .01f, 1);
+            DeathDuration = 0; deathEndsAt = 0;
+            foreach (var animator in GetComponentsInChildren<Animator>())
+            {
+                animator.Rebind(); animator.Update(0);
+            }
+            enabled = true;
+            RefreshBar();
+        }
+
         public void TakeDamage(float damage)
         {
             if (IsDead || IsInvulnerable || Time.time < rewardInvulnerableUntil) return;
-            if (Shield > 0 && Time.time >= shieldExpiresAt) ClearShield();
+            if (baseShield > 0 && Time.time >= shieldExpiresAt) ClearShield();
             damage = Mathf.Max(0, damage) * (1f - Mathf.Clamp01(DamageReduction)) * (1f - Mathf.Clamp01(DiabloDamageReduction));
-            float absorbed = Mathf.Min(Shield, damage);
-            Shield -= absorbed;
-            if (Shield <= 0) ClearShield();
+            float previous = Current;
+            float absorbed = ConsumeShield(damage, false);
             Current = Mathf.Max(0, Current - (damage - absorbed));
             if (IsDead) PlayDeath();
             RefreshBar();
+            if (damage > 0) OnDamageTaken?.Invoke(this, previous - Current, absorbed);
         }
 
         public float Heal(float amount)
@@ -180,7 +238,9 @@ namespace ArmySurvivor.Army
             healthBar.gameObject.SetActive(enabled && !IsDead);
             fill.anchorMax = new Vector2(Mathf.Clamp01(Current / Maximum), 1);
             shieldFill.gameObject.SetActive(Shield > 0);
-            shieldFill.anchorMax = new Vector2(shieldMaximum > 0 ? Shield / shieldMaximum : 0, 1);
+            float totalMaximum = baseShield > 0 ? shieldMaximum : 0;
+            foreach (var shield in manualShields.Values) if (Time.time < shield.until) totalMaximum += shield.maximum;
+            shieldFill.anchorMax = new Vector2(totalMaximum > 0 ? Mathf.Clamp01(Shield / totalMaximum) : 0, 1);
         }
 
         private void LateUpdate()
@@ -195,6 +255,7 @@ namespace ArmySurvivor.Army
         private void OnDisable()
         {
             IsInvulnerable = false;
+            manualShields.Clear();
             ClearShield();
             if (healthBar != null) healthBar.gameObject.SetActive(false);
         }

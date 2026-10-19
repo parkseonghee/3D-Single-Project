@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ArmySurvivor.Building;
 using TMPro;
@@ -6,10 +7,10 @@ using UnityEngine.UI;
 
 namespace ArmySurvivor.Army
 {
+    // Retains the existing scene component and CardMotion bindings.
     public sealed class RelicDraftController : MonoBehaviour
     {
-        [System.Serializable]
-        private sealed class CardView
+        [Serializable] private sealed class CardView
         {
             public GameObject root;
             public TMP_Text title;
@@ -17,25 +18,21 @@ namespace ArmySurvivor.Army
             public Image icon;
             public CardMotion motion;
         }
-
-        [Header("건물과 유물 데이터")]
         [SerializeField] private BuildingDefinition library;
-        [SerializeField] private RelicDefinition[] relics;
-        [Header("전투 연결")]
+        [SerializeField] private ManualDefinition[] manuals;
         [SerializeField] private RunController run;
-        [SerializeField] private BattleExperience experience;
         [SerializeField] private RecruitmentController recruitment;
-        [Header("씬에 배치한 선택 UI")]
         [SerializeField] private GameObject panel;
         [SerializeField] private CardView[] cards;
+        [SerializeField] private Button skipButton;
         [SerializeField] private CardMotion.Config motionConfig = new CardMotion.Config();
-
-        private readonly List<RelicDefinition> choices = new List<RelicDefinition>();
-        private bool awaitingChoice;
-        private bool ownsTimeScale;
+        private readonly List<ManualDefinition> choices = new List<ManualDefinition>();
+        private Action onComplete;
+        private bool awaitingChoice, selecting, forceNext, ownsTimeScale;
         private float previousTimeScale;
-        private int libraryLevel;
-        public RelicDefinition Selected { get; private set; }
+        public ManualDefinition Selected => ManualManager.Selected;
+        public bool IsOpen => awaitingChoice || selecting;
+        public IReadOnlyList<ManualDefinition> Choices => choices;
 
         private void Start()
         {
@@ -45,112 +42,87 @@ namespace ArmySurvivor.Army
                 int index = i;
                 cards[i].motion.Configure(null, () => Choose(index), motionConfig);
             }
+            if (skipButton != null) skipButton.onClick.AddListener(Skip);
         }
-
-        private void OnEnable()
+        public void OpenDebug()
         {
-            if (run != null) run.RunEnded += EndBattle;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (run.IsRunning || IsOpen) return;
+            forceNext = true;
+            run.BeginRun();
+            forceNext = false;
+#endif
         }
-
-        private void OnDisable()
+        public bool TryOpen(Action beginBattle)
         {
-            if (run != null) run.RunEnded -= EndBattle;
-            awaitingChoice = false;
-            Selected = null;
-            ClosePanel();
-        }
-
-        public bool TryOpen()
-        {
-            if (awaitingChoice) return true;
-            if (GameModeManager.Current != GameMode.Adventure || !run.IsRunning ||
-                run.IsPaused || run.IsChoosingUpgrade || library == null ||
-                panel == null || cards == null || cards.Length == 0) return false;
-
-            // 전투 씬 진입 시 마을 루트가 비활성화되므로 저장된 건물 상태까지 찾는다.
-            SceneTravel travel = FindFirstObjectByType<SceneTravel>(FindObjectsInactive.Include);
-            if (travel == null || travel.Village == null || !travel.Village.HasBuilding(library)) return false;
-            libraryLevel = travel.Village.GetHighestLevel(library);
-
-            // 후보 에셋을 복제하지 않고 목록만 섞어 같은 카드가 중복되지 않게 한다.
-            var pool = new List<RelicDefinition>();
-            foreach (RelicDefinition relic in relics)
-                if (relic != null && !pool.Contains(relic)) pool.Add(relic);
+            if (IsOpen) return true;
+            bool force = forceNext; forceNext = false;
+            if (run.IsRunning || run.IsPaused || panel == null || cards == null || cards.Length == 0) return false;
+            if (!force)
+            {
+                var travel = FindFirstObjectByType<SceneTravel>(FindObjectsInactive.Include);
+                if (library == null || travel == null || travel.Village == null || !travel.Village.HasBuilding(library)) return false;
+            }
+            var pool = new List<ManualDefinition>();
+            if (manuals != null)
+                foreach (var manual in manuals)
+                    if (manual != null && !pool.Contains(manual) && manual.IsEligible(recruitment)) pool.Add(manual);
             if (pool.Count == 0) return false;
             for (int i = pool.Count - 1; i > 0; i--)
-            {
-                int swap = Random.Range(0, i + 1);
-                (pool[i], pool[swap]) = (pool[swap], pool[i]);
-            }
-
+            { int swap = UnityEngine.Random.Range(0, i + 1); (pool[i], pool[swap]) = (pool[swap], pool[i]); }
             choices.Clear();
-            int count = Mathf.Min(cards.Length, pool.Count);
+            int count = Mathf.Min(3, Mathf.Min(cards.Length, pool.Count));
             for (int i = 0; i < cards.Length; i++)
             {
-                CardView view = cards[i];
-                bool visible = i < count;
-                view.root.SetActive(visible);
-                if (!visible) continue;
-                RelicDefinition relic = pool[i];
-                choices.Add(relic);
-                view.title.text = relic.displayName;
-                view.description.text = relic.DescriptionAt(libraryLevel);
-                view.icon.sprite = relic.icon;
-                view.icon.gameObject.SetActive(relic.icon != null);
+                var view = cards[i]; view.root.SetActive(i < count);
+                if (i >= count) continue;
+                var manual = pool[i]; choices.Add(manual);
+                view.title.text = manual.displayName;
+                view.description.text = manual.effect.Describe(manual.description) + "\n\n<b>플레이 변화</b>\n" + manual.playStyle;
+                view.icon.sprite = manual.icon; view.icon.gameObject.SetActive(manual.icon != null);
+                var rect = (RectTransform)view.root.transform;
+                rect.anchoredPosition = new Vector2((i - (count - 1) * 0.5f) * (rect.rect.width + 36), rect.anchoredPosition.y);
             }
-            awaitingChoice = true;
-            previousTimeScale = Time.timeScale;
-            ownsTimeScale = true;
-            run.IsChoosingUpgrade = true;
-            Time.timeScale = 0f;
-            panel.SetActive(true);
-            panel.transform.SetAsLastSibling();
+            ManualManager.Select(null);
+            onComplete = beginBattle; awaitingChoice = true;
+            previousTimeScale = Time.timeScale; ownsTimeScale = true;
+            run.IsChoosingUpgrade = true; Time.timeScale = 0;
+            panel.SetActive(true); panel.transform.SetAsLastSibling();
+            if (skipButton != null) skipButton.interactable = true;
             for (int i = 0; i < count; i++) cards[i].motion.PlayEntrance(i);
             return true;
         }
-
-        private void Choose(int index)
+        public void Choose(int index)
         {
-            if (!awaitingChoice || index < 0 || index >= choices.Count) return;
-            awaitingChoice = false;
-            Selected = choices[index];
-            for (int i = 0; i < choices.Count; i++) cards[i].motion.LockInteraction();
-            cards[index].motion.PlaySelection(() =>
-            {
-                int remaining = choices.Count - 1;
-                if (remaining == 0) { ApplyAndResume(); return; }
-                for (int i = 0; i < choices.Count; i++)
-                    if (i != index) cards[i].motion.FadeOut(() =>
-                    {
-                        remaining--;
-                        if (remaining == 0) ApplyAndResume();
-                    });
-            });
+            if (!awaitingChoice || selecting || index < 0 || index >= choices.Count) return;
+            awaitingChoice = false; selecting = true;
+            ManualManager.Select(choices[index]);
+            if (skipButton != null) skipButton.interactable = false;
+            foreach (var card in cards) if (card.root.activeSelf) card.motion.LockInteraction();
+            cards[index].motion.PlaySelection(Finish);
         }
-
-        private void ApplyAndResume()
+        public void Skip()
         {
-            // 전투 진입 시 RunStarted 구독자들이 체력·경험치를 초기화한 뒤이므로 효과만 부여한다.
-            if (run.IsRunning && Selected != null) Selected.Apply(run, experience, recruitment, libraryLevel);
-            else Selected = null;
-            ClosePanel();
+            if (!awaitingChoice || selecting) return;
+            ManualManager.Select(null); Finish();
         }
-
-        private void EndBattle()
+        private void Finish()
         {
-            Selected = null;
-            choices.Clear();
-            awaitingChoice = false;
-            ClosePanel();
+            var callback = onComplete; onComplete = null;
+            ClosePanel(); callback?.Invoke();
         }
-
         private void ClosePanel()
         {
+            awaitingChoice = false; selecting = false;
             if (panel != null) panel.SetActive(false);
             if (!ownsTimeScale) return;
-            run.IsChoosingUpgrade = false;
-            Time.timeScale = previousTimeScale;
-            ownsTimeScale = false;
+            run.IsChoosingUpgrade = false; Time.timeScale = previousTimeScale; ownsTimeScale = false;
+        }
+        private void OnDisable()
+        {
+            onComplete = null;
+            if (IsOpen) ManualManager.Select(null);
+            ClosePanel();
         }
     }
 }

@@ -67,9 +67,11 @@ namespace ArmySurvivor.Army
         private float baseTeamMoveMultiplier = 1f;
         private float rewardMoveUntil;
         private float rewardMoveBonus;
+        private CommanderProgression commanderProgression;
         public float TeamMoveMultiplier
         {
-            get => baseTeamMoveMultiplier * (Time.time < rewardMoveUntil ? 1f + rewardMoveBonus : 1f);
+            get => baseTeamMoveMultiplier * (Time.time < rewardMoveUntil ? 1f + rewardMoveBonus : 1f)
+                * (commanderProgression != null ? commanderProgression.MoveMultiplier : 1f);
             internal set => baseTeamMoveMultiplier = value;
         }
         public void GrantRewardSpeed(float duration, float bonus)
@@ -82,6 +84,7 @@ namespace ArmySurvivor.Army
         public Collider Ground => ground;
         public event Action RunStarted;
         public event Action RunEnded;
+        public event Action<int, int> OnFormationChanged;
         public float Elapsed { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         public void JumpElapsedForTesting(float seconds) => Elapsed = Mathf.Max(Elapsed, seconds);
@@ -92,6 +95,7 @@ namespace ArmySurvivor.Army
 
         private void Start()
         {
+            commanderProgression = GetComponent<CommanderProgression>();
             startButton.onClick.AddListener(BeginRun);
             startButton.interactable = CanBeginRun;
             prepareButton.onClick.AddListener(ReturnToPreparation);
@@ -108,13 +112,14 @@ namespace ArmySurvivor.Army
         {
             // UI 클릭 외에 코드에서 직접 호출해도 빈 편성으로 전투를 시작하지 않는다.
             if (IsRunning || !CanBeginRun) return;
+            if (relicDraft != null && relicDraft.TryOpen(BeginRunCore)) return;
+            ManualManager.Select(null);
             BeginRunCore();
-            // 편성 화면을 닫고 전투 카메라·HUD를 표시한 뒤 유물 선택을 연다.
-            if (relicDraft != null) relicDraft.TryOpen();
         }
 
         private void BeginRunCore()
         {
+            if (IsRunning || !CanBeginRun) { ManualManager.Select(null); return; }
             recruitment.FinishAppearances();
             soldiers.Clear();
             attackingUnits.Clear();
@@ -156,6 +161,7 @@ namespace ArmySurvivor.Army
         public void SelectTactic(int index)
         {
             if (!IsRunning || index < 0 || index >= tactics.Length) return;
+            int previous = TacticIndex;
             TacticIndex = index;
             for (int i = 0; i < tactics.Length; i++) tactics[i].selected.SetActive(i == index);
             // 진형 반경은 지휘관과 독립된 월드 방향을 사용한다. 방향 전환 때 병력이 빙돌지 않는다.
@@ -164,6 +170,7 @@ namespace ArmySurvivor.Army
                 float angle = i * Mathf.PI * 2 / formationRing.positionCount;
                 formationRing.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * CurrentTactic.radius);
             }
+            if (previous != index) OnFormationChanged?.Invoke(previous, index);
         }
 
         private void Update()

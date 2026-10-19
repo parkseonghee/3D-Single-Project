@@ -83,11 +83,13 @@ namespace ArmySurvivor.Army
             float speedBonus = Mathf.Max(0, level - 1) * spinSlashAttackSpeedPerLevel + bannerAttackSpeedBonus;
             if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
             if (Time.time < rewardWarCryUntil) speedBonus += rewardWarCryBonus;
+            speedBonus += ManualBonus(unit).y;
             return attack.interval / (1f + speedBonus);
         }
         private float AttackDamage(Transform unit, AttackDefinition attack)
         {
             float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            damage *= 1f + ManualBonus(unit).x;
             if (Time.time < rewardWarCryUntil) damage *= 1f + rewardWarCryBonus;
             if (teamAttackRemaining > 0) damage *= 1f + teamAttackBonus;
             if (experience != null && Random.value < experience.FocusCriticalChance(unit))
@@ -105,6 +107,7 @@ namespace ArmySurvivor.Army
             public Transform root;
             public Animator animator;
             public UnitHealth vitality;
+            public BossCharge bossCharge;
             public float health => vitality.Current;
             public float attackCooldown;
             public Transform attackTarget;
@@ -114,6 +117,7 @@ namespace ArmySurvivor.Army
             public EnemyDefinition definition;
             public bool isBoss;
             public bool isMiniBoss;
+            public float waveDamageMultiplier = 1f;
             public float suppressionRemaining;
             public Transform suppressionEffect;
         }
@@ -190,6 +194,9 @@ namespace ArmySurvivor.Army
         private Transform poolRoot;
         private readonly Dictionary<GameObject, Stack<GameObject>> enemyObjects = new Dictionary<GameObject, Stack<GameObject>>();
         private IWaveRule waveRule;
+        private int adventureSpawnSerial;
+        public string AdventureWaveLabel => waveRule is AdventureRhythmRule rhythm
+            ? $"{rhythm.Number} 웨이브 · {rhythm.Label}\n{rhythm.PatternName}" : "";
         private SurvivalSettings survivalSettings;
         private Camera spawnCamera;
         private bool survivalBossAlive;
@@ -212,10 +219,13 @@ namespace ArmySurvivor.Army
         public bool BossDefeated { get; private set; }
 
         public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null,
-            float duration = 90, DaySettings.Wave[] waveSettings = null, int safetyLimit = 120, int waveLimit = 4)
+            float duration = 90, DaySettings.Wave[] waveSettings = null, int safetyLimit = 120, int waveLimit = 4,
+            DaySettings rhythmSettings = null, int day = 1)
         {
-            waveRule = new AdventureDayWaveRule(definition, interval, limit, pool, duration,
-                waveSettings, safetyLimit, waveLimit);
+            waveRule = rhythmSettings != null
+                ? (IWaveRule)new AdventureRhythmRule(definition, pool, duration, interval, limit, rhythmSettings, day)
+                : new AdventureDayWaveRule(definition, interval, limit, pool, duration, waveSettings, safetyLimit, waveLimit);
+            adventureSpawnSerial = 0;
             survivalSettings = null;
             enemy = definition;
             spawnInterval = interval;
@@ -705,7 +715,8 @@ namespace ArmySurvivor.Army
                 bool killedByCharge = false;
                 if (FlatDistance(unit.position, state.target.root.position) <= attack.range)
                 {
-                    ApplyDamage(state.target, damage, direction, attack.knockback, false, unit);
+                    damage *= ConsumeManualCharge(unit);
+                    ApplyDamage(state.target, damage, direction, attack.knockback, false, unit, false, true);
                     killedByCharge = state.target.health <= 0;
                 }
                 state.returning = true;
@@ -781,6 +792,9 @@ namespace ArmySurvivor.Army
             float angle = Random.value * Mathf.PI * 2;
             Vector3 position = run.Commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * spawnDistance;
             if (survivalSettings != null) position = SurvivalSpawnPosition();
+            var rhythm = waveRule as AdventureRhythmRule;
+            bool rhythmEnemy = rhythm != null && !isBoss && !isMiniBoss;
+            if (rhythmEnemy) position = AdventureSpawnPosition(rhythm.Direction(adventureSpawnSerial++));
             Bounds bounds = run.Ground.bounds;
             position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
             position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
@@ -790,10 +804,14 @@ namespace ArmySurvivor.Army
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
             float hitPoints = definition.health;
+            if (rhythmEnemy) hitPoints *= rhythm.HealthMultiplier;
             if (survivalSettings != null && !isBoss && !isMiniBoss)
                 hitPoints *= survivalSettings.HealthMultiplier(run.Elapsed);
             health.Initialize(hitPoints, isMiniBoss ? new Color(1f, 0.65f, 0.1f) : new Color(0.95f, 0.2f, 0.2f));
-            enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss });
+            var charge = model.GetComponent<BossCharge>();
+            if (charge != null) charge.ResetAttack();
+            enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, bossCharge = charge, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss,
+                waveDamageMultiplier = rhythmEnemy ? rhythm.DamageMultiplier : 1f });
         }
         private void MoveEnemies(float dt)
         {
@@ -821,6 +839,14 @@ namespace ArmySurvivor.Army
                     if (state.suppressionRemaining <= 0) ClearSuppression(state);
                 }
                 state.attackCooldown -= dt;
+                if (state.bossCharge != null)
+                {
+                    allies.TryGetValue(run.Commander, out var commanderHealth);
+                    state.bossCharge.Tick(dt, run.Commander, commanderHealth, enemy, run.Ground.bounds,
+                        boundaryMargin, run.CurrentTactic.receivedDamageMultiplier,
+                        state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f);
+                    continue;
+                }
                 if (state.attackTarget != null)
                 {
                     state.attackTime += dt;
@@ -831,7 +857,7 @@ namespace ArmySurvivor.Army
                         if (allies.TryGetValue(victim, out var health) && !health.IsDead &&
                             FlatDistance(state.root.position, victim.position) <= enemy.stoppingDistance + 0.15f)
                         {
-                            health.TakeDamage(enemy.damage * run.CurrentTactic.receivedDamageMultiplier);
+                            health.TakeDamage(enemy.damage * state.waveDamageMultiplier * run.CurrentTactic.receivedDamageMultiplier);
                             if (health.IsDead)
                             {
                                 pending.Remove(victim);
@@ -1108,11 +1134,15 @@ namespace ArmySurvivor.Army
         }
 
         private void ApplyDamage(EnemyState target, float damage, Vector3 direction, float knockback,
-            bool suppression = false, Transform source = null)
+            bool suppression = false, Transform source = null, bool manualDamage = false, bool chargeImpact = false)
         {
             if (target.health <= 0 || damage <= 0) return;
+            float supportMultiplier = target.isBoss || target.isMiniBoss
+                ? GetComponent<CommanderProgression>()?.EliteDamageMultiplier ?? 1f : 1f;
+            bool wasSuppressed = target.suppressionRemaining > 0;
+            Vector3 hitPosition = target.root.position;
             Hits++;
-            target.vitality.TakeDamage(damage * ShoutArmorMultiplier(target));
+            target.vitality.TakeDamage(damage * ShoutArmorMultiplier(target) * supportMultiplier);
             if (bloodEffect != null)
             {
                 Quaternion rotation = direction.sqrMagnitude > 0.0001f
@@ -1146,6 +1176,9 @@ namespace ArmySurvivor.Army
                     target.root.position = position;
                 }
             }
+            if (!manualDamage && source != null)
+                OnManualEligibleHit?.Invoke(new ManualHit(source, target.root, hitPosition,
+                    damage, target.health <= 0, wasSuppressed, chargeImpact));
         }
         private void HealOnKill(Transform source)
         {
@@ -1202,6 +1235,8 @@ namespace ArmySurvivor.Army
         }
         private void Clear()
         {
+            manualBuffs.Clear();
+            manualCharges.Clear();
             rewardWarCryUntil = 0;
             if (run != null) run.ClearRewardSpeed();
             ClearFocusCommand();

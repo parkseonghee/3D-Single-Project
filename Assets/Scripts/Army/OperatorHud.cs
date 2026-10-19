@@ -26,6 +26,7 @@ namespace ArmySurvivor.Army
             public TMP_Text level;
             public Image hp;
             public Image exp;
+            public GameObject manualCheck;
             public PortraitSelectionRing ring;
             public Button button;
             public System.Action<UnitHealth> healthChanged;
@@ -37,6 +38,7 @@ namespace ArmySurvivor.Army
         private RectTransform content;
         private Coroutine rebuild;
         private int selected = -1;
+        private ManualManager manuals;
         public Transform SelectedUnit => selected >= 0 && selected < slots.Count ? slots[selected].unit : null;
         public int SlotCount => slots.Count;
         public int PortraitCaptureCount => cache == null ? 0 : cache.CaptureCount;
@@ -44,6 +46,7 @@ namespace ArmySurvivor.Army
 
         private void Awake()
         {
+            manuals = run.GetComponent<ManualManager>();
             int layer = LayerMask.NameToLayer(portraitLayer);
             if (layer < 0)
             {
@@ -76,6 +79,7 @@ namespace ArmySurvivor.Army
             experience.RosterChanged += ScheduleRebuild;
             experience.UnitLeveledUp += LevelChanged;
             experience.UnitExperienceChanged += ExperienceChanged;
+            if (manuals != null) manuals.Changed += RefreshManualChecks;
             ScheduleRebuild();
         }
 
@@ -124,6 +128,19 @@ namespace ArmySurvivor.Army
                 badgeImage.color = new Color(0.04f, 0.09f, 0.13f, 0.85f);
                 badgeImage.raycastTarget = false;
                 slot.level = Label("Level", badge, Vector2.zero, new Vector2(43, 19), "Lv." + experience.GetProgress(unit).Level, 14);
+                slot.manualCheck = Rect("Manual Investment Check", slot.root, new Vector2(34, 25), new Vector2(24, 24)).gameObject;
+                // Draw the tick with UI geometry: Korean fonts may not contain a check glyph.
+                var shortStroke = Rect("Short Stroke", slot.manualCheck.transform, new Vector2(-4, -1), new Vector2(8, 3));
+                var longStroke = Rect("Long Stroke", slot.manualCheck.transform, new Vector2(3, 1), new Vector2(15, 3));
+                shortStroke.localRotation = Quaternion.Euler(0, 0, -45);
+                longStroke.localRotation = Quaternion.Euler(0, 0, 50);
+                foreach (var stroke in new[] { shortStroke, longStroke })
+                {
+                    var checkImage = stroke.gameObject.AddComponent<Image>();
+                    checkImage.color = new Color(0.5f, 1f, 0.65f);
+                    checkImage.raycastTarget = false;
+                }
+                slot.manualCheck.SetActive(false);
                 var hpBackground = Rect("HP", slot.root, new Vector2(0, -45), new Vector2(88, 5)).gameObject.AddComponent<Image>();
                 hpBackground.color = new Color(0.02f, 0.05f, 0.06f, 0.9f);
                 hpBackground.raycastTarget = false;
@@ -150,6 +167,14 @@ namespace ArmySurvivor.Army
             content.sizeDelta = new Vector2(24 + slots.Count * (slotWidth + 14), 116);
             Select(slots.FindIndex(s => s.health != null && !s.health.IsDead));
             rebuild = null;
+            RefreshManualChecks();
+        }
+
+        private void RefreshManualChecks()
+        {
+            foreach (var slot in slots)
+                slot.manualCheck.SetActive(manuals != null && slot.unit != null &&
+                    manuals.ActiveManual != null && manuals.InvestedIds.Contains(slot.unit.GetInstanceID()));
         }
 
         private void UpdateHealth(Slot slot)
@@ -269,6 +294,7 @@ namespace ArmySurvivor.Army
             experience.RosterChanged -= ScheduleRebuild;
             experience.UnitLeveledUp -= LevelChanged;
             experience.UnitExperienceChanged -= ExperienceChanged;
+            if (manuals != null) manuals.Changed -= RefreshManualChecks;
             if (rebuild != null) StopCoroutine(rebuild);
             rebuild = null;
             ClearSlots();

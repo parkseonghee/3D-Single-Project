@@ -1,0 +1,810 @@
+fileFormatVersion: 2
+guid: 28d09396e01990543bd21f9045482e0f
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable: []
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: roar
+      takeName: Scene
+      internalID: -623603649343465320
+      firstFrame: 1
+      lastFrame: 90
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: smartrig:Hips
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftUpLeg
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightUpLeg
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftLeg
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightLeg
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftFoot
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightFoot
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:Spine
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:Spine1
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:Neck
+      humanName: Neck
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:Head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftShoulder
+      humanName: LeftShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightShoulder
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftArm
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightArm
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftForeArm
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightForeArm
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHand
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHand
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftToeBase
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightToeBase
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: headfront
+      humanName: Jaw
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandThumb1
+      humanName: Left Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandThumb2
+      humanName: Left Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandThumb3
+      humanName: Left Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandMiddle1
+      humanName: Left Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandMiddle2
+      humanName: Left Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandMiddle3
+      humanName: Left Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandRing1
+      humanName: Left Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandRing2
+      humanName: Left Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandRing3
+      humanName: Left Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandPinky1
+      humanName: Left Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandPinky2
+      humanName: Left Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:LeftHandPinky3
+      humanName: Left Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandThumb1
+      humanName: Right Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandThumb2
+      humanName: Right Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandThumb3
+      humanName: Right Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandMiddle1
+      humanName: Right Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandMiddle2
+      humanName: Right Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandMiddle3
+      humanName: Right Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandRing1
+      humanName: Right Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandRing2
+      humanName: Right Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandRing3
+      humanName: Right Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandPinky1
+      humanName: Right Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandPinky2
+      humanName: Right Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:RightHandPinky3
+      humanName: Right Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: smartrig:Spine2
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Meshy_AI_Crystal_Golem_biped_Animation_01a14490-5a26-77e9-ad4d-f3ebb7129923_without_skin(Clone)
+      parentName: 
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.00000003774895, y: 0, z: -0, w: 1}
+      scale: {x: 100, y: 100, z: 100}
+    - name: smartrig:Hips
+      parentName: Meshy_AI_Crystal_Golem_biped_Animation_01a14490-5a26-77e9-ad4d-f3ebb7129923_without_skin(Clone)
+      position: {x: 0.000020378344, y: 0.008364092, z: -0.00021617617}
+      rotation: {x: 0.13003457, y: 0.023489516, z: 0.00755772, w: 0.99120235}
+      scale: {x: 0.9999999, y: 0.99999994, z: 0.99999994}
+    - name: smartrig:Spine
+      parentName: smartrig:Hips
+      position: {x: 5.8207657e-12, y: 0.0010783249, z: 1.0419171e-10}
+      rotation: {x: -0.09642348, y: 0.019061083, z: -0.0109268725, w: 0.9950979}
+      scale: {x: 1.0000001, y: 1, z: 0.9999998}
+    - name: smartrig:Spine1
+      parentName: smartrig:Spine
+      position: {x: 5.5297277e-12, y: 0.0010766889, z: -6.173832e-10}
+      rotation: {x: -0.049721222, y: -0.003573516, z: 0.033056658, w: 0.99820954}
+      scale: {x: 0.99999994, y: 1, z: 0.99999994}
+    - name: smartrig:Spine2
+      parentName: smartrig:Spine1
+      position: {x: 1.8335413e-11, y: 0.0010754839, z: 4.490107e-10}
+      rotation: {x: 0.24951394, y: -0.003580233, z: -0.035193704, w: 0.96772486}
+      scale: {x: 0.99999994, y: 0.9999997, z: 0.9999999}
+    - name: smartrig:Neck
+      parentName: smartrig:Spine2
+      position: {x: 5.6024872e-12, y: 0.0010660782, z: 5.5269084e-10}
+      rotation: {x: -0.27406028, y: -0.0038283458, z: -0.005071481, w: 0.9616915}
+      scale: {x: 0.9999999, y: 0.99999976, z: 0.9999997}
+    - name: smartrig:Head
+      parentName: smartrig:Neck
+      position: {x: 8.6401996e-13, y: 0.0013407428, z: 4.933872e-10}
+      rotation: {x: -0.31858462, y: 0.02507882, z: 0.016465606, w: 0.9474195}
+      scale: {x: 1.0000001, y: 1.0000004, z: 1.0000002}
+    - name: smartrig:HeadTop_End
+      parentName: smartrig:Head
+      position: {x: 1.0011717e-10, y: 0.0031209323, z: -4.3073667e-10}
+      rotation: {x: 0.00000038744983, y: -0.022655044, z: -0.000000102851814, w: 0.99974334}
+      scale: {x: 0.99999964, y: 0.9999997, z: 0.9999996}
+    - name: headfront
+      parentName: smartrig:Head
+      position: {x: -0.000074538, y: -0.00028690204, z: 0.0016438168}
+      rotation: {x: -0.00000090218987, y: -0.00000007078053, z: 0.000000047613877, w: 1}
+      scale: {x: 0.9999998, y: 0.9999998, z: 0.9999998}
+    - name: smartrig:LeftShoulder
+      parentName: smartrig:Spine2
+      position: {x: -0.00067343406, y: 0.00080100767, z: -0.00072890427}
+      rotation: {x: 0.7961823, y: -0.5341822, z: -0.22708228, w: -0.1708127}
+      scale: {x: 0.99999964, y: 0.9999994, z: 0.9999997}
+    - name: smartrig:LeftArm
+      parentName: smartrig:LeftShoulder
+      position: {x: 2.9802322e-10, y: 0.0026196907, z: 5.2154064e-10}
+      rotation: {x: 0.14174002, y: -0.8031691, z: 0.024399513, w: 0.5781297}
+      scale: {x: 1.0000001, y: 1, z: 1.0000002}
+    - name: smartrig:LeftForeArm
+      parentName: smartrig:LeftArm
+      position: {x: 7.8231094e-10, y: 0.0029502087, z: -1.4901161e-10}
+      rotation: {x: 0.0081886845, y: 0.14482379, z: -0.0066532767, w: 0.9894013}
+      scale: {x: 0.99999994, y: 0.9999998, z: 0.99999994}
+    - name: smartrig:LeftHand
+      parentName: smartrig:LeftForeArm
+      position: {x: 1.11758706e-10, y: 0.0024511758, z: 5.2154064e-10}
+      rotation: {x: -0.44091648, y: -0.21407269, z: 0.025306905, w: 0.8712779}
+      scale: {x: 1.0000004, y: 1.0000001, z: 1.0000002}
+    - name: smartrig:LeftHandPinky1
+      parentName: smartrig:LeftHand
+      position: {x: 0.0006178979, y: 0.001459026, z: -0.0005107916}
+      rotation: {x: -0.033931833, y: 0.47677463, z: 0.1885469, w: 0.85789543}
+      scale: {x: 0.9999999, y: 0.99999994, z: 1}
+    - name: smartrig:LeftHandPinky2
+      parentName: smartrig:LeftHandPinky1
+      position: {x: -1.8626451e-11, y: 0.00036852725, z: -4.4703483e-10}
+      rotation: {x: -0.030411843, y: 0.10323759, z: -0.00042106755, w: 0.99419165}
+      scale: {x: 0.99999994, y: 1, z: 1.0000001}
+    - name: smartrig:LeftHandPinky3
+      parentName: smartrig:LeftHandPinky2
+      position: {x: -7.4505804e-11, y: 0.00033151158, z: 4.749745e-10}
+      rotation: {x: -0.03858518, y: 0.18347314, z: 0.01359812, w: 0.9821731}
+      scale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
+    - name: smartrig:LeftHandPinky4
+      parentName: smartrig:LeftHandPinky3
+      position: {x: -2.9802322e-10, y: 0.00035715636, z: 1.4901161e-10}
+      rotation: {x: 0.00008236686, y: 0.0040630447, z: -0.0005686676, w: 0.9999916}
+      scale: {x: 0.99999994, y: 1, z: 1.0000001}
+    - name: smartrig:LeftHandRing1
+      parentName: smartrig:LeftHand
+      position: {x: 0.000291887, y: 0.0016727, z: -0.000052900687}
+      rotation: {x: -0.048900228, y: 0.51998657, z: 0.16551057, w: 0.8365578}
+      scale: {x: 1, y: 1.0000001, z: 0.99999994}
+    - name: smartrig:LeftHandRing2
+      parentName: smartrig:LeftHandRing1
+      position: {x: -2.2351741e-10, y: 0.0004447297, z: 2.2351741e-10}
+      rotation: {x: -0.025580093, y: 0.0418216, z: -0.0100985635, w: 0.9987466}
+      scale: {x: 0.9999998, y: 0.9999998, z: 0.9999998}
+    - name: smartrig:LeftHandRing3
+      parentName: smartrig:LeftHandRing2
+      position: {x: -0, y: 0.0004066165, z: 3.72529e-10}
+      rotation: {x: -0.03343818, y: 0.017967416, z: 0.0011187361, w: 0.9992786}
+      scale: {x: 0.99999994, y: 1, z: 0.99999994}
+    - name: smartrig:LeftHandRing4
+      parentName: smartrig:LeftHandRing3
+      position: {x: 2.9802322e-10, y: 0.00042380227, z: 5.9604643e-10}
+      rotation: {x: -0.00019097823, y: 0.0071292506, z: 0.00074344006, w: 0.9999743}
+      scale: {x: 0.9999999, y: 0.9999998, z: 0.9999999}
+    - name: smartrig:LeftHandThumb1
+      parentName: smartrig:LeftHand
+      position: {x: -0.00046326398, y: 0.00053905265, z: 0.00018885419}
+      rotation: {x: 0.32110623, y: 0.63739306, z: 0.2292496, w: 0.6618653}
+      scale: {x: 0.99999976, y: 0.9999995, z: 1.0000002}
+    - name: smartrig:LeftHandThumb2
+      parentName: smartrig:LeftHandThumb1
+      position: {x: 2.2351741e-10, y: 0.00054244976, z: -5.5879353e-11}
+      rotation: {x: -0.028609032, y: 0.22410508, z: 0.021473944, w: 0.97390825}
+      scale: {x: 1, y: 0.99999976, z: 0.9999998}
+    - name: smartrig:LeftHandThumb3
+      parentName: smartrig:LeftHandThumb2
+      position: {x: 3.72529e-10, y: 0.00050251134, z: -5.9604643e-10}
+      rotation: {x: 0.029829042, y: 0.70588017, z: 0.0053646103, w: 0.70768267}
+      scale: {x: 0.9999999, y: 0.9999998, z: 0.99999994}
+    - name: smartrig:LeftHandThumb4
+      parentName: smartrig:LeftHandThumb3
+      position: {x: 2.7939676e-10, y: 0.0005296912, z: 7.4505804e-11}
+      rotation: {x: 0.028686652, y: -0.34483978, z: -0.066747636, w: 0.93584585}
+      scale: {x: 0.99999976, y: 1, z: 0.99999994}
+    - name: smartrig:LeftHandMiddle1
+      parentName: smartrig:LeftHand
+      position: {x: -0.00044651737, y: 0.0017345368, z: 0.00037484005}
+      rotation: {x: -0.10842515, y: 0.8262105, z: 0.11318176, w: 0.5411193}
+      scale: {x: 0.99999976, y: 0.9999998, z: 0.9999998}
+    - name: smartrig:LeftHandMiddle2
+      parentName: smartrig:LeftHandMiddle1
+      position: {x: -2.9802322e-10, y: 0.0004341802, z: 8.9406965e-10}
+      rotation: {x: -0.014960689, y: -0.49730724, z: -0.021019228, w: 0.86719084}
+      scale: {x: 0.99999994, y: 1.0000001, z: 0.9999998}
+    - name: smartrig:LeftHandMiddle3
+      parentName: smartrig:LeftHandMiddle2
+      position: {x: -4.4703483e-10, y: 0.00039298864, z: -1.2951204e-11}
+      rotation: {x: -0.034700725, y: -0.087417826, z: 0.0021975224, w: 0.99556476}
+      scale: {x: 0.9999999, y: 0.9999998, z: 1.0000001}
+    - name: smartrig:LeftHandMiddle4
+      parentName: smartrig:LeftHandMiddle3
+      position: {x: 7.4505804e-11, y: 0.00040103926, z: -2.3283064e-10}
+      rotation: {x: 0.000082398736, y: 0.0046097795, z: -0.0006527637, w: 0.99998915}
+      scale: {x: 1, y: 1, z: 1}
+    - name: smartrig:RightShoulder
+      parentName: smartrig:Spine2
+      position: {x: 0.0006204829, y: 0.00093365513, z: -0.0008171054}
+      rotation: {x: 0.75714356, y: 0.6068282, z: 0.21303216, w: -0.114501484}
+      scale: {x: 0.9999998, y: 1, z: 0.9999999}
+    - name: smartrig:RightArm
+      parentName: smartrig:RightShoulder
+      position: {x: -7.4505804e-11, y: 0.00257221, z: 0}
+      rotation: {x: 0.1391027, y: 0.80886537, z: -0.016882043, w: 0.5710536}
+      scale: {x: 1, y: 1.0000001, z: 1.0000002}
+    - name: smartrig:RightForeArm
+      parentName: smartrig:RightArm
+      position: {x: -6.705522e-10, y: 0.0030826407, z: -7.4505804e-11}
+      rotation: {x: 0.01706718, y: -0.09032469, z: 0.0066522807, w: 0.9957439}
+      scale: {x: 1, y: 1.0000002, z: 1}
+    - name: smartrig:RightHand
+      parentName: smartrig:RightForeArm
+      position: {x: 2.9103829e-12, y: 0.002489138, z: 5.1455573e-10}
+      rotation: {x: -0.50383955, y: 0.28297898, z: -0.0016411798, w: 0.8161286}
+      scale: {x: 0.9999999, y: 1.0000001, z: 0.99999994}
+    - name: smartrig:RightHandPinky1
+      parentName: smartrig:RightHand
+      position: {x: -0.0006206821, y: 0.0014416245, z: -0.0005076453}
+      rotation: {x: -0.03384838, y: -0.47347072, z: -0.18922114, w: 0.85957843}
+      scale: {x: 0.9999999, y: 1, z: 0.99999964}
+    - name: smartrig:RightHandPinky2
+      parentName: smartrig:RightHandPinky1
+      position: {x: 5.122274e-10, y: 0.00036852833, z: -8.5681673e-10}
+      rotation: {x: -0.030410692, y: -0.103319794, z: 0.00046766363, w: 0.99418306}
+      scale: {x: 1.0000001, y: 1.0000002, z: 1.0000001}
+    - name: smartrig:RightHandPinky3
+      parentName: smartrig:RightHandPinky2
+      position: {x: 3.352761e-10, y: 0.00033151187, z: 4.400499e-10}
+      rotation: {x: -0.038668968, y: -0.18339337, z: -0.013368351, w: 0.9821878}
+      scale: {x: 1, y: 0.99999976, z: 0.9999997}
+    - name: smartrig:RightHandPinky4
+      parentName: smartrig:RightHandPinky3
+      position: {x: 2.9802322e-10, y: 0.00035715452, z: 2.9802322e-10}
+      rotation: {x: 0.00042143124, y: -0.008431857, z: 0.0021669741, w: 0.99996203}
+      scale: {x: 0.99999994, y: 0.9999998, z: 0.9999998}
+    - name: smartrig:RightHandRing1
+      parentName: smartrig:RightHand
+      position: {x: -0.00029305025, y: 0.0016556726, z: -0.00005108859}
+      rotation: {x: -0.04885616, y: -0.5177117, z: -0.16611333, w: 0.8378508}
+      scale: {x: 0.9999999, y: 1, z: 1}
+    - name: smartrig:RightHandRing2
+      parentName: smartrig:RightHandRing1
+      position: {x: 7.4505804e-11, y: 0.00042791455, z: 1.862645e-10}
+      rotation: {x: -0.025380246, y: -0.056610018, z: 0.010602948, w: 0.9980175}
+      scale: {x: 0.99999994, y: 0.99999994, z: 1.0000001}
+    - name: smartrig:RightHandRing3
+      parentName: smartrig:RightHandRing2
+      position: {x: -2.6077032e-10, y: 0.00039603474, z: 3.4458936e-10}
+      rotation: {x: -0.03345383, y: -0.0007458848, z: -0.0005453972, w: 0.9994399}
+      scale: {x: 1, y: 1, z: 1.0000001}
+    - name: smartrig:RightHandRing4
+      parentName: smartrig:RightHandRing3
+      position: {x: -1.862645e-10, y: 0.0004155579, z: -2.2351741e-10}
+      rotation: {x: -0.000010576397, y: -0.007465874, z: -0.00030345953, w: 0.9999721}
+      scale: {x: 0.99999994, y: 0.9999998, z: 0.9999998}
+    - name: smartrig:RightHandThumb1
+      parentName: smartrig:RightHand
+      position: {x: 0.00046647977, y: 0.0005238857, z: 0.00018560693}
+      rotation: {x: 0.33383653, y: -0.62870663, z: -0.16558112, w: 0.6825423}
+      scale: {x: 0.99999994, y: 0.9999999, z: 1.0000001}
+    - name: smartrig:RightHandThumb2
+      parentName: smartrig:RightHandThumb1
+      position: {x: -2.2351741e-10, y: 0.0005411146, z: 1.862645e-10}
+      rotation: {x: -0.028765118, y: -0.2232833, z: -0.02126697, w: 0.97409695}
+      scale: {x: 1, y: 0.9999997, z: 1}
+    - name: smartrig:RightHandThumb3
+      parentName: smartrig:RightHandThumb2
+      position: {x: 1.11758706e-10, y: 0.00050201215, z: -2.2351741e-10}
+      rotation: {x: 0.029812617, y: -0.7035388, z: -0.0054566143, w: 0.7100103}
+      scale: {x: 1, y: 1, z: 1.0000001}
+    - name: smartrig:RightHandThumb4
+      parentName: smartrig:RightHandThumb3
+      position: {x: -7.4505804e-11, y: 0.0005331315, z: 2.4214386e-10}
+      rotation: {x: 0.026698947, y: 0.37554875, z: 0.067848444, w: 0.9239301}
+      scale: {x: 0.9999998, y: 0.99999976, z: 0.99999994}
+    - name: smartrig:RightHandMiddle1
+      parentName: smartrig:RightHand
+      position: {x: 0.00044725084, y: 0.0017190924, z: 0.00037312604}
+      rotation: {x: -0.09174892, y: -0.7418732, z: -0.12767026, w: 0.6518487}
+      scale: {x: 0.99999976, y: 0.9999998, z: 0.9999999}
+    - name: smartrig:RightHandMiddle2
+      parentName: smartrig:RightHandMiddle1
+      position: {x: -4.0978193e-10, y: 0.0004168085, z: -6.519258e-11}
+      rotation: {x: -0.016816076, y: 0.33332884, z: 0.019577166, w: 0.9424573}
+      scale: {x: 0.99999994, y: 0.9999998, z: 0.99999994}
+    - name: smartrig:RightHandMiddle3
+      parentName: smartrig:RightHandMiddle2
+      position: {x: -1.2107193e-10, y: 0.00038828823, z: 9.313225e-11}
+      rotation: {x: -0.034770943, y: 0.10390852, z: 0.00033527557, w: 0.99397886}
+      scale: {x: 1.0000001, y: 1.0000002, z: 1.0000001}
+    - name: smartrig:RightHandMiddle4
+      parentName: smartrig:RightHandMiddle3
+      position: {x: 5.5879353e-11, y: 0.000380036, z: -4.0978193e-10}
+      rotation: {x: -0.00025702667, y: -0.007050323, z: -0.0016843328, w: 0.9999737}
+      scale: {x: 1, y: 1, z: 1}
+    - name: smartrig:LeftUpLeg
+      parentName: smartrig:Hips
+      position: {x: -0.0013337409, y: -0.0009687365, z: -0.00053650275}
+      rotation: {x: 0.9609838, y: -0.1293516, z: -0.23753712, w: 0.057917237}
+      scale: {x: 0.99999946, y: 0.9999999, z: 1.0000001}
+    - name: smartrig:LeftLeg
+      parentName: smartrig:LeftUpLeg
+      position: {x: 1.3969838e-10, y: 0.0035351461, z: -3.352761e-10}
+      rotation: {x: 0.15195927, y: 0.074731946, z: -0.12717202, w: 0.97731817}
+      scale: {x: 1, y: 1, z: 0.9999998}
+    - name: smartrig:LeftFoot
+      parentName: smartrig:LeftLeg
+      position: {x: -1.268927e-10, y: 0.003393821, z: 9.313225e-11}
+      rotation: {x: -0.49774164, y: 0.12346636, z: 0.11737445, w: 0.85043085}
+      scale: {x: 1, y: 1.0000004, z: 1.0000002}
+    - name: smartrig:LeftToeBase
+      parentName: smartrig:LeftFoot
+      position: {x: -1.0244548e-10, y: 0.0008740187, z: 2.561137e-11}
+      rotation: {x: -0.31815615, y: -0.29080454, z: 0.16382957, w: 0.8873383}
+      scale: {x: 0.99999994, y: 0.9999999, z: 0.99999994}
+    - name: smartrig:LeftToe_End
+      parentName: smartrig:LeftToeBase
+      position: {x: -7.4505804e-11, y: 0.0018680667, z: 7.334165e-11}
+      rotation: {x: 0.0062146904, y: -0.23919721, z: -0.005681878, w: 0.9709345}
+      scale: {x: 1, y: 1.0000001, z: 1.0000001}
+    - name: smartrig:RightUpLeg
+      parentName: smartrig:Hips
+      position: {x: 0.0013281256, y: -0.0009574767, z: -0.0005399272}
+      rotation: {x: 0.9562476, y: 0.04120116, z: 0.28964284, w: 0.000016012898}
+      scale: {x: 0.9999997, y: 0.99999934, z: 0.9999998}
+    - name: smartrig:RightLeg
+      parentName: smartrig:RightUpLeg
+      position: {x: 9.313225e-11, y: 0.0034478062, z: -1.862645e-10}
+      rotation: {x: 0.091073595, y: -0.068510115, z: 0.07012651, w: 0.99100673}
+      scale: {x: 0.9999998, y: 1, z: 1}
+    - name: smartrig:RightFoot
+      parentName: smartrig:RightLeg
+      position: {x: -9.313225e-11, y: 0.0034463352, z: 7.4505804e-11}
+      rotation: {x: -0.48736098, y: -0.23304594, z: -0.11141913, w: 0.83411914}
+      scale: {x: 0.99999964, y: 0.9999999, z: 1}
+    - name: smartrig:RightToeBase
+      parentName: smartrig:RightFoot
+      position: {x: -5.122274e-10, y: 0.0009360464, z: 5.5879353e-11}
+      rotation: {x: -0.32561976, y: 0.31461856, z: -0.14639218, w: 0.8795205}
+      scale: {x: 1, y: 1, z: 1.0000001}
+    - name: smartrig:RightToe_End
+      parentName: smartrig:RightToeBase
+      position: {x: -1.3969838e-11, y: 0.0017802606, z: 2.4447216e-10}
+      rotation: {x: 0.0069403523, y: 0.26121226, z: 0.0050642504, w: 0.96524316}
+      scale: {x: 1, y: 0.99999994, z: 1.0000001}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

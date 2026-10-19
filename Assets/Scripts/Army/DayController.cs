@@ -55,7 +55,7 @@ namespace ArmySurvivor.Army
                 if (GetComponent<SurvivalController>() == null) gameObject.AddComponent<SurvivalController>();
                 return;
             }
-            travel = FindFirstObjectByType<SceneTravel>();
+            travel = FindFirstObjectByType<SceneTravel>(FindObjectsInactive.Include);
             sharedHealth = Resources.Load<SurvivalSettings>("SurvivalSettings");
             harvest = FindFirstObjectByType<RiceHarvest>(FindObjectsInactive.Include);
             if (harvest != null) Day = Mathf.Max(1, harvest.Day);
@@ -103,26 +103,29 @@ namespace ArmySurvivor.Army
             }
             runtimeBoss = SharedDefinition(stage.boss);
             combat.Configure(normal, stage.spawnInterval, stage.maximumEnemies, pool,
-                stage.survivalSeconds, settings.waves, settings.enemySafetyLimit, settings.GetWaveLimit(Day));
+                stage.survivalSeconds, settings.waves, settings.enemySafetyLimit, settings.GetWaveLimit(Day), settings, Day);
             var miniBoss = GetComponent<MiniBossController>();
             if (miniBoss == null) miniBoss = gameObject.AddComponent<MiniBossController>();
             miniBoss.Configure(normal, stage.survivalSeconds,
                 sharedHealth != null && sharedHealth.elite != null
-                    ? sharedHealth.elite.Health(sharedHealth.AdventureTier(Day)) : 0);
+                    ? sharedHealth.elite.Health(1) * settings.HealthScale(Day) : 0, 1f / 3f);
+            EnsureWaveLabel();
             UpdateProgress();
         }
 
         private void EndStage()
         {
+            if (waveLabel != null) waveLabel.gameObject.SetActive(false);
             bossSpawned = false;
             ReleaseRuntimeDefinitions();
         }
 
         private EnemyDefinition SharedDefinition(EnemyDefinition source)
         {
-            if (source == null || sharedHealth == null) return source;
+            if (source == null) return null;
             EnemyDefinition copy = Instantiate(source);
-            copy.health = sharedHealth.AdventureHealth(source, Day);
+            copy.health = (sharedHealth != null ? sharedHealth.AdventureHealth(source, 1) : source.health) * settings.HealthScale(Day);
+            copy.damage = source.damage * settings.DamageScale(Day);
             runtimeDefinitions.Add(copy);
             return copy;
         }
@@ -137,11 +140,27 @@ namespace ArmySurvivor.Army
 
         private void LateUpdate() => UpdateProgress();
 
+        private TMP_Text waveLabel;
+        private void EnsureWaveLabel()
+        {
+            if (waveLabel == null)
+            {
+                var rect = new GameObject("Adventure Wave Status", typeof(RectTransform)).GetComponent<RectTransform>();
+                rect.SetParent(dayNumber.canvas.transform, false);
+                rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
+                rect.pivot = new Vector2(0, 1); rect.anchoredPosition = new Vector2(28, -90); rect.sizeDelta = new Vector2(420, 70);
+                waveLabel = rect.gameObject.AddComponent<TextMeshProUGUI>(); waveLabel.font = dayNumber.font;
+                waveLabel.fontSize = 23; waveLabel.color = new Color(1, .9f, .65f); waveLabel.raycastTarget = false;
+            }
+            waveLabel.gameObject.SetActive(true);
+        }
+
         public void UpdateProgress()
         {
             if (GameModeManager.Current != GameMode.Adventure) return;
             if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || run.CommanderDead || AwaitingResult || CampaignComplete || CampaignDefeated) return;
             int seconds = Mathf.CeilToInt(Mathf.Max(0, stage.survivalSeconds - run.Elapsed));
+            if (waveLabel != null) waveLabel.text = combat.AdventureWaveLabel;
             remainingTime.text = $"{seconds / 60:00}:{seconds % 60:00}";
             if (run.Elapsed < stage.survivalSeconds) return;
             if (IsBossDay)
@@ -149,11 +168,12 @@ namespace ArmySurvivor.Army
                 if (!bossSpawned) bossSpawned = combat.SpawnBoss(runtimeBoss != null ? runtimeBoss : stage.boss);
                 if (!combat.BossDefeated) return;
             }
+            victorySupportGold = GetComponent<CommanderProgression>()?.VictoryGold ?? 0;
             AwaitingResult = true;
             run.ReturnToPreparation();
             run.CanStart = false;
             clearedDay.text = Day.ToString();
-            goldAmount.text = stage.goldReward.ToString();
+            goldAmount.text = (stage.goldReward + victorySupportGold).ToString();
             specialAmount.text = (IsBossDay ? stage.bossSpecialReward : 0).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
             resultPanel.SetActive(true);
@@ -176,11 +196,14 @@ namespace ArmySurvivor.Army
             SceneManager.LoadScene(startSceneName, LoadSceneMode.Single);
         }
 
+        private int victorySupportGold;
+
         public void CollectAndReturn()
         {
             if (!AwaitingResult) return;
             AwaitingResult = false;
-            if (travel != null) travel.Village.AddStageRewards(stage.goldReward, IsBossDay ? stage.bossSpecialReward : 0);
+            if (travel != null) travel.Village.AddStageRewards(stage.goldReward + victorySupportGold, IsBossDay ? stage.bossSpecialReward : 0);
+            victorySupportGold = 0;
             CampaignComplete = Day >= settings.finalDay;
             if (!CampaignComplete)
             {

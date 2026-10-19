@@ -64,7 +64,7 @@ namespace ArmySurvivor.Army
         public void Configure(EnemyDefinition source, float survivalSeconds)
             => Configure(source, survivalSeconds, 0);
 
-        public void Configure(EnemyDefinition source, float survivalSeconds, float sharedHealth)
+        public void Configure(EnemyDefinition source, float survivalSeconds, float sharedHealth, float appearanceProgress = -1)
         {
             ResetRun();
             survivalMode = false;
@@ -73,7 +73,7 @@ namespace ArmySurvivor.Army
             definition.name = "MiniBoss Runtime Definition";
             definition.health = sharedHealth > 0 ? sharedHealth : definition.health * healthMultiplier;
             definition.damage *= damageMultiplier;
-            spawnAt = survivalSeconds * spawnProgress;
+            spawnAt = survivalSeconds * (appearanceProgress >= 0 ? Mathf.Clamp01(appearanceProgress) : spawnProgress);
         }
 
         public void ConfigureSurvival()

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8824ea9afc2bf7b459dea258cf5d9804, type: 3}
+  m_Name: EqualEducation
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.ManualDefinition
+  displayName: "\uADE0\uB4F1 \uAD50\uC721 \uAD50\uBC94"
+  description: "\uC11C\uB85C \uB2E4\uB978 \uBCD1\uC0AC 3\uBA85\uC5D0\uAC8C \uC5F0\uC18D\uC73C\uB85C
+    \uACBD\uD5D8\uCE58 \uBCD1 \uD22C\uC790\n\n\uC804 \uBCD1\uC0AC \uACF5\uACA9\uB825
+    +30%\n\uACF5\uACA9 \uC18D\uB3C4 +20% \xB7 8\uCD08\n\uC7AC\uBC1C\uB3D9\uD558\uBA74
+    \uC9C0\uC18D \uC2DC\uAC04 \uAC31\uC2E0"
+  playStyle: "\uD55C \uBA85\uC5D0\uAC8C \uBAB0\uC544\uC8FC\uAE30\uBCF4\uB2E4 \uBC88\uAC08\uC544
+    \uC131\uC7A5\uC2DC\uD0A4\uC138\uC694. \uAC19\uC740 \uBCD1\uC0AC\uC5D0\uAC8C \uB2E4\uC2DC
+    \uD22C\uC790\uD558\uBA74 \uADF8 \uBCD1\uC0AC\uBD80\uD130 \uB2E4\uC2DC \uC2DC\uC791\uD569\uB2C8\uB2E4."
+  icon: {fileID: 21300000, guid: 2ca36f5f948c0e440b6b9fadb7712bad, type: 3}
+  effect: {fileID: 11400000, guid: eddf88b819a26a34483a76c04f9ef54d, type: 2}
+  unlocked: 1
+  minimumSoldiers: 3
+  requiredTypes: []
