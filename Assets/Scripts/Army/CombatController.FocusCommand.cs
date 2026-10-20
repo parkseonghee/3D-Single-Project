@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using ArmySurvivor.Tutorial;
 
 namespace ArmySurvivor.Army
 {
@@ -10,6 +11,7 @@ namespace ArmySurvivor.Army
     {
         [Header("집중 구역 명령")]
         [SerializeField] private Camera focusInputCamera;
+        [SerializeField, Min(0)] private float focusClickPaddingPixels = 14f;
         [SerializeField] private LineRenderer focusRingTemplate;
         [SerializeField, Min(0.5f)] private float focusRadius = 5f;
         [SerializeField, Min(1)] private int focusMaxAttackersPerEnemy = 2;
@@ -28,6 +30,7 @@ namespace ArmySurvivor.Army
         private LineRenderer focusRing;
         private Vector3 focusCenter;
         private bool focusActive;
+        private EnemyState focusTarget;
         private int focusGeneration;
 
         public bool HasFocusCommand => focusActive;
@@ -39,16 +42,73 @@ namespace ArmySurvivor.Army
             Mouse mouse = Mouse.current;
             if (mouse != null && !PointerOverInteractiveUI(mouse.position.ReadValue()))
             {
-                if (mouse.rightButton.wasPressedThisFrame) ClearFocusCommand();
-                else if (mouse.leftButton.wasPressedThisFrame && focusInputCamera != null && run.Ground != null)
+                if (mouse.leftButton.wasPressedThisFrame && focusActive)
                 {
-                    Ray ray = focusInputCamera.ScreenPointToRay(mouse.position.ReadValue());
-                    if (run.Ground.Raycast(ray, out RaycastHit hit, focusInputCamera.farClipPlane))
-                        SetFocusCommand(hit.point);
+                    ClearFocusCommand();
+                    TutorialEvents.Raise("FocusTargetCleared");
+                }
+                else if (mouse.rightButton.wasPressedThisFrame && focusInputCamera != null)
+                {
+                    EnemyState enemy = FindEnemyAtScreenPoint(mouse.position.ReadValue());
+                    if (enemy != null)
+                    {
+                        focusTarget = enemy;
+                        SetFocusCommand(enemy.root.position);
+                        TutorialEvents.Raise("FocusTargetSet", enemy.root);
+                    }
                 }
             }
 
-            if (focusActive) MoveFocusedSoldiers(dt);
+            if (focusActive)
+            {
+                if (focusTarget != null && focusTarget.root != null && focusTarget.health > 0)
+                {
+                    focusCenter = focusTarget.root.position;
+                    if (focusRing != null) focusRing.transform.position = focusCenter + Vector3.up * focusRingHeight;
+                }
+                MoveFocusedSoldiers(dt);
+            }
+        }
+
+        private EnemyState FindEnemyAtScreenPoint(Vector2 screenPoint)
+        {
+            EnemyState selected = null;
+            float nearestDepth = float.PositiveInfinity;
+            foreach (EnemyState enemy in enemies)
+            {
+                if (enemy.root == null || enemy.health <= 0) continue;
+                Renderer[] renderers = enemy.root.GetComponentsInChildren<Renderer>();
+                bool hasBounds = false;
+                Bounds bounds = default;
+                foreach (Renderer renderer in renderers)
+                {
+                    if (!renderer.enabled || renderer is ParticleSystemRenderer) continue;
+                    if (!hasBounds) { bounds = renderer.bounds; hasBounds = true; }
+                    else bounds.Encapsulate(renderer.bounds);
+                }
+                if (!hasBounds) continue;
+                Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+                Vector2 max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+                float depth = float.PositiveInfinity;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    Vector3 point = bounds.center + Vector3.Scale(bounds.extents,
+                        new Vector3((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1,
+                            (corner & 4) == 0 ? -1 : 1));
+                    Vector3 screen = focusInputCamera.WorldToScreenPoint(point);
+                    if (screen.z <= 0) continue;
+                    min = Vector2.Min(min, screen);
+                    max = Vector2.Max(max, screen);
+                    depth = Mathf.Min(depth, screen.z);
+                }
+                if (float.IsInfinity(min.x)) continue;
+                Rect hitArea = Rect.MinMaxRect(min.x - focusClickPaddingPixels, min.y - focusClickPaddingPixels,
+                    max.x + focusClickPaddingPixels, max.y + focusClickPaddingPixels);
+                if (!hitArea.Contains(screenPoint) || depth >= nearestDepth) continue;
+                selected = enemy;
+                nearestDepth = depth;
+            }
+            return selected;
         }
 
         private bool PointerOverInteractiveUI(Vector2 screenPosition)
@@ -60,6 +120,7 @@ namespace ArmySurvivor.Army
             foreach (RaycastResult hit in focusUiHits)
             {
                 if (hit.gameObject == null) continue;
+                if (hit.gameObject.GetComponent<TutorialSpotlight>() != null) return true;
                 if (hit.gameObject.GetComponentInParent<Selectable>() != null ||
                     hit.gameObject.GetComponentInParent<ScrollRect>() != null)
                     return true;
@@ -102,6 +163,9 @@ namespace ArmySurvivor.Army
             {
                 focusRing.transform.SetPositionAndRotation(point + Vector3.up * focusRingHeight, Quaternion.identity);
                 focusRing.transform.localScale = Vector3.one;
+                TutorialTarget marker = focusRing.GetComponent<TutorialTarget>();
+                if (marker == null) marker = focusRing.gameObject.AddComponent<TutorialTarget>();
+                marker.SetId("FocusMarker");
             }
         }
 
@@ -115,6 +179,7 @@ namespace ArmySurvivor.Army
                 focusGeneration++;
             }
             focusActive = false;
+            focusTarget = null;
             if (focusRing != null)
             {
                 focusRing.gameObject.SetActive(false);
@@ -188,6 +253,16 @@ namespace ArmySurvivor.Army
         {
             focused = false;
             if (!focusActive) return NearestEnemy(unit.position, range);
+            if (focusTarget != null && focusTarget.root != null && focusTarget.health > 0)
+            {
+                bool ranged = recruitment.Units.TryGetValue(unit, out UnitDefinition own) &&
+                    !IsFocusRallyUnit(own.attack);
+                if (ranged || FlatDistance(unit.position, focusTarget.root.position) <= range)
+                {
+                    focused = true;
+                    return focusTarget;
+                }
+            }
             bool cavalry = IsFocusCavalry(unit);
             EnemyState chosen = cavalry ? FindCommandTarget(unit, range, true, true) : null;
             if (chosen == null) chosen = FindCommandTarget(unit, range, true, false);
@@ -256,7 +331,8 @@ namespace ArmySurvivor.Army
         private bool FocusTargetInRange(Transform unit, EnemyState target, float range)
         {
             if (!focusActive || target == null || target.root == null || target.health <= 0 ||
-                FlatDistance(unit.position, target.root.position) > range) return false;
+                (IsFocusRallyUnit(recruitment.Units[unit].attack) &&
+                 FlatDistance(unit.position, target.root.position) > range)) return false;
             return FlatDistance(focusCenter, target.root.position) <= focusRadius;
         }
     }

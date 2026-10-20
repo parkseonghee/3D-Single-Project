@@ -86,7 +86,7 @@ namespace ArmySurvivor.Army
         {
             if (!survivalMode || eliteDefinition == null) return false;
             bool created = combat.SpawnMiniBoss(eliteDefinition);
-            if (created) ShowNotice("중간 보스 · 정예 오크 등장!");
+            if (created) ShowNotice("정예 몬스터 등장 · 정예 오크!");
             return created;
         }
 
@@ -98,7 +98,7 @@ namespace ArmySurvivor.Army
             if (!survivalMode && !spawned && definition != null && run.Elapsed >= spawnAt)
             {
                 spawned = combat.SpawnMiniBoss(definition);
-                if (spawned) ShowNotice("중간 보스 · 정예 오크 등장!");
+                if (spawned) ShowNotice("정예 몬스터 등장 · 정예 오크!");
             }
             if (pending > 0 && !experience.IsChoosingUpgrade) OpenReward();
         }
@@ -184,7 +184,7 @@ namespace ArmySurvivor.Army
             overlay.offsetMin = overlay.offsetMax = Vector2.zero;
             panel = overlay.gameObject;
             panel.AddComponent<Image>().color = new Color(0.015f, 0.045f, 0.06f, 0.94f);
-            Text("Title", overlay, new Vector2(0, 260), new Vector2(1200, 80), "중간 보스 처치 · 즉시 효과 선택", 42);
+            Text("Title", overlay, new Vector2(0, 260), new Vector2(1200, 80), "정예 몬스터 처치 · 즉시 효과 선택", 42);
             for (int i = 0; i < 3; i++)
             {
                 int choice = i;

@@ -43,6 +43,7 @@ namespace ArmySurvivor.Army
                 SetRootsActive(playRoots, true);
             }
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(playScene));
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("PreparationEntered");
             loading = false;
         }
 

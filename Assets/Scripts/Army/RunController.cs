@@ -156,6 +156,7 @@ namespace ArmySurvivor.Army
             SelectTactic(0);
             FollowCamera();
             RunStarted?.Invoke();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("BattleStarted", commander);
         }
 
         public void SelectTactic(int index)
@@ -179,7 +180,7 @@ namespace ArmySurvivor.Army
             if (!IsRunning || IsPaused || IsChoosingUpgrade) return;
             Vector2 input = Vector2.zero;
             Keyboard keyboard = Keyboard.current;
-            if (keyboard != null)
+            if (keyboard != null && !ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked)
             {
                 for (int i = 0; i < tactics.Length; i++)
                     if (keyboard[tactics[i].key].wasPressedThisFrame) SelectTactic(i);
@@ -194,6 +195,7 @@ namespace ArmySurvivor.Army
         public void Tick(Vector2 input, float deltaTime)
         {
             if (!IsRunning || IsPaused || IsChoosingUpgrade || CommanderDead || deltaTime <= 0) return;
+            if (ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked) input = Vector2.zero;
             Elapsed += deltaTime;
             int second = Mathf.FloorToInt(Elapsed);
             if (shownSecond != second)
@@ -310,6 +312,7 @@ namespace ArmySurvivor.Army
             if (!IsRunning) return;
             IsRunning = false;
             RunEnded?.Invoke();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("BattleEnded");
             recruitment.IsPreparing = true;
             commander.SetPositionAndRotation(commanderPosition, commanderRotation);
             for (int i = 0; i < soldiers.Count; i++)

@@ -23,6 +23,7 @@ namespace ArmySurvivor.Army
         }
 
         [SerializeField] private HireOption[] options;
+        [SerializeField] private ScrollRect hireScroll;
         [SerializeField] private Transform[] spawnPoints;
         [SerializeField] private Transform soldiersRoot;
         [SerializeField] private Button backButton;
@@ -65,6 +66,7 @@ namespace ArmySurvivor.Army
             backButton.onClick.AddListener(Back);
             RestoreSavedTroops();
             RefreshUI();
+            ShowFirstHireOption();
         }
 
         private void Update()
@@ -75,6 +77,15 @@ namespace ArmySurvivor.Army
         private void OnEnable()
         {
             RefreshUI();
+            ShowFirstHireOption();
+        }
+
+        private void ShowFirstHireOption()
+        {
+            if (!IsPreparing || hireScroll == null) return;
+            Canvas.ForceUpdateCanvases();
+            hireScroll.StopMovement();
+            hireScroll.verticalNormalizedPosition = 1f;
         }
 
         public bool TryHire(UnitDefinition unit)
@@ -95,8 +106,11 @@ namespace ArmySurvivor.Army
                 animator.applyRootMotion = false;
             hiredCount++;
             Units.Add(root, unit);
+            var tutorialTarget = root.gameObject.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+            tutorialTarget.SetId("Soldier");
             StartCoroutine(Appear(root, Vector3.one));
             RefreshUI();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("SoldierHired", root);
             return true;
         }
 
@@ -146,6 +160,7 @@ namespace ArmySurvivor.Army
             hiredCount--;
             Rearrange();
             RefreshUI();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("FormationChanged", target);
             return true;
         }
 
@@ -163,6 +178,7 @@ namespace ArmySurvivor.Army
             hiredCount++;
             Rearrange();
             RefreshUI();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("FormationChanged", target);
             return true;
         }
 

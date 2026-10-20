@@ -104,6 +104,8 @@ namespace ArmySurvivor.Army
                 slot.root = Rect("Operator " + (index + 1) + " " + definition.displayName,
                     content, new Vector2(slotWidth * 0.5f + 12 + index * (slotWidth + 14), 0), new Vector2(slotWidth, 100));
                 slot.root.anchorMin = slot.root.anchorMax = new Vector2(0, 0.5f);
+                var tutorialTarget = slot.root.gameObject.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+                tutorialTarget.SetId("SoldierPortrait");
                 var hit = slot.root.gameObject.AddComponent<Image>();
                 hit.color = Color.clear;
                 slot.button = slot.root.gameObject.AddComponent<Button>();
@@ -236,7 +238,8 @@ namespace ArmySurvivor.Army
         private void Update()
         {
             // Only input is polled. HP and levels are updated exclusively by events.
-            if (!run.IsRunning || run.IsPaused || experience.IsChoosingUpgrade || Keyboard.current == null) return;
+            if (!run.IsRunning || run.IsPaused || experience.IsChoosingUpgrade || Keyboard.current == null ||
+                ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked) return;
             bool feed = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
             for (int i = 0; i < Mathf.Min(5, slots.Count); i++)
             {

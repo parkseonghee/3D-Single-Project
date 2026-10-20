@@ -302,7 +302,12 @@ namespace ArmySurvivor.Army
         {
             if (!run.IsRunning || dropRoot == null) return;
             position.y = bottleWorldY;
-            drops.Add(Instantiate(bottlePrefab, position, Quaternion.identity, dropRoot).transform);
+            Transform bottle = Instantiate(bottlePrefab, position, Quaternion.identity, dropRoot).transform;
+            var tutorialTarget = bottle.GetComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+            if (tutorialTarget == null) tutorialTarget = bottle.gameObject.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+            tutorialTarget.SetId("ExpBottle");
+            drops.Add(bottle);
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("ExpBottleDropped", bottle);
         }
 
         private void Update()
@@ -407,6 +412,7 @@ namespace ArmySurvivor.Army
                 drops.RemoveAt(i);
                 Bottles++;
                 OnBottleCollected?.Invoke();
+                ArmySurvivor.Tutorial.TutorialEvents.Raise("ExpBottleCollected");
                 collected = true;
             }
             if (collected) RefreshUI();
@@ -429,6 +435,7 @@ namespace ArmySurvivor.Army
             }
             UnitExperienceChanged?.Invoke(unit);
             OnExpBottleInvested?.Invoke(unit);
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("ExpBottleInvested", unit);
             ShowNextUpgrade();
             RefreshUI();
             return true;
@@ -767,6 +774,7 @@ namespace ArmySurvivor.Army
             if (levelUps.Count > 0) ShowNextUpgrade();
             else CloseUpgrade();
             RefreshUI();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("CardSelected");
             return true;
         }
 

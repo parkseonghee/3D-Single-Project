@@ -2881,13 +2881,34 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9834171218402937, guid: 2065bbd81dd9ab3479596f057895b4c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 79429850}
   m_SourcePrefab: {fileID: 100100000, guid: 2065bbd81dd9ab3479596f057895b4c8, type: 3}
 --- !u!4 &79429848 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5076660835332549318, guid: 2065bbd81dd9ab3479596f057895b4c8, type: 3}
   m_PrefabInstance: {fileID: 79429847}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &79429849 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9834171218402937, guid: 2065bbd81dd9ab3479596f057895b4c8, type: 3}
+  m_PrefabInstance: {fileID: 79429847}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &79429850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79429849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: Commander
 --- !u!1 &80956832
 GameObject:
   m_ObjectHideFlags: 0
@@ -10670,6 +10691,7 @@ GameObject:
   - component: {fileID: 283949024}
   - component: {fileID: 283949026}
   - component: {fileID: 283949025}
+  - component: {fileID: 283949027}
   m_Layer: 0
   m_Name: Soldier Card
   m_TagString: Untagged
@@ -10744,6 +10766,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 283949023}
   m_CullTransparentMesh: 1
+--- !u!114 &283949027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283949023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: SoldierHire
 --- !u!1001 &288382367
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36246,6 +36281,7 @@ GameObject:
   - component: {fileID: 958534159}
   - component: {fileID: 958534158}
   - component: {fileID: 958534160}
+  - component: {fileID: 958534161}
   m_Layer: 0
   m_Name: Start Run Button
   m_TagString: Untagged
@@ -36355,6 +36391,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &958534161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 958534156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: StartRun
 --- !u!1001 &965427482
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39255,6 +39304,7 @@ GameObject:
   - component: {fileID: 1012311005}
   - component: {fileID: 1012311008}
   - component: {fileID: 1012311007}
+  - component: {fileID: 1012311009}
   m_Layer: 0
   m_Name: Library Manual Draft
   m_TagString: Untagged
@@ -39364,6 +39414,19 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 250
   m_TargetDisplay: 0
+--- !u!114 &1012311009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012311003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: LibraryManualDraft
 --- !u!1001 &1014964733
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50756,6 +50819,7 @@ GameObject:
   - component: {fileID: 1264712747}
   - component: {fileID: 1264712746}
   - component: {fileID: 1264712745}
+  - component: {fileID: 1264712748}
   m_Layer: 0
   m_Name: Recruitment UI
   m_TagString: Untagged
@@ -50856,6 +50920,30 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1264712748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264712743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94e9e974db40aa94ba641f487b9b6339, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialManager
+  sequences:
+  - {fileID: 11400000, guid: d91f1cd62fe472047a7963ff62fb0d4a, type: 2}
+  - {fileID: 11400000, guid: a5c1bcd31e91cf54a8f10cc356656676, type: 2}
+  - {fileID: 11400000, guid: 2f25641dd0b84e44d93724be0a1d98e0, type: 2}
+  - {fileID: 11400000, guid: dec3311836981c842b495fb2dbdd8219, type: 2}
+  debugSequence: {fileID: 11400000, guid: a5c1bcd31e91cf54a8f10cc356656676, type: 2}
+  style: {fileID: 11400000, guid: 138349f41fa1b524cb6d36afac09ec6e, type: 2}
+  sceneEntryEvent: 
+  worldCamera: {fileID: 1891337030}
+  run: {fileID: 2091199920}
+  combat: {fileID: 2091199921}
+  debugKeys: 1
 --- !u!1 &1265885043
 GameObject:
   m_ObjectHideFlags: 0
@@ -70655,6 +70743,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 67655d6ad4530c9409892496ca2bebd4, type: 3}
   m_PrefabInstance: {fileID: 1743851034}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1744304418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8100000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: UpgradeCards
 --- !u!1001 &1749356469
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82362,6 +82463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 687d742bcdaa11741bbb2bad7fdc9b10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.RecruitmentController
+  hireScroll: {fileID: 240537353}
   options:
   - unit: {fileID: 11400000, guid: 90c264df12cb1b94b9237f26959d6c6f, type: 2}
     hireButton: {fileID: 1409546999}
@@ -84071,6 +84173,7 @@ GameObject:
   - component: {fileID: 8100000002}
   - component: {fileID: 8100000003}
   - component: {fileID: 8100000004}
+  - component: {fileID: 1744304418}
   m_Layer: 0
   m_Name: Level Up Cards
   m_TagString: Untagged

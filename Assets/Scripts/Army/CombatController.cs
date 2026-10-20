@@ -101,6 +101,7 @@ namespace ArmySurvivor.Army
         public event System.Action<Vector3> EnemyKilled;
         public event System.Action MiniBossKilled;
         public event System.Action<bool, bool> EnemyDefeated; // elite, boss
+        public float TutorialEnemySpeedMultiplier { get; set; } = 1f;
 
         private class EnemyState
         {
@@ -800,7 +801,7 @@ namespace ArmySurvivor.Army
             position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
             position.y = run.Commander.position.y;
             GameObject model = TakeEnemyObject(definition.prefab, position);
-            if (isMiniBoss) { model.name = "중간 보스 - 정예 오크"; model.transform.localScale *= 1.5f; }
+            if (isMiniBoss) { model.name = "정예 몬스터 - 정예 오크"; model.transform.localScale *= 1.5f; }
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
             float hitPoints = definition.health;
@@ -812,6 +813,13 @@ namespace ArmySurvivor.Army
             if (charge != null) charge.ResetAttack();
             enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, bossCharge = charge, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss,
                 waveDamageMultiplier = rhythmEnemy ? rhythm.DamageMultiplier : 1f });
+            if (isMiniBoss)
+            {
+                var tutorialTarget = model.GetComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+                if (tutorialTarget == null) tutorialTarget = model.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
+                tutorialTarget.SetId("EliteEnemy");
+                ArmySurvivor.Tutorial.TutorialEvents.Raise("EliteSpawned", model.transform);
+            }
         }
         private void MoveEnemies(float dt)
         {
@@ -844,7 +852,7 @@ namespace ArmySurvivor.Army
                     allies.TryGetValue(run.Commander, out var commanderHealth);
                     state.bossCharge.Tick(dt, run.Commander, commanderHealth, enemy, run.Ground.bounds,
                         boundaryMargin, run.CurrentTactic.receivedDamageMultiplier,
-                        state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f);
+                        (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f) * TutorialEnemySpeedMultiplier);
                     continue;
                 }
                 if (state.attackTarget != null)
@@ -879,7 +887,8 @@ namespace ArmySurvivor.Army
                 }
                 Vector3 direction = target.position - state.root.position;
                 direction.y = 0;
-                float speedMultiplier = state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f;
+                float speedMultiplier = (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f)
+                    * TutorialEnemySpeedMultiplier;
                 float step = Mathf.Min(enemy.speed * speedMultiplier * dt, Mathf.Max(0, distance - enemy.stoppingDistance));
                 if (step > 0)
                 {
@@ -1160,6 +1169,8 @@ namespace ArmySurvivor.Army
                 EnemyKilled?.Invoke(target.root.position);
                 EnemyDefeated?.Invoke(target.isMiniBoss, target.isBoss);
                 if (target.isMiniBoss) MiniBossKilled?.Invoke();
+                if (target == focusTarget) ArmySurvivor.Tutorial.TutorialEvents.Raise("FocusTargetKilled", target.root);
+                if (target.isMiniBoss) ArmySurvivor.Tutorial.TutorialEvents.Raise("EliteKilled", target.root);
                 HealOnKill(source);
                 target.attackTarget = null;
                 target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);

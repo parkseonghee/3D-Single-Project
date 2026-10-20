@@ -97,6 +97,7 @@ namespace ArmySurvivor.Army
             if (!awaitingChoice || selecting || index < 0 || index >= choices.Count) return;
             awaitingChoice = false; selecting = true;
             ManualManager.Select(choices[index]);
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("ManualSelected");
             if (skipButton != null) skipButton.interactable = false;
             foreach (var card in cards) if (card.root.activeSelf) card.motion.LockInteraction();
             cards[index].motion.PlaySelection(Finish);
