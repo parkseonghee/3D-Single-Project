@@ -21,6 +21,7 @@ namespace ArmySurvivor.Saving
         public List<BuildingRecord> buildings = new List<BuildingRecord>();
         public List<CountRecord> purchases = new List<CountRecord>();
         public List<TroopRecord> troops = new List<TroopRecord>();
+        public ArmySurvivor.Equipment.EquipmentSave equipment;
     }
     [Serializable] public class BuildingRecord { public string id; public Vector3 position; public int level; public bool starting; }
     [Serializable] public class CountRecord { public string id; public int count; }
@@ -48,7 +49,7 @@ namespace ArmySurvivor.Saving
         private bool loading;
         private static SaveData pending;
         private static List<TroopRecord> pendingTroops;
-        public static void ClearPending() { pending = null; pendingTroops = null; }
+        public static void ClearPending() { pending = null; pendingTroops = null; ArmySurvivor.Equipment.EquipmentInventory.Reset(); }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => ClearPending();
         public string Id(ScriptableObject asset)
@@ -78,6 +79,7 @@ namespace ArmySurvivor.Saving
                 village.RestoreSave(data, this);
                 harvest.RestoreSave(data);
                 pendingTroops = data.troops;
+                ArmySurvivor.Equipment.EquipmentInventory.Restore(data.equipment);
             }
             RefreshSlots();
         }
@@ -134,6 +136,7 @@ namespace ArmySurvivor.Saving
                     gameMode = GameModeManager.Current.ToString() };
                 village.CaptureSave(data, this);
                 harvest.CaptureSave(data);
+                data.equipment = ArmySurvivor.Equipment.EquipmentInventory.Capture();
                 var army = FindFirstObjectByType<RecruitmentController>(FindObjectsInactive.Include);
                 if (army != null) army.CaptureSave(data, this);
                 else if (pendingTroops != null) data.troops.AddRange(pendingTroops);

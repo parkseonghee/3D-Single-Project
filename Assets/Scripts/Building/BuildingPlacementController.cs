@@ -30,6 +30,8 @@ namespace ArmySurvivor.Building
         [SerializeField] private Transform buildingsRoot;
         [SerializeField] private BuildingManagementUI buildingMenu;
         [SerializeField] private VillageCameraDrag cameraDrag;
+        [Header("마을 경관과 보행로 · 건설 제외 영역")]
+        [SerializeField] private Bounds[] sceneryExclusions = new Bounds[0];
 
         [Header("건설 · 철거 이펙트")]
         [SerializeField] private GameObject constructionEffectPrefab;
@@ -384,6 +386,15 @@ namespace ArmySurvivor.Building
             if (area.xMin < 0 || area.yMin < 0 ||
                 area.xMax > Mathf.FloorToInt(ground.size.x / gridSize) ||
                 area.yMax > Mathf.FloorToInt(ground.size.z / gridSize)) return false;
+
+            // Use the snapped grid footprint, matching the eventual building position.
+            float minX = ground.min.x + area.xMin * gridSize;
+            float maxX = ground.min.x + area.xMax * gridSize;
+            float minZ = ground.min.z + area.yMin * gridSize;
+            float maxZ = ground.min.z + area.yMax * gridSize;
+            foreach (Bounds reserved in sceneryExclusions)
+                if (minX < reserved.max.x && maxX > reserved.min.x &&
+                    minZ < reserved.max.z && maxZ > reserved.min.z) return false;
 
             foreach (Vector2Int cell in area.allPositionsWithin)
                 if (occupiedCells.Contains(cell) &&

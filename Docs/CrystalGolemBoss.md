@@ -1,6 +1,6 @@
 # 크리스탈 골렘 보스 (2026-10-19)
 
-`Meshy_AI_Crystal_Golem_biped/Meshy_AI_Character_output.fbx`로 Day 보스 3종 및 생존 모드 최종 보스를 교체했다. 중간 보스/정예 오크는 기존 설정을 유지한다. 기존 HP, 기본 공격력, 출현 시점, 보상은 그대로 사용한다.
+`Assets/Art/Meshy/Characters/CrystalGolem/Meshy_AI_Character_output.fbx`로 Day 보스 3종 및 생존 모드 최종 보스를 교체했다. 중간 보스/정예 오크는 기존 설정을 유지한다. 기존 HP, 기본 공격력, 출현 시점, 보상은 그대로 사용한다.
 
 ## 행동
 

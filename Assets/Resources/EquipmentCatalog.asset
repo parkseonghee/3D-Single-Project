@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00eac2c50ccfa2a4eae000ce0e67594e, type: 3}
+  m_Name: EquipmentCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Equipment.EquipmentCatalog
+  items:
+  - {fileID: 11400000, guid: a1bddf1f331706f4a95ed4a23bfdb53a, type: 2}
+  - {fileID: 11400000, guid: f8adee8330094d44a8ba761cdcfa4bda, type: 2}
+  - {fileID: 11400000, guid: c82bed1d7fe589b4a892fa19c6cc6e07, type: 2}
+  - {fileID: 11400000, guid: aa2f7d7b1eb5c024eaa2019974147e42, type: 2}
+  - {fileID: 11400000, guid: ff586f8d9c1ee10458517433e3302921, type: 2}
+  - {fileID: 11400000, guid: 045e0299c2b42fb499b56139c220d91c, type: 2}
+  - {fileID: 11400000, guid: 5937f4b3b17f19b4d9fb60f8451c5fd0, type: 2}
+  - {fileID: 11400000, guid: 1393954f806a4a43b0f430cf716bb2db, type: 2}
+  supplyBuilding: {fileID: 11400000, guid: 89f69b4681784204aba8abdc44c36147, type: 2}
+  font: {fileID: 11400000, guid: f88360ebccbb7f3448c05a69e421e0e5, type: 2}
+  ticketPrefab: {fileID: 3028627665977181159, guid: eefc85e0c16b13a41966458696d3a4d7, type: 3}
+  ticketIcon: {fileID: 21300000, guid: 847242cde685adc4ba0a0936e4028c9a, type: 3}
+  supplyFirework: {fileID: 1978689737715041617, guid: afa54037ffe627545886e2741abb365d, type: 3}
+  supplyGateOpen: {fileID: 7400000, guid: 6c1fb72d9afb1a941a4ffe6182bfa652, type: 3}
+  supplySequenceDuration: 4.5
+  supplyFireworkInterval: 0.15
+  supplyFireworkScale: 1.5
+  supplyCameraStart: {x: 0, y: 12, z: -28}
+  supplyCameraEnd: {x: 0, y: 4, z: -9}
+  supplyLookAt: {x: 0, y: 4, z: 0}
+  supplyCameraFov: 48
+  supplyDoorStart: 0.5
+  supplyDoorDuration: 1.4
+  ticketDropChance: 0.03
+  pickupRadius: 1.5
+  attractionRadius: 4
+  attractionSpeed: 8
+  sRate: 0.006
+  aRate: 0.094
+  bRate: 0.3
+  aGuarantee: 10
+  sGuarantee: 90

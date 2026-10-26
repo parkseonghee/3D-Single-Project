@@ -1,0 +1,20 @@
+import {Presentation,PresentationFile} from 'file:///C:/Users/user/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs';
+const p=Presentation.create({slideSize:{width:1920,height:1080}});const s=p.slides.add();s.background.fill='#FFFFFF';
+const add=(text,x,y,w,h,size,color='#4E4E4E',font='S-Core Dream 3 Light')=>{const t=s.shapes.add({geometry:'textbox',position:{left:x,top:y,width:w,height:h},fill:'none',line:{fill:'none',width:0}});t.text=text;t.text.style={fontFamily:font,fontSize:size,color};t.text.insets=0;};
+add('GOAL & PLAN',154,84,700,35,17.33,'#9E9E9E','S-Core Dream 5 Medium');
+add('목표 및 학습 계획',154,135,1610,70,45.33,'#668EFD','S-Core Dream 7 ExtraBold');
+add('현재 개발 중인 3D 개인 프로젝트를 완성하며 전투 시스템과 최적화 경험을 넓히겠습니다',154,218,1610,50,26.67);
+add('취업 목표   2027년 상반기  /  라이브 서비스 게임 개발사 Unity 클라이언트 프로그래머',154,294,1610,45,23,'#668EFD','S-Core Dream 5 Medium');
+add('1단계  3D 개인 프로젝트 완성',1110,365,655,50,31,'#668EFD','S-Core Dream 6 Bold');
+add('졸업 전  2026.10 ~ 2027.02',1110,424,655,35,21,'#9E9E9E');
+add('Unity 6 / C# 부대 지휘 생존 게임\n병력 편성, 개별 성장과 카드 선택으로 전투 진행',1110,485,655,100,25);
+add('현재 구현',1110,606,655,34,25,'#668EFD','S-Core Dream 5 Medium');
+add('병사별 전투와 스킬, 지휘관 지원 카드\nDay별 웨이브와 보스 돌진 패턴',1110,648,655,83,24);
+add('완성 및 학습 계획',1110,756,655,34,25,'#668EFD','S-Core Dream 5 Medium');
+add('전투 밸런스와 UI를 다듬어 플레이 빌드 완성\nProfiler로 병목 측정 후 개선\n이후 Android 빌드와 실제 기기 성능 검증',1110,800,655,115,23);
+add('개발 중인 실제 전투 화면',154,885,900,32,20,'#9E9E9E');
+add('2단계  입사 1년 차\n코드 구조와 데이터 흐름을 익혀 콘텐츠 업데이트 담당',154,967,800,75,22);
+add('3단계  입사 2~3년 차\n데이터로 확장하는 콘텐츠 시스템 설계와 배포 담당',1040,967,740,75,22);
+s.images.add({path:'C:/Users/user/GitHub/3D-Single-Project/PortfolioWork/build/gameplay-final.png',alt:'현재 3D 개인 프로젝트 실제 전투 화면',position:{left:154,top:365,width:900,height:506.25},fit:'contain'});
+await (await PresentationFile.exportPptx(p)).save('C:/Users/user/GitHub/3D-Single-Project/PortfolioWork/build/replacement.pptx');
+

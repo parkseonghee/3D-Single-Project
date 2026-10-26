@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43fefc5165b9b3a4a989e493e68b8568, type: 3}
+  m_Name: sage-staff
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Equipment.EquipmentItem
+  id: sage-staff
+  displayName: "\uD604\uC790\uC758 \uC9C0\uD321\uC774"
+  grade: 1
+  description: "\uD478\uB978 \uB9C8\uB825\uC774 \uAE43\uB4E0 \uD604\uC790\uC758 \uC758\uC7A5\uC6A9
+    \uC9C0\uD321\uC774."
+  model: {fileID: 100000, guid: 94e6046f8f40b4849b020b83f4b12b83, type: 3}
+  previewRotation: {x: 270, y: 0.000018569592, z: 0}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43fefc5165b9b3a4a989e493e68b8568, type: 3}
+  m_Name: royal-blade
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Equipment.EquipmentItem
+  id: royal-blade
+  displayName: "\uC655\uC2E4\uC758 \uB300\uAC80"
+  grade: 1
+  description: "\uC655\uAD6D\uC758 \uB6F0\uC5B4\uB09C \uC9C0\uD718\uAD00\uC5D0\uAC8C
+    \uC218\uC5EC\uD558\uB358 \uB300\uAC80."
+  model: {fileID: 100000, guid: da5b3b40cc67f6b41b01ba6a7eb61763, type: 3}
+  previewRotation: {x: 270, y: -0.0000033684048, z: 0}

@@ -28,7 +28,7 @@ MonoBehaviour:
   approachSpeed: 6
   returnSpeed: 9
   stoppingDistance: 2.4
-  maintainDistance: 1
+  maintainDistance: 0
   stoppingTolerance: 0.15
   effectScale: 1.5
   effectForwardOffset: 1.3

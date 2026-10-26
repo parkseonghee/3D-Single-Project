@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43fefc5165b9b3a4a989e493e68b8568, type: 3}
+  m_Name: training-blade
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Equipment.EquipmentItem
+  id: training-blade
+  displayName: "\uD6C8\uB828\uC6A9 \uAC80"
+  grade: 0
+  description: "\uC2E0\uBCD1\uC5D0\uAC8C \uC9C0\uAE09\uD558\uB294 \uC18C\uBC15\uD55C
+    \uD6C8\uB828\uC6A9 \uAC80."
+  model: {fileID: 100000, guid: 93b3ac2d1edb6454280a7222fedb4974, type: 3}
+  previewRotation: {x: 270, y: -0.0000033684048, z: 0}

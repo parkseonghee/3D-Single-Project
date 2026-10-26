@@ -1,0 +1,5 @@
+import {finalizePresentation} from 'file:///C:/Users/user/.codex/plugins/cache/openai-primary-runtime/presentations/26.1022.11436/skills/presentations/container_tools/artifact_tool_utils.mjs';
+const base='C:/Users/user/GitHub/3D-Single-Project/PortfolioWork';
+const skill='C:/Users/user/.codex/plugins/cache/openai-primary-runtime/presentations/26.1022.11436/skills/presentations';
+const result=await finalizePresentation({workspaceDir:base,candidatePath:base+'/build/candidate.pptx',finalPath:base+'/output/Portfolio_박성희_3D프로젝트_추가.pptx',pythonExecutable:'C:/Users/user/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe',integrityValidatorPath:skill+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:skill+'/container_tools/inspect_presentation_layout_geometry.py',explicitTotalSlideCount:18,layoutArgs:['--expected-slide-size-emu','18288000,10287000'],verifyArtifactToolImport:true,receiptPath:base+'/build/validation.json'});
+console.log(JSON.stringify(result));
