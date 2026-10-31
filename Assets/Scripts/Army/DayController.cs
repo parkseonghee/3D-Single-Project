@@ -205,15 +205,24 @@ namespace ArmySurvivor.Army
             if (travel != null) travel.Village.AddStageRewards(stage.goldReward + victorySupportGold, IsBossDay ? stage.bossSpecialReward : 0);
             victorySupportGold = 0;
             CampaignComplete = Day >= settings.finalDay;
+            int completedDay = Day;
             if (!CampaignComplete)
             {
                 Day++;
                 if (harvest != null) harvest.BeginDay(Day);
+                GameModeManager.RecordAdventureDay(Day);
             }
             resultPanel.SetActive(false);
             run.CanStart = !CampaignComplete;
             RefreshDay();
             if (travel != null) travel.ReturnToVillage();
+            var catalog = Resources.Load<ArmySurvivor.Equipment.EquipmentCatalog>("EquipmentCatalog");
+            if (catalog != null && completedDay == catalog.firstSupplyDrawDay)
+            {
+                if (ArmySurvivor.Equipment.EquipmentInventory.Tickets == 0)
+                    ArmySurvivor.Equipment.EquipmentInventory.AddTickets(catalog.firstDayTicketReward);
+                ArmySurvivor.Tutorial.TutorialEvents.Raise("FirstSupplyDrawUnlocked");
+            }
         }
     }
 }

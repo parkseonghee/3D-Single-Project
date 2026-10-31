@@ -14,7 +14,13 @@ namespace ArmySurvivor.Equipment
         public Sprite ticketIcon;
         [Header("보급 연출")]
         public GameObject supplyFirework;
-        public AnimationClip supplyGateOpen;
+        [Header("문짝 경로와 로컬 회전 (닫힘 / 열림)")]
+        public string supplyDoorAPath;
+        public string supplyDoorBPath;
+        public Vector3 supplyDoorAClosedEuler;
+        public Vector3 supplyDoorAOpenEuler;
+        public Vector3 supplyDoorBClosedEuler;
+        public Vector3 supplyDoorBOpenEuler;
         [Min(1)] public float supplySequenceDuration = 4.5f;
         [Min(0.05f)] public float supplyFireworkInterval = 0.15f;
         [Min(0.1f)] public float supplyFireworkScale = 1.5f;
@@ -25,6 +31,10 @@ namespace ArmySurvivor.Equipment
         [Range(0, 1)] public float supplyDoorStart = 0.5f;
         [Min(0.1f)] public float supplyDoorDuration = 1.4f;
         [Range(0, 1)] public float ticketDropChance = 0.03f;
+        [Min(0)] public float ticketSpawnSeparation = 1.8f;
+        [Min(0)] public float ticketPickupDelay;
+        [Min(0)] public int firstDayTicketReward;
+        [Min(1)] public int firstSupplyDrawDay;
         [Min(0.1f)] public float pickupRadius = 1.5f;
         [Min(0.1f)] public float attractionRadius = 4f;
         [Min(0.1f)] public float attractionSpeed = 8f;

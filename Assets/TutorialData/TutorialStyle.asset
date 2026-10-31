@@ -21,6 +21,9 @@ MonoBehaviour:
   blinkSpeed: 2
   edgeFeather: 1.5
   bubbleSize: {x: 520, y: 230}
+  topBannerSize: {x: 700, y: 68}
+  topBannerTitleSize: 22
+  topBannerBodySize: 17
   titleSize: 32
   bodySize: 24
   progressSize: 19

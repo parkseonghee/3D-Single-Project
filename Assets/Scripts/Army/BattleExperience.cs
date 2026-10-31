@@ -62,7 +62,6 @@ namespace ArmySurvivor.Army
         [Header("경험치 병 표시")]
         [SerializeField] private float bottleWorldY = 0.65f;
         [SerializeField] private float bottleRotationSpeed = 90f;
-        [SerializeField, Min(0.1f)] private float bottleAttractionSpeed = 4f;
         [Header("레벨업 카드")]
         [SerializeField] private GameObject levelUpPanel;
         [SerializeField] private TMP_Text levelUpTarget;
@@ -312,7 +311,7 @@ namespace ArmySurvivor.Army
 
         private void Update()
         {
-            MoveBottles(Time.deltaTime);
+            RotateBottles(Time.deltaTime);
             CollectNearby();
             UpdateFocusState(Time.deltaTime);
         }
@@ -384,17 +383,11 @@ namespace ArmySurvivor.Army
                 }
         }
 
-        private void MoveBottles(float deltaTime)
+        private void RotateBottles(float deltaTime)
         {
             if (!run.IsRunning || run.IsPaused || IsChoosingUpgrade || deltaTime <= 0) return;
-            Vector3 destination = run.Commander.position;
-            destination.y = bottleWorldY;
             foreach (Transform bottle in drops)
-            {
-                bottle.position = Vector3.MoveTowards(bottle.position, destination,
-                    bottleAttractionSpeed * deltaTime);
                 bottle.Rotate(Vector3.up, bottleRotationSpeed * deltaTime, Space.World);
-            }
         }
 
         public void CollectNearby()

@@ -161,6 +161,8 @@ namespace ArmySurvivor.Saving
                 pending = data;
                 GameModeManager.Select(Enum.TryParse(data.gameMode, out GameMode savedMode)
                     ? savedMode : GameMode.Adventure);
+                if (GameModeManager.Current == GameMode.Adventure)
+                    GameModeManager.RecordAdventureDay(data.day);
                 pendingTroops = null;
                 loading = true;
                 RefreshSlots();

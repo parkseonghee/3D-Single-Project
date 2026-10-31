@@ -52,7 +52,7 @@ namespace ArmySurvivor.Building
         [SerializeField, Min(1)] private float rayDistance = 500;
         [SerializeField] private Material validPreview;
         [SerializeField] private Material invalidPreview;
-        [SerializeField, Min(0)] private int startingRice = 320;
+        [SerializeField, Min(0)] private int startingRice = 550;
         [Header("자원과 환전")]
         [SerializeField, Min(0)] private int startingGold;
         [SerializeField, Min(0)] private int startingSpecialResource;

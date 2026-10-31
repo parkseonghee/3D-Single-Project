@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ArmySurvivor.Army;
+using ArmySurvivor.Building;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -27,6 +28,14 @@ namespace ArmySurvivor.Tutorial
 #endif
 
         private static TutorialSequence activeSequence;
+        private struct SuspendedTutorial
+        {
+            public TutorialSequence sequence;
+            public int step;
+            public Transform target;
+            public bool nextAvailable;
+        }
+        private static readonly Stack<SuspendedTutorial> suspended = new Stack<SuspendedTutorial>();
         private static int activeStep;
         private static Transform eventTarget;
         private static bool forceNextAvailable;
@@ -44,21 +53,25 @@ namespace ArmySurvivor.Tutorial
         private int stepStartedFrame;
         private Vector3 commanderStart;
         private bool startedStep;
+        private bool revealRequested;
         private bool startedOnce;
         private bool ownedPause;
         private float previousTimeScale;
         private TutorialTarget resolvedTarget;
         private readonly Vector3[] corners = new Vector3[4];
         public static bool KeyboardBlocked { get; private set; }
+        public static bool MovementWhilePaused { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
             activeSequence = null;
+            suspended.Clear();
             activeStep = 0;
             eventTarget = null;
             forceNextAvailable = false;
             KeyboardBlocked = false;
+            MovementWhilePaused = false;
         }
 
         private void Awake()
@@ -120,6 +133,11 @@ namespace ArmySurvivor.Tutorial
             TutorialStep step = activeSequence.steps[activeStep];
             if (!startedStep)
             {
+                if (step.revealBuilding != null && !revealRequested)
+                {
+                    BuildingPalette palette = FindFirstObjectByType<BuildingPalette>();
+                    revealRequested = palette != null && palette.RevealBuilding(step.revealBuilding);
+                }
                 if (!Ready(step)) { HideOverlay(); return; }
                 BeginStep(step);
             }
@@ -171,12 +189,14 @@ namespace ArmySurvivor.Tutorial
                 ownedPause = true;
             }
             KeyboardBlocked = !step.allowKeyboard;
+            MovementWhilePaused = step.pauseGame && step.allowCommanderMovementWhilePaused;
             if (combat != null) combat.TutorialEnemySpeedMultiplier = step.enemyMovementMultiplier;
             spotlight.gameObject.SetActive(true);
             bubble.gameObject.SetActive(true);
             skipButton.gameObject.SetActive(true);
             titleText.text = step.title;
             bodyText.text = step.body;
+            SetBubbleLayout(step.showAsTopBanner);
             progressText.text = step.advance == TutorialAdvance.Event && step.requiredEventCount > 1
                 ? $"{activeStep + 1}/{activeSequence.steps.Length} · 0/{step.requiredEventCount}"
                 : $"{activeStep + 1}/{activeSequence.steps.Length}";
@@ -190,7 +210,7 @@ namespace ArmySurvivor.Tutorial
             if (!string.IsNullOrEmpty(step.targetId)) resolvedTarget = TutorialTarget.Find(step.targetId, eventTarget);
             Rect hole = TargetRect(step);
             spotlight.Draw(hole, step.holeShape, step.cornerRadius, style);
-            Vector2 placement = BubblePosition(step, hole);
+            Vector2 placement = step.showAsTopBanner ? TopBannerPosition() : BubblePosition(step, hole);
             bubble.anchoredPosition = placement;
             bubbleGroup.alpha = style.appearSeconds <= 0 ? 1 : Mathf.Clamp01(stepElapsed / style.appearSeconds);
             bool showArrow = style.showArrow && step.showArrow && hole.width > 0;
@@ -283,15 +303,73 @@ namespace ArmySurvivor.Tutorial
             return point;
         }
 
+        private Vector2 TopBannerPosition()
+        {
+            Rect bounds = canvasRect.rect;
+            RectTransform panel = null;
+            if (resolvedTarget != null)
+            {
+                ScrollRect scroll = resolvedTarget.GetComponentInParent<ScrollRect>();
+                if (scroll != null) panel = scroll.transform as RectTransform;
+            }
+            if (panel != null)
+            {
+                panel.GetWorldCorners(corners);
+                Canvas panelCanvas = panel.GetComponentInParent<Canvas>();
+                Camera panelCamera = panelCanvas != null && panelCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? panelCanvas.worldCamera : null;
+                Vector2 panelTopRight = RectTransformUtility.WorldToScreenPoint(panelCamera, corners[2]);
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, panelTopRight, null,
+                    out Vector2 localTopRight))
+                    return new Vector2(localTopRight.x - bubble.rect.width * 0.5f - 160f,
+                        localTopRight.y - bubble.rect.height * 0.5f - 6f);
+            }
+            return new Vector2(bounds.xMax - bubble.rect.width * 0.5f - style.screenMargin - 160f,
+                bounds.yMax - bubble.rect.height * 0.5f - style.screenMargin);
+        }
+
+        private void SetBubbleLayout(bool topBanner)
+        {
+            bubble.sizeDelta = topBanner ? new Vector2(
+                Mathf.Min(style.topBannerSize.x, canvasRect.rect.width * 0.48f), style.topBannerSize.y)
+                : style.bubbleSize;
+            RectTransform title = (RectTransform)titleText.transform;
+            RectTransform body = (RectTransform)bodyText.transform;
+            if (topBanner)
+            {
+                title.offsetMin = new Vector2(14, -34);
+                title.offsetMax = new Vector2(-14, -4);
+                body.offsetMin = new Vector2(14, -style.topBannerSize.y + 5);
+                body.offsetMax = new Vector2(-14, -36);
+                titleText.fontSize = style.topBannerTitleSize;
+                bodyText.fontSize = style.topBannerBodySize;
+                progressText.gameObject.SetActive(false);
+            }
+            else
+            {
+                title.offsetMin = Min(style.titleOffsets);
+                title.offsetMax = Max(style.titleOffsets);
+                body.offsetMin = Min(style.bodyOffsets);
+                body.offsetMax = Max(style.bodyOffsets);
+                titleText.fontSize = style.titleSize;
+                bodyText.fontSize = style.bodySize;
+                progressText.gameObject.SetActive(true);
+            }
+        }
+
         private void OnEvent(string key, Transform target)
         {
             if (activeSequence != null)
             {
+                if (key == "BattleEnded") suspended.Clear();
                 foreach (TutorialSequence candidate in sequences)
                 {
                     if (candidate == null || candidate == activeSequence || !candidate.interruptCurrent ||
                         candidate.startEventKey != key || TutorialProgressStore.IsCompleted(candidate.tutorialId)) continue;
-                    Stop(false);
+                    suspended.Push(new SuspendedTutorial { sequence = activeSequence, step = activeStep,
+                        target = eventTarget, nextAvailable = forceNextAvailable });
+                    RestoreModifiers();
+                    HideOverlay();
                     activeSequence = candidate;
                     activeStep = 0;
                     eventTarget = target;
@@ -359,10 +437,12 @@ namespace ArmySurvivor.Tutorial
         public void ForceStart(TutorialSequence sequence)
         {
             if (sequence == null || sequence.steps == null || sequence.steps.Length == 0) return;
+            suspended.Clear();
             Stop(false);
             activeSequence = sequence;
             activeStep = 0;
             startedStep = false;
+            revealRequested = false;
             eventTarget = null;
         }
 
@@ -407,6 +487,7 @@ namespace ArmySurvivor.Tutorial
             if (index >= activeSequence.steps.Length) { Stop(true); return; }
             activeStep = index;
             startedStep = false;
+            revealRequested = false;
             resolvedTarget = null;
             HideOverlay();
         }
@@ -415,10 +496,22 @@ namespace ArmySurvivor.Tutorial
         {
             if (completed && activeSequence != null) TutorialProgressStore.Complete(activeSequence.tutorialId);
             RestoreModifiers();
-            activeSequence = null;
-            eventTarget = null;
-            forceNextAvailable = false;
+            if (suspended.Count > 0)
+            {
+                SuspendedTutorial previous = suspended.Pop();
+                activeSequence = previous.sequence;
+                activeStep = previous.step;
+                eventTarget = previous.target;
+                forceNextAvailable = previous.nextAvailable;
+            }
+            else
+            {
+                activeSequence = null;
+                eventTarget = null;
+                forceNextAvailable = false;
+            }
             startedStep = false;
+            revealRequested = false;
             HideOverlay();
         }
 
@@ -426,6 +519,7 @@ namespace ArmySurvivor.Tutorial
         {
             if (ownedPause) { Time.timeScale = previousTimeScale; ownedPause = false; }
             KeyboardBlocked = false;
+            MovementWhilePaused = false;
             if (combat != null) combat.TutorialEnemySpeedMultiplier = 1f;
         }
 

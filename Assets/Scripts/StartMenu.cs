@@ -27,13 +27,19 @@ namespace ArmySurvivor.UI
             adventureModeButton.onClick = new Button.ButtonClickedEvent();
             adventureModeButton.onClick.AddListener(() => StartMode(GameMode.Adventure));
 
-            var best = RecordManager.Best;
-            survivalBestTimeText.text = "최고 생존 " + RecordManager.TimeLabel(best?.survivalSeconds ?? 0);
+            bool survivalUnlocked = GameModeManager.SurvivalUnlocked;
+            newGameButton.interactable = survivalUnlocked;
+            if (survivalUnlocked)
+            {
+                var best = RecordManager.Best;
+                survivalBestTimeText.text = "최고 생존 " + RecordManager.TimeLabel(best?.survivalSeconds ?? 0);
+            }
+            else survivalBestTimeText.text = $"모험 Day {GameModeManager.SurvivalUnlockDay} 도달 시 해금";
         }
 
         private void StartMode(GameMode mode)
         {
-            if (loading) return;
+            if (loading || (mode == GameMode.Survival && !GameModeManager.SurvivalUnlocked)) return;
             GameModeManager.Select(mode);
             LoadNewGame();
         }

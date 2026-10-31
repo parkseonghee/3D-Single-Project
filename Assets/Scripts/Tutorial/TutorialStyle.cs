@@ -17,6 +17,9 @@ namespace ArmySurvivor.Tutorial
         [Min(0)] public float edgeFeather = 1.5f;
         [Header("설명")]
         public Vector2 bubbleSize = new Vector2(520, 230);
+        public Vector2 topBannerSize = new Vector2(700, 68);
+        [Min(12)] public float topBannerTitleSize = 22;
+        [Min(12)] public float topBannerBodySize = 17;
         [Min(12)] public float titleSize = 32;
         [Min(12)] public float bodySize = 24;
         [Min(12)] public float progressSize = 19;

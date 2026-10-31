@@ -26,7 +26,12 @@ MonoBehaviour:
   ticketPrefab: {fileID: 3028627665977181159, guid: eefc85e0c16b13a41966458696d3a4d7, type: 3}
   ticketIcon: {fileID: 21300000, guid: 847242cde685adc4ba0a0936e4028c9a, type: 3}
   supplyFirework: {fileID: 1978689737715041617, guid: afa54037ffe627545886e2741abb365d, type: 3}
-  supplyGateOpen: {fileID: 7400000, guid: 6c1fb72d9afb1a941a4ffe6182bfa652, type: 3}
+  supplyDoorAPath: Bone_Base/Bone_door_A
+  supplyDoorBPath: Bone_Base/Bone_door_B
+  supplyDoorAClosedEuler: {x: 0, y: 270, z: 90}
+  supplyDoorAOpenEuler: {x: 83.97, y: 90, z: 270}
+  supplyDoorBClosedEuler: {x: 0, y: 270, z: 270}
+  supplyDoorBOpenEuler: {x: 273.118, y: 90, z: 90}
   supplySequenceDuration: 4.5
   supplyFireworkInterval: 0.15
   supplyFireworkScale: 1.5
@@ -37,6 +42,10 @@ MonoBehaviour:
   supplyDoorStart: 0.5
   supplyDoorDuration: 1.4
   ticketDropChance: 0.03
+  ticketSpawnSeparation: 1.8
+  ticketPickupDelay: 0.5
+  firstDayTicketReward: 1
+  firstSupplyDrawDay: 1
   pickupRadius: 1.5
   attractionRadius: 4
   attractionSpeed: 8

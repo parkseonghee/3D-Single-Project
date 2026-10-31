@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using ArmySurvivor.Tutorial;
 
 namespace ArmySurvivor.Equipment
 {
@@ -87,6 +88,8 @@ namespace ArmySurvivor.Equipment
             scaler.referenceResolution = new Vector2(1600, 900); scaler.matchWidthOrHeight = 0.5f;
             var entry = Button("", canvasRoot.transform, new Vector2(28, -105), new Vector2(285, 58), OpenEntry);
             shortcut = entry.gameObject; shortcutText = entry.GetComponentInChildren<TMP_Text>();
+            var entryTarget = shortcut.AddComponent<TutorialTarget>();
+            entryTarget.SetId("SupplyDepotEntry");
             var panel = Rect("Supply and Equipment", canvasRoot.transform, Vector2.zero, new Vector2(1600, 900));
             panel.anchorMax = Vector2.one; panel.anchorMin = Vector2.zero; panel.offsetMin = panel.offsetMax = Vector2.zero;
             modal = panel.gameObject; modal.AddComponent<Image>().color = Ink;
@@ -120,6 +123,7 @@ namespace ArmySurvivor.Equipment
             notice = Label("", panel, new Vector2(1080,-545), new Vector2(460,100), 20);
             pity = Label("", panel, new Vector2(1080,-660), new Vector2(470,90), 20);
             one = Button("1회 보급", panel, new Vector2(1070,-790), new Vector2(225,70), () => Draw(1));
+            one.gameObject.AddComponent<TutorialTarget>().SetId("SupplyDrawOne");
             ten = Button("10회 보급", panel, new Vector2(1310,-790), new Vector2(255,70), () => Draw(10));
             AddTicketCost(one, 1, 225);
             AddTicketCost(ten, 10, 255);
@@ -147,13 +151,14 @@ namespace ArmySurvivor.Equipment
             if (village != null) village.Cancel();
             modal.SetActive(true);
             Select(catalog.Find(EquipmentInventory.EquippedId) ?? catalog.items[0]); Refresh();
+            if (VillageMode) TutorialEvents.Raise("SupplyOpened");
         }
         public void Close() { modal.SetActive(false); inspect.Clear(); }
         void Select(EquipmentItem item) { selected = item; inspect.Show(item); Refresh(); }
         public void Draw(int count)
         {
             if (drawSequence.IsPlaying || !CanDraw || !EquipmentInventory.TryDraw(catalog,count,out var results)) return;
-            drawSequence.Play(catalog, () => ShowResults(results));
+            drawSequence.Play(catalog, () => { ShowResults(results); TutorialEvents.Raise("EquipmentDrawn"); });
         }
         void ShowResults(List<EquipmentItem> results)
         {
@@ -175,7 +180,10 @@ namespace ArmySurvivor.Equipment
             if (drawSequence.IsPlaying) return;
             if (IsOpen && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) Close();
             if (VillageMode)
-                shortcutText.text = CanDraw ? $"보급소 · 뽑기권 {EquipmentInventory.Tickets}" : $"보급소 건설 · 벼 {village?.GetCost(catalog.supplyBuilding)}";
+            {
+                shortcut.SetActive(CanDraw);
+                if (CanDraw) shortcutText.text = $"왕국 보급소 · 인장 {EquipmentInventory.Tickets}";
+            }
         }
         void Refresh()
         {

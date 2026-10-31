@@ -51,6 +51,33 @@ namespace ArmySurvivor.Building
             buildingPanel.SetActive(false);
         }
 
+        public bool RevealBuilding(BuildingDefinition building)
+        {
+            if (building == null || options == null) return false;
+            foreach (BuildingOption option in options)
+            {
+                if (option.building != building || option.button == null) continue;
+                buildingPanel.SetActive(true);
+                Canvas.ForceUpdateCanvases();
+                ScrollRect scroll = option.button.GetComponentInParent<ScrollRect>();
+                if (scroll != null && scroll.content != null)
+                {
+                    RectTransform viewport = scroll.viewport != null ? scroll.viewport : (RectTransform)scroll.transform;
+                    RectTransform card = (RectTransform)option.button.transform;
+                    float scrollableWidth = scroll.content.rect.width - viewport.rect.width;
+                    if (scrollableWidth > 0)
+                    {
+                        // The cards are laid out from the content's left edge.
+                        float cardCenter = card.anchoredPosition.x + card.rect.width * (0.5f - card.pivot.x);
+                        scroll.horizontalNormalizedPosition = Mathf.Clamp01(
+                            (cardCenter - viewport.rect.width * 0.5f) / scrollableWidth);
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
         private void SelectBuilding(BuildingDefinition building)
         {
             ClosePanel();

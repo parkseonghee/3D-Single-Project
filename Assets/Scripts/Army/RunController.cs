@@ -189,14 +189,14 @@ namespace ArmySurvivor.Army
                 input.y = (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed ? 1 : 0)
                         - (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed ? 1 : 0);
             }
-            Tick(input, Time.deltaTime);
+            Tick(input, ArmySurvivor.Tutorial.TutorialManager.MovementWhilePaused ? Time.unscaledDeltaTime : Time.deltaTime);
         }
 
         public void Tick(Vector2 input, float deltaTime)
         {
             if (!IsRunning || IsPaused || IsChoosingUpgrade || CommanderDead || deltaTime <= 0) return;
             if (ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked) input = Vector2.zero;
-            Elapsed += deltaTime;
+            if (!ArmySurvivor.Tutorial.TutorialManager.MovementWhilePaused) Elapsed += deltaTime;
             int second = Mathf.FloorToInt(Elapsed);
             if (shownSecond != second)
             {

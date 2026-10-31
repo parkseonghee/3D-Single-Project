@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0602da6c96aed9458dda4af8404fb83, type: 3}
+  m_Name: FirstSupplyDraw
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialSequence
+  tutorialId: first_supply_draw
+  startEventKey: FirstSupplyDrawUnlocked
+  interruptCurrent: 0
+  startTargetId: 
+  startDistanceFromCommander: 0
+  cancelEventKey: 
+  cancelOnCommanderDeath: 0
+  finishEventKey: 
+  jumpEventKey: 
+  requireJumpTargetMatch: 0
+  cancelIfJumpBeforeStart: 0
+  jumpToStep: 0
+  steps:
+  - targetId: SupplyDepotEntry
+    holeShape: 0
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uC655\uAD6D \uBCF4\uAE09\uC18C"
+    body: "Day 1\uC744 \uB9C8\uCCE4\uC2B5\uB2C8\uB2E4. \uC655\uAD6D \uBCF4\uAE09\uC18C\uB97C
+      \uC5F4\uC5B4 \uC804\uD22C\uC5D0\uC11C \uC5BB\uC740 \uC778\uC7A5\uC744 \uC0AC\uC6A9\uD574
+      \uBCF4\uC138\uC694."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 2
+    eventKey: SupplyOpened
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 0
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
+  - targetId: SupplyDrawOne
+    holeShape: 0
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uC7A5\uBE44 \uBCF4\uAE09"
+    body: "1\uD68C \uBCF4\uAE09\uC744 \uB20C\uB7EC \uCCAB \uC7A5\uBE44\uB97C \uBF51\uC73C\uC138\uC694."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 2
+    eventKey: EquipmentDrawn
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 0
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
+  - targetId: 
+    holeShape: 0
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uD68D\uB4DD\uD55C \uC7A5\uBE44"
+    body: "\uBCF4\uAE09\uBC1B\uC740 \uC7A5\uBE44\uB294 \uB2E4\uC74C \uCD9C\uC804\uC758
+      \uC900\uBE44 \uD654\uBA74\uC5D0\uC11C \uC7A5\uCC29\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 0
+    eventKey: 
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 1
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0

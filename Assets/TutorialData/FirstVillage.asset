@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0602da6c96aed9458dda4af8404fb83, type: 3}
   m_Name: FirstVillage
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialSequence
-  tutorialId: first_village
+  tutorialId: first_village_supply
   startEventKey: VillageEntered
   interruptCurrent: 0
   startTargetId: 
@@ -21,6 +21,7 @@ MonoBehaviour:
   cancelOnCommanderDeath: 0
   finishEventKey: BattleStarted
   jumpEventKey: 
+  requireJumpTargetMatch: 0
   cancelIfJumpBeforeStart: 0
   jumpToStep: 0
   steps:
@@ -32,17 +33,24 @@ MonoBehaviour:
     body: "\uBCBC\uB294 \uAC74\uC124\uACFC \uACE0\uC6A9\uC5D0 \uC4F0\uACE0, \uACE8\uB4DC\uB294
       \uC131\uC7A5\uC5D0 \uC0AC\uC6A9\uD569\uB2C8\uB2E4."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 0
     eventKey: 
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 1
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: OpenBuildingMenu
     holeShape: 0
     padding: {x: 18, y: 18}
@@ -50,17 +58,24 @@ MonoBehaviour:
     title: "\uAC74\uC124 \uBA54\uB274"
     body: "\uAC74\uC124 \uBA54\uB274\uB97C \uC5F4\uC5B4 \uAC74\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 1
     eventKey: 
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 1
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: WorkshopButton
     holeShape: 0
     padding: {x: 18, y: 18}
@@ -69,18 +84,52 @@ MonoBehaviour:
     body: "\uAC74\uC124 \uBA54\uB274\uC5D0\uC11C \uBCD1\uC601\uC744 \uC120\uD0DD\uD558\uACE0
       \uBE48 \uB545\uC5D0 \uBC30\uCE58\uD558\uC138\uC694."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 2
     eventKey: BuildingBuilt:Workshop
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
     hideWhenTargetMissing: 1
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
+  - targetId: SupplyDepotButton
+    holeShape: 0
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uC655\uAD6D \uBCF4\uAE09\uC18C \uAC74\uC124"
+    body: "\uC655\uAD6D \uBCF4\uAE09\uC18C\uB97C \uC120\uD0DD\uD558\uACE0 \uBE48
+      \uB545\uC5D0 \uBC30\uCE58\uD558\uC138\uC694. \uC804\uD22C\uC5D0\uC11C \uC5BB\uC740
+      \uC778\uC7A5\uC73C\uB85C \uC7A5\uBE44\uB97C \uBCF4\uAE09\uBC1B\uC744 \uC218
+      \uC788\uC2B5\uB2C8\uB2E4."
+    bubblePlacement: 0
+    showAsTopBanner: 1
+    revealBuilding: {fileID: 11400000, guid: 89f69b4681784204aba8abdc44c36147, type: 2}
+    advance: 2
+    eventKey: BuildingBuilt:SupplyDepot
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 0
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: VillageReady
     holeShape: 0
     padding: {x: 18, y: 18}
@@ -89,54 +138,50 @@ MonoBehaviour:
     body: "\uB9C8\uC744\uC758 \uC900\uBE44 \uBC84\uD2BC\uC744 \uB20C\uB7EC \uACE0\uC6A9
       \uD654\uBA74\uC73C\uB85C \uC774\uB3D9\uD558\uC138\uC694."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 2
     eventKey: PreparationEntered
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: SoldierHire
     holeShape: 0
     padding: {x: 18, y: 18}
     cornerRadius: 20
     title: "\uBCD1\uC0AC \uACE0\uC6A9"
-    body: "병사 고용 버튼을 5번 눌러 출전 병사 5명을 준비하세요."
+    body: "\uBCD1\uC0AC \uACE0\uC6A9 \uBC84\uD2BC\uC744 5\uBC88 \uB20C\uB7EC \uCD9C\uC804
+      \uBCD1\uC0AC 5\uBA85\uC744 \uC900\uBE44\uD558\uC138\uC694."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 2
     eventKey: SoldierHired
+    requireEventTargetMatch: 0
     requiredEventCount: 5
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
-  - targetId: SoldierHire
-    holeShape: 0
-    padding: {x: 18, y: 18}
-    cornerRadius: 20
-    title: "\uBD80\uB300 \uD3B8\uC131"
-    body: "병사 카드의 -를 눌러 대기시키고 +로 다시 편성해 보세요."
-    bubblePlacement: 0
-    advance: 2
-    eventKey: FormationChanged
-    seconds: 0
-    fallbackSeconds: 0
-    commanderDistance: 0
-    pauseGame: 0
-    blockOutsideClicks: 0
-    allowKeyboard: 1
-    showArrow: 1
-    enemyMovementMultiplier: 1
-    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: StartRun
     holeShape: 0
     padding: {x: 18, y: 18}
@@ -145,14 +190,21 @@ MonoBehaviour:
     body: "\uD3B8\uC131\uC774 \uB05D\uB0AC\uC73C\uBA74 \uCD9C\uC804 \uBC84\uD2BC\uC744
       \uB204\uB974\uC138\uC694."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 1
     eventKey: 
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0

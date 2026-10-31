@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
+using ArmySurvivor.Building;
 
 namespace ArmySurvivor.Tutorial
 {
@@ -18,6 +19,8 @@ namespace ArmySurvivor.Tutorial
         [TextArea(1, 2)] public string title;
         [TextArea(2, 5)] public string body;
         public TutorialBubblePlacement bubblePlacement = TutorialBubblePlacement.Auto;
+        public bool showAsTopBanner;
+        public BuildingDefinition revealBuilding;
         public TutorialAdvance advance = TutorialAdvance.NextButton;
         public string eventKey;
         public bool requireEventTargetMatch;
@@ -27,6 +30,7 @@ namespace ArmySurvivor.Tutorial
         [Min(0)] public float fallbackSeconds;
         [Min(0)] public float commanderDistance;
         public bool pauseGame;
+        public bool allowCommanderMovementWhilePaused;
         public bool blockOutsideClicks = true;
         public bool allowKeyboard = true;
         public bool showArrow = true;

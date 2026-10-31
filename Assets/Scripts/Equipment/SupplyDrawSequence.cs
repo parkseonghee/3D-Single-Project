@@ -27,18 +27,20 @@ namespace ArmySurvivor.Equipment
                 foreach (var c in root.GetComponentsInChildren<Camera>())
                     if (c.enabled && c.targetTexture == null) source = c;
             }
-            if (gate == null || source == null || data.supplyGateOpen == null || data.supplyFirework == null)
+            Transform doorA = gate != null && !string.IsNullOrWhiteSpace(data.supplyDoorAPath) ? gate.Find(data.supplyDoorAPath) : null;
+            Transform doorB = gate != null && !string.IsNullOrWhiteSpace(data.supplyDoorBPath) ? gate.Find(data.supplyDoorBPath) : null;
+            if (gate == null || source == null || doorA == null || doorB == null || data.supplyFirework == null)
             {
-                Debug.LogWarning("Supply cinematic unavailable: check gate, camera and EquipmentCatalog cinematic references.");
+                Debug.LogWarning("Supply cinematic unavailable: check gate, door paths, camera and EquipmentCatalog references.");
                 onComplete?.Invoke();
                 return;
             }
             completed = onComplete;
             IsPlaying = true;
-            StartCoroutine(Animate(data, gate, source));
+            StartCoroutine(Animate(data, gate, doorA, doorB, source));
         }
 
-        IEnumerator Animate(EquipmentCatalog data, Transform gate, Camera source)
+        IEnumerator Animate(EquipmentCatalog data, Transform gate, Transform doorA, Transform doorB, Camera source)
         {
             try
             {
@@ -86,22 +88,31 @@ namespace ArmySurvivor.Equipment
                     animator.enabled = false;
                     restore.Add(() => { if (animator) animator.enabled = enabledBefore; });
                 }
-                foreach (var t in gate.GetComponentsInChildren<Transform>(true))
-                {
-                    var position = t.localPosition; var rotation = t.localRotation; var scale = t.localScale;
-                    restore.Add(() => { if (t) { t.localPosition = position; t.localRotation = rotation; t.localScale = scale; } });
-                }
+                Quaternion originalA = doorA.localRotation, originalB = doorB.localRotation;
+                restore.Add(() => { if (doorA) doorA.localRotation = originalA; if (doorB) doorB.localRotation = originalB; });
+                // The model's bind pose is open. Apply the configured closed rotations before rendering.
+                Quaternion closedA = Quaternion.Euler(data.supplyDoorAClosedEuler);
+                Quaternion openA = Quaternion.Euler(data.supplyDoorAOpenEuler);
+                Quaternion closedB = Quaternion.Euler(data.supplyDoorBClosedEuler);
+                Quaternion openB = Quaternion.Euler(data.supplyDoorBOpenEuler);
+                doorA.localRotation = closedA;
+                doorB.localRotation = closedB;
                 // The village's front is world -Z. Offsets stay relative to the gate position.
                 Vector3 origin = gate.position;
                 float duration = Mathf.Max(1, data.supplySequenceDuration);
+                float doorStartTime = duration * data.supplyDoorStart;
                 float elapsed = 0, nextBurst = 0;
                 while (elapsed < duration)
                 {
-                    float progress = Mathf.SmoothStep(0, 1, elapsed / duration);
-                    camera.transform.position = origin + Vector3.Lerp(data.supplyCameraStart, data.supplyCameraEnd, progress);
+                    // Approach with the doors closed, then rotate both leaves in the close shot.
+                    float approach = doorStartTime <= 0 ? 1f : Mathf.Clamp01(elapsed / doorStartTime);
+                    float cameraProgress = Mathf.SmoothStep(0f, 1f, approach);
+                    camera.transform.position = origin + Vector3.Lerp(data.supplyCameraStart, data.supplyCameraEnd, cameraProgress);
                     camera.transform.LookAt(origin + data.supplyLookAt);
-                    float opening = Mathf.Clamp01((elapsed - duration * data.supplyDoorStart) / Mathf.Max(.1f, data.supplyDoorDuration));
-                    data.supplyGateOpen.SampleAnimation(gate.gameObject, opening * data.supplyGateOpen.length);
+                    float opening = Mathf.Clamp01((elapsed - doorStartTime) / Mathf.Max(.1f, data.supplyDoorDuration));
+                    float easedOpening = Mathf.SmoothStep(0f, 1f, opening);
+                    doorA.localRotation = Quaternion.Slerp(closedA, openA, easedOpening);
+                    doorB.localRotation = Quaternion.Slerp(closedB, openB, easedOpening);
                     if (elapsed >= nextBurst)
                     {
                         nextBurst = elapsed + Mathf.Max(.05f, data.supplyFireworkInterval);

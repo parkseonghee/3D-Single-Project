@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0602da6c96aed9458dda4af8404fb83, type: 3}
+  m_Name: FirstTicket
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialSequence
+  tutorialId: first_ticket
+  startEventKey: TicketDropped
+  interruptCurrent: 1
+  startTargetId: 
+  startDistanceFromCommander: 0
+  cancelEventKey: BattleEnded
+  cancelOnCommanderDeath: 1
+  finishEventKey: 
+  jumpEventKey: 
+  requireJumpTargetMatch: 0
+  cancelIfJumpBeforeStart: 0
+  jumpToStep: 0
+  steps:
+  - targetId: DrawTicket
+    holeShape: 1
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uBF51\uAE30\uAD8C \xB7 \uC778\uC7A5"
+    body: "\uBAAC\uC2A4\uD130\uAC00 \uC778\uC7A5\uC744 \uB5A8\uC5B4\uB728\uB838\uC2B5\uB2C8\uB2E4.
+      \uC778\uC7A5\uC73C\uB85C \uC655\uAD6D \uBCF4\uAE09\uC18C\uC5D0\uC11C \uC7A5\uBE44\uB97C
+      \uBF51\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uD654\uBA74\uC744 \uD074\uB9AD\uD574
+      \uACC4\uC18D\uD558\uC138\uC694."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 0
+    eventKey: 
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 1
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 1
+    allowKeyboard: 0
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
+  - targetId: DrawTicket
+    holeShape: 1
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uC778\uC7A5 \uD68D\uB4DD"
+    body: "\uC778\uC7A5 \uADFC\uCC98\uB85C \uC774\uB3D9\uD574 \uD68D\uB4DD\uD558\uC138\uC694."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 2
+    eventKey: TicketCollected
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 0
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0

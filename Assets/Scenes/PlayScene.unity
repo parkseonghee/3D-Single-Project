@@ -50937,6 +50937,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a5c1bcd31e91cf54a8f10cc356656676, type: 2}
   - {fileID: 11400000, guid: 2f25641dd0b84e44d93724be0a1d98e0, type: 2}
   - {fileID: 11400000, guid: dec3311836981c842b495fb2dbdd8219, type: 2}
+  - {fileID: 11400000, guid: 6ecd66d8176575644ad3efb784890834, type: 2}
   debugSequence: {fileID: 11400000, guid: a5c1bcd31e91cf54a8f10cc356656676, type: 2}
   style: {fileID: 11400000, guid: 138349f41fa1b524cb6d36afac09ec6e, type: 2}
   sceneEntryEvent: 
@@ -50944,6 +50945,13 @@ MonoBehaviour:
   run: {fileID: 2091199920}
   combat: {fileID: 2091199921}
   debugKeys: 1
+  debugWindow:
+    serializedVersion: 2
+    x: 20
+    y: 20
+    width: 390
+    height: 270
+  debugReplayButtonWidth: 70
 --- !u!1 &1265885043
 GameObject:
   m_ObjectHideFlags: 0
@@ -82463,7 +82471,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 687d742bcdaa11741bbb2bad7fdc9b10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.RecruitmentController
-  hireScroll: {fileID: 240537353}
   options:
   - unit: {fileID: 11400000, guid: 90c264df12cb1b94b9237f26959d6c6f, type: 2}
     hireButton: {fileID: 1409546999}
@@ -82500,6 +82507,7 @@ MonoBehaviour:
     formationCount: {fileID: 1251291199}
     buildingRequired: {fileID: 1171662138}
     riceRequired: {fileID: 1720716528}
+  hireScroll: {fileID: 240537353}
   spawnPoints:
   - {fileID: 728284187}
   - {fileID: 603314885}
@@ -82608,6 +82616,7 @@ MonoBehaviour:
   flameHoovesDurationPerLevel: 1
   flameHoovesWidth: 1.2
   focusInputCamera: {fileID: 1891337030}
+  focusClickPaddingPixels: 14
   focusRingTemplate: {fileID: 1586559480}
   focusRadius: 5
   focusMaxAttackersPerEnemy: 2
@@ -82774,7 +82783,6 @@ MonoBehaviour:
   pickupRadius: 1.2
   bottleWorldY: 0.65
   bottleRotationSpeed: 90
-  bottleAttractionSpeed: 4
   levelUpPanel: {fileID: 8100000001}
   levelUpTarget: {fileID: 8100000012}
   maximumCardChoices: 3

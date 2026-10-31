@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Building.BuildingDefinition
   displayName: "\uC655\uAD6D \uBCF4\uAE09\uC18C"
   prefab: {fileID: 100000, guid: e80371d003bd70d439af07f3facb22ea, type: 3}
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 71fc936905ddf2344abbc3cc05924983, type: 3}
   riceCost: 80
   costMultiplier: 1.5
   upgradeGoldCost: 80

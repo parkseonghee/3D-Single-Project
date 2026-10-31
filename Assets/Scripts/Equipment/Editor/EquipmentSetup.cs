@@ -143,6 +143,19 @@ namespace ArmySurvivor.Equipment.Editor
             var button=(UnityEngine.UI.Button)source.FindPropertyRelative("button").objectReferenceValue;
             var icon=(UnityEngine.UI.Image)source.FindPropertyRelative("icon").objectReferenceValue;
             var clone=Object.Instantiate(button.gameObject,button.transform.parent); clone.name="Supply Depot Button";
+            var sourceRect = button.transform as RectTransform;
+            var cloneRect = clone.transform as RectTransform;
+            var choicesRect = button.transform.parent as RectTransform;
+            if (sourceRect != null && cloneRect != null && choicesRect != null)
+            {
+                int previousIndex = button.transform.GetSiblingIndex() - 1;
+                var previousCard = previousIndex >= 0 ? button.transform.parent.GetChild(previousIndex) as RectTransform : null;
+                float spacing = previousCard != null
+                    ? sourceRect.anchoredPosition.x - previousCard.anchoredPosition.x
+                    : sourceRect.sizeDelta.x;
+                cloneRect.anchoredPosition = sourceRect.anchoredPosition + new Vector2(spacing, 0);
+                choicesRect.sizeDelta += new Vector2(spacing, 0);
+            }
             foreach(var label in clone.GetComponentsInChildren<TMP_Text>(true))
                 label.text=label==clone.GetComponentsInChildren<TMP_Text>(true)[0] ? "왕국 보급소 80 벼" : "뽑기권으로 장비 보급";
             int index=entries.arraySize;entries.InsertArrayElementAtIndex(index);

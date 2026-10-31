@@ -9444,7 +9444,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2368, y: -8}
+  m_AnchoredPosition: {x: 2708, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &51389730
@@ -23401,7 +23401,7 @@ MonoBehaviour:
   m_fontSizeMax: 0
   m_fontStyle: 1
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -23432,7 +23432,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 8, y: 0, z: 8, w: 0}
+  m_margin: {x: 10, y: 0, z: 10, w: 20}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -75182,7 +75182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1688, y: -8}
+  m_AnchoredPosition: {x: 2028, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &374117751
@@ -114983,7 +114983,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2708, y: -8}
+  m_AnchoredPosition: {x: 3048, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &575139971
@@ -207326,7 +207326,7 @@ MonoBehaviour:
   rayDistance: 500
   validPreview: {fileID: 2100000, guid: 5ebfd3b8fd7a3e642bfafd3b47630cb0, type: 2}
   invalidPreview: {fileID: 2100000, guid: b6949c6be00b40e41824ddb23fb09f75, type: 2}
-  startingRice: 999999
+  startingRice: 550
   startingGold: 0
   startingSpecialResource: 0
   exchangeRiceCost: 100
@@ -211189,8 +211189,8 @@ Light:
   m_Enabled: 0
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 0.8784314, b: 0.69803923, a: 1}
+  m_Intensity: 3.13
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -219183,7 +219183,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 3048, y: -8}
+  m_AnchoredPosition: {x: 3388, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1104612921
@@ -235228,6 +235228,7 @@ GameObject:
   - component: {fileID: 1194617418}
   - component: {fileID: 1194617417}
   - component: {fileID: 1194617416}
+  - component: {fileID: 1194617419}
   m_Layer: 0
   m_Name: Supply Depot Button
   m_TagString: Untagged
@@ -235253,7 +235254,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 3048, y: -8}
+  m_AnchoredPosition: {x: 1348, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1194617416
@@ -235338,6 +235339,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1194617414}
   m_CullTransparentMesh: 1
+--- !u!114 &1194617419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194617414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b28ffe338416842a7c8fae7a4a0398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Tutorial.TutorialTarget
+  targetId: SupplyDepotButton
 --- !u!1001 &1195596253
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -295749,7 +295763,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2028, y: -8}
+  m_AnchoredPosition: {x: 2368, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1501479172
@@ -306987,7 +307001,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1348, y: -8}
+  m_AnchoredPosition: {x: 1688, y: -8}
   m_SizeDelta: {x: 320, y: 492.8}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1555378450
@@ -343953,6 +343967,7 @@ MonoBehaviour:
   sequences:
   - {fileID: 11400000, guid: d91f1cd62fe472047a7963ff62fb0d4a, type: 2}
   - {fileID: 11400000, guid: 2f25641dd0b84e44d93724be0a1d98e0, type: 2}
+  - {fileID: 11400000, guid: 1a2a0050b6058f540ac237696ce03278, type: 2}
   debugSequence: {fileID: 11400000, guid: d91f1cd62fe472047a7963ff62fb0d4a, type: 2}
   style: {fileID: 11400000, guid: 138349f41fa1b524cb6d36afac09ec6e, type: 2}
   sceneEntryEvent: VillageEntered
@@ -355048,19 +355063,19 @@ RectTransform:
   - {fileID: 1548723540}
   - {fileID: 121656314}
   - {fileID: 1425529544}
+  - {fileID: 1194617415}
   - {fileID: 1555378449}
   - {fileID: 374117750}
   - {fileID: 1501479171}
   - {fileID: 51389729}
   - {fileID: 575139970}
   - {fileID: 1104612920}
-  - {fileID: 1194617415}
   m_Father: {fileID: 1837862965}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 3376, y: 0}
+  m_SizeDelta: {x: 3716, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1826862625
 MonoBehaviour:
@@ -360119,7 +360134,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 0.88, b: 0.7, a: 1}
-  m_Intensity: 1.5
+  m_Intensity: 3.13
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

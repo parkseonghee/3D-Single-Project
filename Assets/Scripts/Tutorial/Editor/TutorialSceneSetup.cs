@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace ArmySurvivor.Editor
 {
-    // Safe to run again: existing ScriptableObjects are left editable and target components are reused.
+    // Safe to run again: the onboarding sequences are refreshed and target components are reused.
     public static class TutorialSceneSetup
     {
         private const string Folder = "Assets/TutorialData";
@@ -31,9 +31,8 @@ namespace ArmySurvivor.Editor
                 EditorUtility.SetDirty(style);
             }
             TutorialSequence village = LoadOrCreate<TutorialSequence>("FirstVillage");
-            if (village.steps == null || village.steps.Length == 0)
             {
-                village.tutorialId = "first_village";
+                village.tutorialId = "first_village_supply";
                 village.startEventKey = "VillageEntered";
                 village.finishEventKey = "BattleStarted";
                 village.steps = new[]
@@ -41,42 +40,74 @@ namespace ArmySurvivor.Editor
                     Step("VillageResources", "마을의 자원", "벼는 건설과 고용에 쓰고, 골드는 성장에 사용합니다.", TutorialAdvance.NextButton),
                     Step("OpenBuildingMenu", "건설 메뉴", "건설 메뉴를 열어 건물을 선택하세요.", TutorialAdvance.TargetClick),
                     Step("WorkshopButton", "병영 건설", "건설 메뉴에서 병영을 선택하고 빈 땅에 배치하세요.", TutorialAdvance.Event, "BuildingBuilt:Workshop"),
+                    Step("SupplyDepotButton", "왕국 보급소 건설", "왕국 보급소를 선택하고 빈 땅에 배치하세요. 전투에서 얻은 인장으로 장비를 보급받을 수 있습니다.", TutorialAdvance.Event, "BuildingBuilt:SupplyDepot"),
                     Step("VillageReady", "전투 준비", "마을의 준비 버튼을 눌러 고용 화면으로 이동하세요.", TutorialAdvance.Event, "PreparationEntered"),
                     Step("SoldierHire", "병사 고용", "병사 고용 버튼을 5번 눌러 출전 병사 5명을 준비하세요.", TutorialAdvance.Event, "SoldierHired"),
-                    Step("SoldierHire", "부대 편성", "병사 카드의 -를 눌러 대기시키고 +로 다시 편성해 보세요.", TutorialAdvance.Event, "FormationChanged"),
                     Step("StartRun", "출전", "편성이 끝났으면 출전 버튼을 누르세요.", TutorialAdvance.TargetClick)
                 };
                 village.steps[village.steps.Length - 1].blockOutsideClicks = false;
                 village.steps[2].hideWhenTargetMissing = true;
-                village.steps[4].requiredEventCount = 5;
+                village.steps[3].blockOutsideClicks = false;
+                village.steps[3].showAsTopBanner = true;
+                var equipmentCatalog = AssetDatabase.LoadAssetAtPath<ArmySurvivor.Equipment.EquipmentCatalog>("Assets/Resources/EquipmentCatalog.asset");
+                village.steps[3].revealBuilding = equipmentCatalog != null ? equipmentCatalog.supplyBuilding : null;
+                village.steps[5].requiredEventCount = 5;
                 EditorUtility.SetDirty(village);
             }
             TutorialSequence battle = LoadOrCreate<TutorialSequence>("FirstBattle");
-            if (battle.steps == null || battle.steps.Length == 0)
             {
-                battle.tutorialId = "first_battle";
+                battle.tutorialId = "first_battle_supply";
                 battle.startEventKey = "BattleStarted";
                 battle.cancelEventKey = "BattleEnded";
                 battle.cancelOnCommanderDeath = true;
                 battle.steps = new[]
                 {
-                    Step("Commander", "지휘관 조작", "WASD로 지휘관을 움직여 부대를 이끕니다. 화면을 클릭하면 전투가 시작됩니다.", TutorialAdvance.NextButton),
                     Step("Commander", "지휘관 이동", "WASD로 지휘관을 움직여 보세요. 전투 중에도 적을 우클릭하면 집중 공격할 수 있습니다.", TutorialAdvance.CommanderDistance),
                     Step("Soldier", "자동 전투", "병사들은 가까운 적을 자동으로 공격합니다.", TutorialAdvance.NextButton),
                     Step("ExpBottle", "경험치 병", "몬스터가 떨어뜨린 경험치 병을 주우세요.", TutorialAdvance.Event, "ExpBottleCollected"),
                     Step("SoldierPortrait", "경험치 투자", "경험치 병을 얻으면 Ctrl+1~5로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
                 };
+                battle.steps[0].commanderDistance = 2f;
                 battle.steps[0].pauseGame = true;
-                battle.steps[0].allowKeyboard = false;
-                battle.steps[1].commanderDistance = 2f;
-                battle.steps[1].blockOutsideClicks = false;
-                battle.steps[2].pauseGame = true;
-                battle.steps[2].allowKeyboard = false;
-                battle.steps[3].holeShape = TutorialHoleShape.Circle;
+                battle.steps[0].allowCommanderMovementWhilePaused = true;
+                battle.steps[0].blockOutsideClicks = false;
+                battle.steps[1].pauseGame = true;
+                battle.steps[1].allowKeyboard = false;
+                battle.steps[2].holeShape = TutorialHoleShape.Circle;
+                battle.steps[2].blockOutsideClicks = false;
+                battle.steps[3].pauseGame = true;
                 battle.steps[3].blockOutsideClicks = false;
-                battle.steps[4].blockOutsideClicks = false;
                 EditorUtility.SetDirty(battle);
             }
+            TutorialSequence ticket = LoadOrCreate<TutorialSequence>("FirstTicket");
+            ticket.tutorialId = "first_ticket";
+            ticket.startEventKey = "TicketDropped";
+            ticket.interruptCurrent = true;
+            ticket.cancelEventKey = "BattleEnded";
+            ticket.cancelOnCommanderDeath = true;
+            ticket.steps = new[]
+            {
+                Step("DrawTicket", "뽑기권 · 인장", "몬스터가 인장을 떨어뜨렸습니다. 인장으로 왕국 보급소에서 장비를 뽑을 수 있습니다. 화면을 클릭해 계속하세요.", TutorialAdvance.NextButton),
+                Step("DrawTicket", "인장 획득", "인장 근처로 이동해 획득하세요.", TutorialAdvance.Event, "TicketCollected")
+            };
+            ticket.steps[0].pauseGame = true;
+            ticket.steps[0].allowKeyboard = false;
+            ticket.steps[0].holeShape = TutorialHoleShape.Circle;
+            ticket.steps[1].blockOutsideClicks = false;
+            ticket.steps[1].holeShape = TutorialHoleShape.Circle;
+            EditorUtility.SetDirty(ticket);
+            TutorialSequence draw = LoadOrCreate<TutorialSequence>("FirstSupplyDraw");
+            draw.tutorialId = "first_supply_draw";
+            draw.startEventKey = "FirstSupplyDrawUnlocked";
+            draw.steps = new[]
+            {
+                Step("SupplyDepotEntry", "왕국 보급소", "Day 1을 마쳤습니다. 왕국 보급소를 열어 전투에서 얻은 인장을 사용해 보세요.", TutorialAdvance.Event, "SupplyOpened"),
+                Step("SupplyDrawOne", "장비 보급", "1회 보급을 눌러 첫 장비를 뽑으세요.", TutorialAdvance.Event, "EquipmentDrawn"),
+                Step(null, "획득한 장비", "보급받은 장비는 다음 출전의 준비 화면에서 장착할 수 있습니다.", TutorialAdvance.NextButton)
+            };
+            draw.steps[0].blockOutsideClicks = false;
+            draw.steps[1].blockOutsideClicks = false;
+            EditorUtility.SetDirty(draw);
             TutorialSequence library = LoadOrCreate<TutorialSequence>("FirstLibrary");
             if (library.steps == null || library.steps.Length == 0)
             {
@@ -130,8 +161,16 @@ namespace ArmySurvivor.Editor
             }
 
             AssetDatabase.SaveAssets();
-            ConfigureVillage(style, village, library);
-            ConfigureBattle(style, village, battle, library, focus);
+            // Saving newly created sequence assets may replace their in-memory instances.
+            // Resolve persistent references again before serializing scene components.
+            village = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstVillage.asset");
+            battle = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstBattle.asset");
+            library = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstLibrary.asset");
+            focus = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstEliteFocus.asset");
+            ticket = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstTicket.asset");
+            draw = AssetDatabase.LoadAssetAtPath<TutorialSequence>(Folder + "/FirstSupplyDraw.asset");
+            ConfigureVillage(style, village, library, draw);
+            ConfigureBattle(style, village, battle, library, focus, ticket);
             ConfigureStart(style.font);
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene("Assets/Scenes/StartScene.unity", OpenSceneMode.Single);
@@ -195,25 +234,55 @@ namespace ArmySurvivor.Editor
             EditorSceneManager.MarkSceneDirty(host.gameObject.scene);
         }
 
-        private static void ConfigureVillage(TutorialStyle style, TutorialSequence village, TutorialSequence library)
+        private static void ConfigureVillage(TutorialStyle style, TutorialSequence village, TutorialSequence library, TutorialSequence draw)
         {
             Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/VillageScene.unity", OpenSceneMode.Single);
-            ConfigureManager(Find(scene, "Building UI"), style, "VillageEntered", new[] { village, library }, village,
+            village = LoadOrCreate<TutorialSequence>("FirstVillage");
+            library = LoadOrCreate<TutorialSequence>("FirstLibrary");
+            draw = LoadOrCreate<TutorialSequence>("FirstSupplyDraw");
+            ConfigureManager(Find(scene, "Building UI"), style, "VillageEntered", new[] { village, library, draw }, village,
                 Find(scene, "Village Camera"), null);
             Target(scene, "Village Top Bar", "VillageResources");
             Target(scene, "Open Building Menu", "OpenBuildingMenu");
             Target(scene, "Workshop Button", "WorkshopButton");
+            Target(scene, "Supply Depot Button", "SupplyDepotButton");
+            // HorizontalLayoutGroup controls the positions, so change sibling order rather than offsets.
+            RectTransform workshop = Find(scene, "Workshop Button") as RectTransform;
+            RectTransform supply = Find(scene, "Supply Depot Button") as RectTransform;
+            if (supply != null)
+            {
+                TMP_Text label = supply.GetComponentInChildren<TMP_Text>(true);
+                var catalog = AssetDatabase.LoadAssetAtPath<ArmySurvivor.Equipment.EquipmentCatalog>("Assets/Resources/EquipmentCatalog.asset");
+                if (label != null && catalog != null && catalog.supplyBuilding != null)
+                {
+                    label.text = $"왕국 보급소 {catalog.supplyBuilding.riceCost} 벼";
+                    label.alignment = TextAlignmentOptions.Bottom;
+                    label.margin = new Vector4(10, 0, 10, 20);
+                    EditorSceneManager.MarkSceneDirty(scene);
+                }
+            }
+            if (workshop != null && supply != null &&
+                supply.GetSiblingIndex() != workshop.GetSiblingIndex() + 1)
+            {
+                supply.SetSiblingIndex(workshop.GetSiblingIndex() + 1);
+                EditorSceneManager.MarkSceneDirty(scene);
+            }
             Target(scene, "Ready Button", "VillageReady");
             EditorSceneManager.SaveScene(scene);
         }
 
         private static void ConfigureBattle(TutorialStyle style, TutorialSequence village, TutorialSequence battle,
-            TutorialSequence library, TutorialSequence focus)
+            TutorialSequence library, TutorialSequence focus, TutorialSequence ticket)
         {
             Scene scene = EditorSceneManager.OpenScene("Assets/Scenes/PlayScene.unity", OpenSceneMode.Single);
+            village = LoadOrCreate<TutorialSequence>("FirstVillage");
+            battle = LoadOrCreate<TutorialSequence>("FirstBattle");
+            library = LoadOrCreate<TutorialSequence>("FirstLibrary");
+            focus = LoadOrCreate<TutorialSequence>("FirstEliteFocus");
+            ticket = LoadOrCreate<TutorialSequence>("FirstTicket");
             Transform system = Find(scene, "Recruitment System");
             ConfigureManager(Find(scene, "Recruitment UI"), style, null,
-                new[] { village, battle, library, focus }, battle, Find(scene, "Play Camera"), system);
+                new[] { village, battle, library, focus, ticket }, battle, Find(scene, "Play Camera"), system);
             Target(scene, "Commander", "Commander");
             Target(scene, "Soldier Card", "SoldierHire");
             Target(scene, "Start Run Button", "StartRun");
