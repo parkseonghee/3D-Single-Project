@@ -19,28 +19,32 @@ namespace ArmySurvivor.Equipment
         {
             if (IsPlaying) return;
             Transform gate = null;
+            SupplySlidingGate hinges = null;
             Camera source = null;
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
+                foreach (var candidate in root.GetComponentsInChildren<SupplySlidingGate>())
+                    if (hinges == null && candidate.doorA != null && candidate.doorB != null) hinges = candidate;
                 foreach (var t in root.GetComponentsInChildren<Transform>())
-                    if (t.name == "Wall_A_gate" && t.Find("Bone_Base") != null) gate = t;
+                    if (t.name == "Wall_A_gate") gate = t;
                 foreach (var c in root.GetComponentsInChildren<Camera>())
                     if (c.enabled && c.targetTexture == null) source = c;
             }
-            Transform doorA = gate != null && !string.IsNullOrWhiteSpace(data.supplyDoorAPath) ? gate.Find(data.supplyDoorAPath) : null;
-            Transform doorB = gate != null && !string.IsNullOrWhiteSpace(data.supplyDoorBPath) ? gate.Find(data.supplyDoorBPath) : null;
+            if (hinges != null) gate = hinges.transform;
+            Transform doorA = hinges != null ? hinges.doorA : null;
+            Transform doorB = hinges != null ? hinges.doorB : null;
             if (gate == null || source == null || doorA == null || doorB == null || data.supplyFirework == null)
             {
-                Debug.LogWarning("Supply cinematic unavailable: check gate, door paths, camera and EquipmentCatalog references.");
+                Debug.LogWarning("Supply cinematic unavailable: check gate DoorPivot references, camera and EquipmentCatalog firework.");
                 onComplete?.Invoke();
                 return;
             }
             completed = onComplete;
             IsPlaying = true;
-            StartCoroutine(Animate(data, gate, doorA, doorB, source));
+            StartCoroutine(Animate(data, gate, doorA, doorB, source, hinges));
         }
 
-        IEnumerator Animate(EquipmentCatalog data, Transform gate, Transform doorA, Transform doorB, Camera source)
+        IEnumerator Animate(EquipmentCatalog data, Transform gate, Transform doorA, Transform doorB, Camera source, SupplySlidingGate hinges)
         {
             try
             {
@@ -90,11 +94,11 @@ namespace ArmySurvivor.Equipment
                 }
                 Quaternion originalA = doorA.localRotation, originalB = doorB.localRotation;
                 restore.Add(() => { if (doorA) doorA.localRotation = originalA; if (doorB) doorB.localRotation = originalB; });
-                // The model's bind pose is open. Apply the configured closed rotations before rendering.
-                Quaternion closedA = Quaternion.Euler(data.supplyDoorAClosedEuler);
-                Quaternion openA = Quaternion.Euler(data.supplyDoorAOpenEuler);
-                Quaternion closedB = Quaternion.Euler(data.supplyDoorBClosedEuler);
-                Quaternion openB = Quaternion.Euler(data.supplyDoorBOpenEuler);
+                // Preserve the authored hinge positions and closed pose; only local Y rotates.
+                Quaternion closedA = originalA;
+                Quaternion openA = closedA * Quaternion.AngleAxis(hinges != null ? hinges.openAngleA : 90f, Vector3.up);
+                Quaternion closedB = originalB;
+                Quaternion openB = closedB * Quaternion.AngleAxis(hinges != null ? hinges.openAngleB : -90f, Vector3.up);
                 doorA.localRotation = closedA;
                 doorB.localRotation = closedB;
                 // The village's front is world -Z. Offsets stay relative to the gate position.

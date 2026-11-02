@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ArmySurvivor.Army
 {
-    public class BattleExperience : MonoBehaviour
+    public partial class BattleExperience : MonoBehaviour
     {
         public class UnitProgress
         {
@@ -167,7 +167,8 @@ namespace ArmySurvivor.Army
         [SerializeField] private Button weaponStrikeButton;
         private Transform dropRoot;
         public int Bottles { get; private set; }
-        public int DropCount => drops.Count;
+        public int DropCount => fieldBottleCount;
+        public int ActiveDropCount => drops.Count;
         public void GrantBottles(int count)
         {
             if (!run.IsRunning || count <= 0) return;
@@ -177,7 +178,7 @@ namespace ArmySurvivor.Army
         public event Action<Transform, int> UnitLeveledUp;
         public event Action<Transform> UnitExperienceChanged;
         public event Action<Transform> OnExpBottleInvested;
-        public event Action OnBottleCollected;
+        public event Action<int> OnBottlesCollected;
         public event Action RosterChanged;
         public IEnumerable<Transform> TrackedUnits => units.Keys;
         public UnitDefinition DefinitionFor(Transform unit) =>
@@ -283,8 +284,8 @@ namespace ArmySurvivor.Army
                 units.Add(unit, new UnitProgress(requiredExperiencePerLevel, requiredLevelOffset));
                 focusStationaryTimes[unit] = 0;
             }
-            dropRoot = new GameObject("Experience Drops").transform;
-            dropRoot.SetParent(transform, false);
+            EnsureDropRoots();
+            StartCoroutine(WarmBottlePool());
             panel.SetActive(true);
             RefreshUI();
             RosterChanged?.Invoke();
@@ -297,17 +298,7 @@ namespace ArmySurvivor.Army
             return progress;
         }
 
-        public void Drop(Vector3 position)
-        {
-            if (!run.IsRunning || dropRoot == null) return;
-            position.y = bottleWorldY;
-            Transform bottle = Instantiate(bottlePrefab, position, Quaternion.identity, dropRoot).transform;
-            var tutorialTarget = bottle.GetComponent<ArmySurvivor.Tutorial.TutorialTarget>();
-            if (tutorialTarget == null) tutorialTarget = bottle.gameObject.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
-            tutorialTarget.SetId("ExpBottle");
-            drops.Add(bottle);
-            ArmySurvivor.Tutorial.TutorialEvents.Raise("ExpBottleDropped", bottle);
-        }
+        public void Drop(Vector3 position) => SpawnPooledBottle(position);
 
         private void Update()
         {
@@ -383,33 +374,8 @@ namespace ArmySurvivor.Army
                 }
         }
 
-        private void RotateBottles(float deltaTime)
-        {
-            if (!run.IsRunning || run.IsPaused || IsChoosingUpgrade || deltaTime <= 0) return;
-            foreach (Transform bottle in drops)
-                bottle.Rotate(Vector3.up, bottleRotationSpeed * deltaTime, Space.World);
-        }
-
-        public void CollectNearby()
-        {
-            if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || IsChoosingUpgrade) return;
-            bool collected = false;
-            float radius = pickupRadius * (GetComponent<CommanderProgression>()?.PickupMultiplier ?? 1f);
-            for (int i = drops.Count - 1; i >= 0; i--)
-            {
-                Vector3 offset = drops[i].position - run.Commander.position;
-                offset.y = 0;
-                if (offset.sqrMagnitude > radius * radius) continue;
-                drops[i].gameObject.SetActive(false);
-                Destroy(drops[i].gameObject);
-                drops.RemoveAt(i);
-                Bottles++;
-                OnBottleCollected?.Invoke();
-                ArmySurvivor.Tutorial.TutorialEvents.Raise("ExpBottleCollected");
-                collected = true;
-            }
-            if (collected) RefreshUI();
-        }
+        private void RotateBottles(float deltaTime) => AnimatePooledBottles(deltaTime);
+        public void CollectNearby() => CollectPooledBottles();
 
         public bool Invest(Transform unit)
         {
@@ -791,13 +757,7 @@ namespace ArmySurvivor.Army
         {
             levelUps.Clear();
             CloseUpgrade();
-            if (dropRoot != null)
-            {
-                dropRoot.gameObject.SetActive(false);
-                Destroy(dropRoot.gameObject);
-            }
-            dropRoot = null;
-            drops.Clear();
+            ReleaseAllBottles();
             foreach (Transform effect in focusEffects.Values)
                 if (effect != null) Destroy(effect.gameObject);
             focusEffects.Clear();

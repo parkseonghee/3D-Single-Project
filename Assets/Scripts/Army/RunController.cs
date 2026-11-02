@@ -192,6 +192,19 @@ namespace ArmySurvivor.Army
             Tick(input, ArmySurvivor.Tutorial.TutorialManager.MovementWhilePaused ? Time.unscaledDeltaTime : Time.deltaTime);
         }
 
+        public Vector3 ClampCommanderPosition(Vector3 position, float extraInset = 0)
+        {
+            float margin = 1;
+            foreach (Tactic tactic in tactics) margin = Mathf.Max(margin, tactic.radius + 1);
+            Bounds bounds = ground.bounds;
+            margin += Mathf.Max(0, extraInset);
+            float x = Mathf.Max(0, bounds.extents.x - margin);
+            float z = Mathf.Max(0, bounds.extents.z - margin);
+            position.x = Mathf.Clamp(position.x, bounds.center.x-x, bounds.center.x+x);
+            position.z = Mathf.Clamp(position.z, bounds.center.z-z, bounds.center.z+z);
+            return position;
+        }
+
         public void Tick(Vector2 input, float deltaTime)
         {
             if (!IsRunning || IsPaused || IsChoosingUpgrade || CommanderDead || deltaTime <= 0) return;
@@ -208,12 +221,7 @@ namespace ArmySurvivor.Army
             input = Vector2.ClampMagnitude(input, 1);
             Vector3 direction = right * input.x + forward * input.y;
             Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier * DiabloMoveMultiplier * deltaTime);
-            // 가장 넓은 진형도 땅 밖으로 나가지 않도록 지휘관의 이동 범위를 제한한다.
-            float margin = 1;
-            foreach (Tactic tactic in tactics) margin = Mathf.Max(margin, tactic.radius + 1);
-            Bounds bounds = ground.bounds;
-            target.x = Mathf.Clamp(target.x, bounds.min.x + margin, bounds.max.x - margin);
-            target.z = Mathf.Clamp(target.z, bounds.min.z + margin, bounds.max.z - margin);
+            target = ClampCommanderPosition(target);
             Move(commander, target, deltaTime);
             for (int i = 0; i < soldiers.Count; i++)
             {

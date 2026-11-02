@@ -26,3 +26,17 @@
 ## 검증
 Unity 컴파일 성공. `Army Survivor > Equipment > Validate Supply Cinematic`에서 프리팹 참조, 애니메이션 바인딩 3개 및 문 회전 96도를 확인했다.
 실제 플레이에서 1회/10회, ESC 건너뛰기, 연속 뽑기, 종료 후 카메라 드래그/줌과 UI 복귀를 확인할 것. 화면 구도와 폭죽 밀도는 아직 플레이 화면으로 검수하지 않았다.
+
+## 2026-11-01: 독립 슬라이딩 문으로 교체
+- VillageScene의 Wall_A_gate에서 Animator/Animation을 제거하고 기존 wall_A_open 재생을 중단했다. 원본 FBX 에셋은 유지한다.
+- Wall_A_door_A/B의 SkinnedMeshRenderer를 현재 닫힌 모습의 독립 메시로 베이크했다.
+- 두 문짝은 Wall_A_gate 바깥의 Supply Door Tracks 아래 서로 독립된 형제 오브젝트다. 마을 배경 루트 아래에 유지되어 전장 이동 시 함께 숨겨진다.
+- 문짝마다 Animation 컴포넌트와 별도 SlideOpen.anim을 연결했다. 자동 재생은 끄고 보급 연출 시간에 맞춰 샘플링한다.
+- A는 로컬 Z +3.2, B는 로컬 Z -3.2 이동한다. X/Y 및 회전은 고정이다. Door Tracks의 축을 기존 성문에 맞췄으므로 월드 화면에서는 좌우로 열린다.
+- Assets/EquipmentData/Wall_A_door_A-SlideOpen.anim 및 Wall_A_door_B-SlideOpen.anim에서 이동값을 수정할 수 있다. 열리는 시점/시간은 EquipmentCatalog의 Supply Door Start/Duration에서 조정한다.
+- 재생 종료/건너뛰기 시 두 문짝의 원래 위치를 복구한다.
+- Unity 검증 결과: 두 문짝 Z 이동 +3.20/-3.20, X/Y 불변, 성문 본체 위치 불변. 씬 저장 완료.
+- 마을 배경을 재생성하면 Army Survivor > Equipment > Setup Sliding Doors를 다시 실행한다.
+
+## 회전 방식으로 수정
+위 슬라이딩 방식은 폐기했다. 현재는 문짝 Position을 고정하고 닫힌 자세 기준 로컬 Z로 A +90도, B -90도 회전한다. RotateOpen.anim 두 개로 교체했으며 GUID를 유지했다. X=90도인 FBX 특성상 Inspector Euler 표시가 다른 축 값으로 환산될 수 있어 상대 quaternion으로 Z 회전을 검증한다. 설정 메뉴는 Setup Rotating Doors로 변경됐다.

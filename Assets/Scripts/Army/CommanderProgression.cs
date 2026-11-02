@@ -65,7 +65,7 @@ namespace ArmySurvivor.Army
         {
             run.RunStarted += Begin;
             run.RunEnded += End;
-            experience.OnBottleCollected += GainPickup;
+            experience.OnBottlesCollected += GainPickups;
         }
         private void Begin()
         {
@@ -81,10 +81,11 @@ namespace ArmySurvivor.Army
             }
             Refresh();
         }
-        public void GainPickup()
+        public void GainPickup() => GainPickups(1);
+        private void GainPickups(int count)
         {
             if (!run.IsRunning || run.CommanderDead) return;
-            Experience += experiencePerPickup;
+            Experience += experiencePerPickup * count;
             while (Experience >= Required)
             {
                 Experience -= Required; Level++; pending++;
@@ -247,7 +248,7 @@ namespace ArmySurvivor.Army
         }
         private void OnDisable()
         {
-            run.RunStarted -= Begin; run.RunEnded -= End; experience.OnBottleCollected -= GainPickup; End();
+            run.RunStarted -= Begin; run.RunEnded -= End; experience.OnBottlesCollected -= GainPickups; End();
         }
         private void OnDestroy() { if (canvasRoot != null) Destroy(canvasRoot); }
     }

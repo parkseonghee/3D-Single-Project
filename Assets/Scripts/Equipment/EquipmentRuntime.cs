@@ -14,6 +14,7 @@ namespace ArmySurvivor.Equipment
         RunController run;
         CombatController combat;
         EquipmentUI ui;
+        PickupFeedback pickupFeedback;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Install()
         {
@@ -39,6 +40,7 @@ namespace ArmySurvivor.Equipment
             }
             ui = gameObject.AddComponent<EquipmentUI>();
             ui.Initialize(catalog, run);
+            if (run != null) pickupFeedback = PickupFeedback.Prepare(run);
             if (combat != null) combat.EnemyKilled += Drop;
             if (run != null) { run.RunStarted += ClearDrops; run.RunEnded += ClearDrops; }
         }
@@ -73,6 +75,7 @@ namespace ArmySurvivor.Equipment
                 if (distance <= catalog.pickupRadius && Time.time >= pickupReadyAt[item])
                 {
                     EquipmentInventory.AddTickets(1);
+                    if (pickupFeedback != null) pickupFeedback.SealCollected();
                     TutorialEvents.Raise("TicketCollected", item);
                     pickupReadyAt.Remove(item);
                     Destroy(item.gameObject); drops.RemoveAt(i); continue;

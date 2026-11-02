@@ -72309,7 +72309,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 541754257}
@@ -82771,6 +82771,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8429df8255012419a92ebe26ba9574, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.BattleExperience
+  maximumVisibleBottles: 128
+  prewarmBottles: 32
+  creationsPerFrame: 4
+  bottleMergeCellSize: 2
+  bottleBoundaryInset: 0.3
+  bottleAnimationInterval: 0.0333
+  bottleAnimationDistance: 30
   run: {fileID: 2091199920}
   combat: {fileID: 2091199921}
   recruitment: {fileID: 2091199918}

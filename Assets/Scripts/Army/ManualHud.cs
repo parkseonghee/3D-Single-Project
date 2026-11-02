@@ -42,6 +42,8 @@ namespace ArmySurvivor.Army
         }
         private void Refresh()
         {
+            // Scene teardown can destroy the HUD before the manager sends its final event.
+            if (root == null || announcement == null || manager == null) return;
             bool visible = manager.ActiveManual != null && manager.Run.IsRunning;
             root.gameObject.SetActive(visible);
             if (!visible) { announcement.gameObject.SetActive(false); return; }
