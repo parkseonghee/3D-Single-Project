@@ -17,7 +17,7 @@ namespace ArmySurvivor.Saving
         public int version = 1;
         public string savedAt;
         public string gameMode; // absent in legacy saves => Adventure
-        public int rice, gold, special, day, dailyTotal, remainingCount, remainingRice, portion;
+        public int rice, gold, day, dailyTotal, remainingCount, remainingRice, portion;
         public List<BuildingRecord> buildings = new List<BuildingRecord>();
         public List<CountRecord> purchases = new List<CountRecord>();
         public List<TroopRecord> troops = new List<TroopRecord>();
@@ -95,7 +95,7 @@ namespace ArmySurvivor.Saving
         private SaveData Read(int index)
         {
             var data = JsonUtility.FromJson<SaveData>(File.ReadAllText(SlotPath(index)));
-            if (data == null || data.version != 1 || data.day < 1 || data.rice < 0 || data.gold < 0 || data.special < 0 ||
+            if (data == null || data.version != 1 || data.day < 1 || data.rice < 0 || data.gold < 0 ||
                 data.dailyTotal < 0 || data.remainingRice < 0 || data.remainingRice > data.dailyTotal || data.remainingCount < 0 || data.portion < 0 ||
                 data.buildings == null || data.purchases == null || data.troops == null) throw new InvalidDataException();
             foreach (var b in data.buildings)

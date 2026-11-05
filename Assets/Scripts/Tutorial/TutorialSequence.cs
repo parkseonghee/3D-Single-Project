@@ -31,6 +31,7 @@ namespace ArmySurvivor.Tutorial
         [Min(0)] public float commanderDistance;
         public bool pauseGame;
         public bool allowCommanderMovementWhilePaused;
+        public bool allowFocusInputWhilePaused;
         public bool blockOutsideClicks = true;
         public bool allowKeyboard = true;
         public bool showArrow = true;

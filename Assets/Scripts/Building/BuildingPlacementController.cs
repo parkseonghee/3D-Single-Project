@@ -55,7 +55,6 @@ namespace ArmySurvivor.Building
         [SerializeField, Min(0)] private int startingRice = 550;
         [Header("자원과 환전")]
         [SerializeField, Min(0)] private int startingGold;
-        [SerializeField, Min(0)] private int startingSpecialResource;
         [SerializeField, Min(1)] private int exchangeRiceCost = 100;
         [SerializeField, Min(1)] private int exchangeGoldGain = 40;
 
@@ -74,12 +73,10 @@ namespace ArmySurvivor.Building
 
         public int Rice { get; private set; }
         public int Gold { get; private set; }
-        public void AddStageRewards(int gold, int special)
+        public void AddStageRewards(int gold)
         {
             Gold = (int)System.Math.Min(int.MaxValue, (long)Gold + Mathf.Max(0, gold));
-            SpecialResource = (int)System.Math.Min(int.MaxValue, (long)SpecialResource + Mathf.Max(0, special));
         }
-        public int SpecialResource { get; private set; }
         public bool CanExchange => exchangeRiceCost > 0 && exchangeGoldGain > 0 &&
             Rice >= exchangeRiceCost && Gold <= int.MaxValue - exchangeGoldGain;
 
@@ -103,7 +100,6 @@ namespace ArmySurvivor.Building
             }
             Rice = startingRice;
             Gold = startingGold;
-            SpecialResource = startingSpecialResource;
             foreach (StartingBuilding initial in startingBuildings)
             {
                 if (initial.definition == null || initial.sceneObject == null) continue;

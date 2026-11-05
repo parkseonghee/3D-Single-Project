@@ -15,6 +15,7 @@ MonoBehaviour:
   id: training-blade
   displayName: "\uD6C8\uB828\uC6A9 \uAC80"
   grade: 0
+  isWeapon: 1
   description: "\uC2E0\uBCD1\uC5D0\uAC8C \uC9C0\uAE09\uD558\uB294 \uC18C\uBC15\uD55C
     \uD6C8\uB828\uC6A9 \uAC80."
   model: {fileID: 100000, guid: 93b3ac2d1edb6454280a7222fedb4974, type: 3}

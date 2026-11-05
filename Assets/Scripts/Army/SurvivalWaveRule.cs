@@ -20,8 +20,9 @@ namespace ArmySurvivor.Army
     {
         private readonly SurvivalSettings settings;
         private readonly EnemyDefinition[,] definitions;
-        public SurvivalWaveRule(SurvivalSettings settings, EnemyDefinition[,] definitions)
-        { this.settings = settings; this.definitions = definitions; }
+        private readonly float intervalMultiplier;
+        public SurvivalWaveRule(SurvivalSettings settings, EnemyDefinition[,] definitions, float intervalMultiplier = 1f)
+        { this.settings = settings; this.definitions = definitions; this.intervalMultiplier = Mathf.Max(.1f, intervalMultiplier); }
 
         public WaveState Evaluate(float elapsed, bool bossAlive)
         {
@@ -33,7 +34,8 @@ namespace ArmySurvivor.Army
             if (bossAlive) batch = Mathf.Max(1, Mathf.CeilToInt(batch * settings.spawnStrengthDuringBoss));
             return new WaveState {
                 number = settings.Tier(elapsed),
-                interval = Mathf.Max(settings.minimumSpawnInterval, band.interval / (1 + extraMinutes * settings.intervalDecreasePerMinute)),
+                interval = Mathf.Max(settings.minimumSpawnInterval, band.interval * intervalMultiplier /
+                    (1 + extraMinutes * settings.intervalDecreasePerMinute)),
                 batch = Mathf.Max(1, batch),
                 capacity = Mathf.Clamp(band.capacity + Mathf.FloorToInt(extraMinutes * settings.capacityIncreasePerMinute), 1, settings.absoluteCapacity)
             };

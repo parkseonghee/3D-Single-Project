@@ -38,6 +38,7 @@ namespace ArmySurvivor.Editor
                 village.steps = new[]
                 {
                     Step("VillageResources", "마을의 자원", "벼는 건설과 고용에 쓰고, 골드는 성장에 사용합니다.", TutorialAdvance.NextButton),
+                    Step("RiceHarvestButton", "벼 생산", "왼쪽의 벼 채취 버튼을 눌러 벼를 생산해 보세요. 벼는 건물 건설과 병사 고용에 사용합니다.", TutorialAdvance.Event, "RiceHarvested"),
                     Step("OpenBuildingMenu", "건설 메뉴", "건설 메뉴를 열어 건물을 선택하세요.", TutorialAdvance.TargetClick),
                     Step("WorkshopButton", "병영 건설", "건설 메뉴에서 병영을 선택하고 빈 땅에 배치하세요.", TutorialAdvance.Event, "BuildingBuilt:Workshop"),
                     Step("SupplyDepotButton", "왕국 보급소 건설", "왕국 보급소를 선택하고 빈 땅에 배치하세요. 전투에서 얻은 인장으로 장비를 보급받을 수 있습니다.", TutorialAdvance.Event, "BuildingBuilt:SupplyDepot"),
@@ -46,12 +47,13 @@ namespace ArmySurvivor.Editor
                     Step("StartRun", "출전", "편성이 끝났으면 출전 버튼을 누르세요.", TutorialAdvance.TargetClick)
                 };
                 village.steps[village.steps.Length - 1].blockOutsideClicks = false;
-                village.steps[2].hideWhenTargetMissing = true;
-                village.steps[3].blockOutsideClicks = false;
-                village.steps[3].showAsTopBanner = true;
+                village.steps[1].blockOutsideClicks = true;
+                village.steps[3].hideWhenTargetMissing = true;
+                village.steps[4].blockOutsideClicks = false;
+                village.steps[4].showAsTopBanner = true;
                 var equipmentCatalog = AssetDatabase.LoadAssetAtPath<ArmySurvivor.Equipment.EquipmentCatalog>("Assets/Resources/EquipmentCatalog.asset");
-                village.steps[3].revealBuilding = equipmentCatalog != null ? equipmentCatalog.supplyBuilding : null;
-                village.steps[5].requiredEventCount = 5;
+                village.steps[4].revealBuilding = equipmentCatalog != null ? equipmentCatalog.supplyBuilding : null;
+                village.steps[6].requiredEventCount = 5;
                 EditorUtility.SetDirty(village);
             }
             TutorialSequence battle = LoadOrCreate<TutorialSequence>("FirstBattle");
@@ -75,6 +77,8 @@ namespace ArmySurvivor.Editor
                 battle.steps[1].allowKeyboard = false;
                 battle.steps[2].holeShape = TutorialHoleShape.Circle;
                 battle.steps[2].blockOutsideClicks = false;
+                battle.steps[2].pauseGame = true;
+                battle.steps[2].allowCommanderMovementWhilePaused = true;
                 battle.steps[3].pauseGame = true;
                 battle.steps[3].blockOutsideClicks = false;
                 EditorUtility.SetDirty(battle);
@@ -95,6 +99,8 @@ namespace ArmySurvivor.Editor
             ticket.steps[0].holeShape = TutorialHoleShape.Circle;
             ticket.steps[1].blockOutsideClicks = false;
             ticket.steps[1].holeShape = TutorialHoleShape.Circle;
+            ticket.steps[1].pauseGame = true;
+            ticket.steps[1].allowCommanderMovementWhilePaused = true;
             EditorUtility.SetDirty(ticket);
             TutorialSequence draw = LoadOrCreate<TutorialSequence>("FirstSupplyDraw");
             draw.tutorialId = "first_supply_draw";
@@ -159,6 +165,12 @@ namespace ArmySurvivor.Editor
                 focus.steps[2].blockOutsideClicks = false;
                 EditorUtility.SetDirty(focus);
             }
+            // 지시를 읽는 동안 정예는 멈추되, 우클릭 지정과 좌클릭 해제는 받는다.
+            focus.steps[0].pauseGame = true;
+            focus.steps[0].allowFocusInputWhilePaused = true;
+            focus.steps[2].pauseGame = true;
+            focus.steps[2].allowFocusInputWhilePaused = true;
+            EditorUtility.SetDirty(focus);
 
             AssetDatabase.SaveAssets();
             // Saving newly created sequence assets may replace their in-memory instances.
@@ -243,6 +255,7 @@ namespace ArmySurvivor.Editor
             ConfigureManager(Find(scene, "Building UI"), style, "VillageEntered", new[] { village, library, draw }, village,
                 Find(scene, "Village Camera"), null);
             Target(scene, "Village Top Bar", "VillageResources");
+            Target(scene, "Harvest Button", "RiceHarvestButton");
             Target(scene, "Open Building Menu", "OpenBuildingMenu");
             Target(scene, "Workshop Button", "WorkshopButton");
             Target(scene, "Supply Depot Button", "SupplyDepotButton");

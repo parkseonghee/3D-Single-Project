@@ -15,6 +15,7 @@ MonoBehaviour:
   id: aetherstorm-blade
   displayName: "\uC5D0\uD14C\uB974\uC2A4\uD1B0 \uBE14\uB808\uC774\uB4DC"
   grade: 2
+  isWeapon: 1
   description: "\uC7A5\uBE44 \uD6A8\uACFC\uB294 \uCD94\uD6C4 \uAD6C\uD604\uB429\uB2C8\uB2E4."
   model: {fileID: 919132149155446097, guid: fd7feb85b75a190469d45c72e852eb9f, type: 3}
   previewRotation: {x: 270, y: 0, z: 0}

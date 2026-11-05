@@ -64,7 +64,12 @@ namespace ArmySurvivor.Army
                 if (option.removeButton != null) option.removeButton.onClick.AddListener(() => TryRemove(option.unit));
             }
             backButton.onClick.AddListener(Back);
-            RestoreSavedTroops();
+            if (GameModeManager.Current == GameMode.Survival)
+            {
+                backButton.gameObject.SetActive(false);
+                GenerateSurvivalSquad();
+            }
+            else RestoreSavedTroops();
             RefreshUI();
             ShowFirstHireOption();
         }
@@ -112,6 +117,41 @@ namespace ArmySurvivor.Army
             RefreshUI();
             ArmySurvivor.Tutorial.TutorialEvents.Raise("SoldierHired", root);
             return true;
+        }
+
+        public void GenerateSurvivalSquad()
+        {
+            if (GameModeManager.Current != GameMode.Survival || soldiersRoot == null || spawnPoints == null) return;
+            FinishAppearances();
+            for (int i = soldiersRoot.childCount - 1; i >= 0; i--)
+            {
+                Transform soldier = soldiersRoot.GetChild(i);
+                soldier.SetParent(null);
+                Destroy(soldier.gameObject);
+            }
+            Units.Clear();
+            hiredCount = 0;
+            var pool = new System.Collections.Generic.List<UnitDefinition>();
+            foreach (var option in options)
+                if (option != null && option.unit != null && option.unit.prefab != null && !pool.Contains(option.unit))
+                    pool.Add(option.unit);
+            if (pool.Count == 0) { Debug.LogError("서바이벌 무작위 병사 후보가 없습니다.", this); return; }
+            for (int i = 0; i < spawnPoints.Length; i++)
+            {
+                UnitDefinition unit = pool[UnityEngine.Random.Range(0, pool.Count)];
+                Transform root = new GameObject(unit.name).transform;
+                root.SetParent(soldiersRoot, false);
+                root.SetPositionAndRotation(spawnPoints[i].position, spawnPoints[i].rotation);
+                GameObject model = Instantiate(unit.prefab, root);
+                model.transform.localPosition = unit.modelOffset;
+                model.transform.localRotation = Quaternion.Euler(unit.modelRotation);
+                model.transform.localScale = unit.modelScale;
+                foreach (Animator animator in model.GetComponentsInChildren<Animator>()) animator.applyRootMotion = false;
+                root.gameObject.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>().SetId("Soldier");
+                Units.Add(root, unit);
+                hiredCount++;
+            }
+            RefreshUI();
         }
 
         private IEnumerator Appear(Transform soldier, Vector3 scale)

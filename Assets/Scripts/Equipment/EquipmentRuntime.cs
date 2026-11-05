@@ -15,6 +15,7 @@ namespace ArmySurvivor.Equipment
         CombatController combat;
         EquipmentUI ui;
         PickupFeedback pickupFeedback;
+        SurvivalWeaponReveal weaponReveal;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Install()
         {
@@ -41,6 +42,11 @@ namespace ArmySurvivor.Equipment
             ui = gameObject.AddComponent<EquipmentUI>();
             ui.Initialize(catalog, run);
             if (run != null) pickupFeedback = PickupFeedback.Prepare(run);
+            if (run != null && GameModeManager.Current == GameMode.Survival)
+            {
+                weaponReveal = gameObject.AddComponent<SurvivalWeaponReveal>();
+                weaponReveal.Initialize(catalog, run);
+            }
             if (combat != null) combat.EnemyKilled += Drop;
             if (run != null) { run.RunStarted += ClearDrops; run.RunEnded += ClearDrops; }
         }
@@ -60,7 +66,7 @@ namespace ArmySurvivor.Equipment
             if (target == null) target = item.AddComponent<TutorialTarget>();
             target.SetId("DrawTicket");
             drops.Add(item.transform);
-            pickupReadyAt[item.transform] = Time.time + catalog.ticketPickupDelay;
+            pickupReadyAt[item.transform] = Time.unscaledTime + catalog.ticketPickupDelay;
             TutorialEvents.Raise("TicketDropped", item.transform);
         }
         void Update()
@@ -72,16 +78,26 @@ namespace ArmySurvivor.Equipment
                 if (item == null) { if (!ReferenceEquals(item, null)) pickupReadyAt.Remove(item); drops.RemoveAt(i); continue; }
                 var target = run.Commander.position; target.y = item.position.y;
                 float distance = Vector3.Distance(item.position, target);
-                if (distance <= catalog.pickupRadius && Time.time >= pickupReadyAt[item])
+                if (distance <= catalog.pickupRadius && Time.unscaledTime >= pickupReadyAt[item])
                 {
-                    EquipmentInventory.AddTickets(1);
+                    bool survivalPickup = GameModeManager.Current == GameMode.Survival;
+                    if (survivalPickup)
+                    {
+                        var weapon = EquipmentInventory.GrantRandomSurvivalWeapon(catalog);
+                        if (weaponReveal != null) weaponReveal.Show(weapon);
+                    }
+                    else EquipmentInventory.AddTickets(1);
                     if (pickupFeedback != null) pickupFeedback.SealCollected();
                     TutorialEvents.Raise("TicketCollected", item);
                     pickupReadyAt.Remove(item);
-                    Destroy(item.gameObject); drops.RemoveAt(i); continue;
+                    Destroy(item.gameObject); drops.RemoveAt(i);
+                    // A second seal collected in the same frame waits until this reveal closes.
+                    if (survivalPickup) break;
+                    continue;
                 }
                 if (distance < catalog.attractionRadius)
-                    item.position = Vector3.MoveTowards(item.position, target, catalog.attractionSpeed * Time.deltaTime);
+                    item.position = Vector3.MoveTowards(item.position, target, catalog.attractionSpeed *
+                        (ArmySurvivor.Tutorial.TutorialManager.MovementWhilePaused ? Time.unscaledDeltaTime : Time.deltaTime));
                 item.Rotate(0, 90 * Time.deltaTime, 0, Space.World);
             }
         }

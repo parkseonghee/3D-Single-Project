@@ -19,7 +19,6 @@ namespace ArmySurvivor.Army
         [SerializeField] private GameObject resultPanel;
         [SerializeField] private TMP_Text clearedDay;
         [SerializeField] private TMP_Text goldAmount;
-        [SerializeField] private TMP_Text specialAmount;
         [SerializeField] private GameObject endingLabel;
         [SerializeField] private Button returnButton;
         [Header("모험 모드 패배")]
@@ -174,7 +173,6 @@ namespace ArmySurvivor.Army
             run.CanStart = false;
             clearedDay.text = Day.ToString();
             goldAmount.text = (stage.goldReward + victorySupportGold).ToString();
-            specialAmount.text = (IsBossDay ? stage.bossSpecialReward : 0).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
             resultPanel.SetActive(true);
         }
@@ -202,7 +200,7 @@ namespace ArmySurvivor.Army
         {
             if (!AwaitingResult) return;
             AwaitingResult = false;
-            if (travel != null) travel.Village.AddStageRewards(stage.goldReward + victorySupportGold, IsBossDay ? stage.bossSpecialReward : 0);
+            if (travel != null) travel.Village.AddStageRewards(stage.goldReward + victorySupportGold);
             victorySupportGold = 0;
             CampaignComplete = Day >= settings.finalDay;
             int completedDay = Day;

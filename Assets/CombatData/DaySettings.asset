@@ -60,7 +60,6 @@ MonoBehaviour:
     maximumEnemies: 12
     availableWaveCount: 2
     goldReward: 100
-    bossSpecialReward: 1
   - fromDay: 11
     survivalSeconds: 120
     enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
@@ -78,7 +77,6 @@ MonoBehaviour:
     maximumEnemies: 16
     availableWaveCount: 3
     goldReward: 160
-    bossSpecialReward: 1
   - fromDay: 51
     survivalSeconds: 150
     enemy: {fileID: 11400000, guid: 7cc296e9d0a007e4790f7e438f182545, type: 2}
@@ -96,4 +94,3 @@ MonoBehaviour:
     maximumEnemies: 20
     availableWaveCount: 4
     goldReward: 240
-    bossSpecialReward: 1

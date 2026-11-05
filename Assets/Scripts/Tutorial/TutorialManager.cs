@@ -61,6 +61,7 @@ namespace ArmySurvivor.Tutorial
         private readonly Vector3[] corners = new Vector3[4];
         public static bool KeyboardBlocked { get; private set; }
         public static bool MovementWhilePaused { get; private set; }
+        public static bool FocusInputWhilePaused { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -72,6 +73,7 @@ namespace ArmySurvivor.Tutorial
             forceNextAvailable = false;
             KeyboardBlocked = false;
             MovementWhilePaused = false;
+            FocusInputWhilePaused = false;
         }
 
         private void Awake()
@@ -190,6 +192,7 @@ namespace ArmySurvivor.Tutorial
             }
             KeyboardBlocked = !step.allowKeyboard;
             MovementWhilePaused = step.pauseGame && step.allowCommanderMovementWhilePaused;
+            FocusInputWhilePaused = step.pauseGame && step.allowFocusInputWhilePaused;
             if (combat != null) combat.TutorialEnemySpeedMultiplier = step.enemyMovementMultiplier;
             spotlight.gameObject.SetActive(true);
             bubble.gameObject.SetActive(true);
@@ -520,6 +523,7 @@ namespace ArmySurvivor.Tutorial
             if (ownedPause) { Time.timeScale = previousTimeScale; ownedPause = false; }
             KeyboardBlocked = false;
             MovementWhilePaused = false;
+            FocusInputWhilePaused = false;
             if (combat != null) combat.TutorialEnemySpeedMultiplier = 1f;
         }
 

@@ -1,3 +1,4 @@
+using ArmySurvivor.Tutorial;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,6 +54,7 @@ namespace ArmySurvivor.Building
             RemainingRice -= amount;
             RemainingCount--;
             Refresh();
+            TutorialEvents.Raise("RiceHarvested", harvestButton.transform);
             return true;
         }
 

@@ -9,6 +9,7 @@ namespace ArmySurvivor.UI
     public class StartMenu : MonoBehaviour
     {
         [SerializeField] private string gameScene;
+        [SerializeField] private string survivalScene = "PlayScene";
         [SerializeField] private Button newGameButton;
         [SerializeField] private Button adventureModeButton;
         [SerializeField] private TMP_Text survivalBestTimeText;
@@ -41,14 +42,14 @@ namespace ArmySurvivor.UI
         {
             if (loading || (mode == GameMode.Survival && !GameModeManager.SurvivalUnlocked)) return;
             GameModeManager.Select(mode);
-            LoadNewGame();
+            LoadNewGame(mode == GameMode.Survival ? survivalScene : gameScene);
         }
 
         public void NewGame() => StartMode(GameMode.Survival);
 
-        private void LoadNewGame()
+        private void LoadNewGame(string scene)
         {
-            if (!Application.CanStreamedLevelBeLoaded(gameScene))
+            if (!Application.CanStreamedLevelBeLoaded(scene))
             {
                 Debug.LogError("시작할 씬을 Build Settings와 Inspector에서 확인하세요.", this);
                 return;
@@ -57,7 +58,7 @@ namespace ArmySurvivor.UI
             ArmySurvivor.Saving.GameSave.ClearPending();
             newGameButton.interactable = false;
             adventureModeButton.interactable = false;
-            SceneManager.LoadSceneAsync(gameScene);
+            SceneManager.LoadSceneAsync(scene);
         }
 
         public void OpenSettings()

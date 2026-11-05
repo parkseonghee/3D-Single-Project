@@ -61,7 +61,6 @@ namespace ArmySurvivor.Army
             [Tooltip("구형 호환 값. 현재는 Day 1~10: 2, 11~20: 3, 21 이후: 4로 결정")]
             [Min(1)] public int availableWaveCount = 4;
             [Min(0)] public int goldReward = 100;
-            [Min(0)] public int bossSpecialReward = 1;
         }
         [Min(1)] public int finalDay = 100;
         [Min(1)] public int bossInterval = 10;

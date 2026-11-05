@@ -107,7 +107,8 @@ namespace ArmySurvivor.Army
         {
             if (!run.IsRunning || run.IsPaused || run.IsChoosingUpgrade || IsChoosingUpgrade) return;
             int collected = 0;
-            float radius = pickupRadius * (pickupProgression != null ? pickupProgression.PickupMultiplier : 1);
+            float radius = pickupRadius * (pickupProgression != null ? pickupProgression.PickupMultiplier : 1) *
+                (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.PickupRadius : 1f);
             Vector3 commander = run.Commander.position;
             for (int i = drops.Count - 1; i >= 0; i--)
             {

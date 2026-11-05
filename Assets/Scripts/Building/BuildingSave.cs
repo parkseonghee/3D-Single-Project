@@ -7,7 +7,7 @@ namespace ArmySurvivor.Building
     {
         public void CaptureSave(SaveData data, GameSave catalog)
         {
-            data.rice = Rice; data.gold = Gold; data.special = SpecialResource;
+            data.rice = Rice; data.gold = Gold;
             foreach (var pair in placedBuildings)
                 data.buildings.Add(new BuildingRecord { id = catalog.Id(pair.Value.definition),
                     position = pair.Key.transform.position, level = pair.Value.level, starting = pair.Value.isStarting });
@@ -38,7 +38,7 @@ namespace ArmySurvivor.Building
                 Occupy(GetArea(definition, record.position));
             }
             foreach (var record in data.purchases) buildCounts[catalog.Resolve<BuildingDefinition>(record.id)] = record.count;
-            Rice = data.rice; Gold = data.gold; SpecialResource = data.special;
+            Rice = data.rice; Gold = data.gold;
         }
     }
 

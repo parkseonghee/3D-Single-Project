@@ -15,6 +15,7 @@ MonoBehaviour:
   id: royal-blade
   displayName: "\uC655\uC2E4\uC758 \uB300\uAC80"
   grade: 1
+  isWeapon: 1
   description: "\uC655\uAD6D\uC758 \uB6F0\uC5B4\uB09C \uC9C0\uD718\uAD00\uC5D0\uAC8C
     \uC218\uC5EC\uD558\uB358 \uB300\uAC80."
   model: {fileID: 100000, guid: da5b3b40cc67f6b41b01ba6a7eb61763, type: 3}

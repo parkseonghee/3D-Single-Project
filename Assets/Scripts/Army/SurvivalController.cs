@@ -1,3 +1,5 @@
+using System.Collections;
+using ArmySurvivor.Equipment;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,6 +28,8 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0f)] private float alertDuration = 2.5f;
         [SerializeField] private string startSceneName = "StartScene";
         private RunController run;
+        private RecruitmentController recruitment;
+        private SurvivalTradeoffDraft tradeoffDraft;
         private CombatController combat;
         private MiniBossController eliteCards;
         private EnemyDefinition[,] normalDefinitions;
@@ -51,6 +55,7 @@ namespace ArmySurvivor.Army
             }
             if (settings == null) settings = Resources.Load<SurvivalSettings>("SurvivalSettings");
             run = GetComponent<RunController>();
+            recruitment = GetComponent<RecruitmentController>();
             combat = GetComponent<CombatController>();
             eliteCards = GetComponent<MiniBossController>();
             if (settings == null || run == null || combat == null)
@@ -74,6 +79,9 @@ namespace ArmySurvivor.Army
                 return;
             }
             BuildDefinitions();
+            tradeoffDraft = GetComponent<SurvivalTradeoffDraft>();
+            if (tradeoffDraft == null) tradeoffDraft = gameObject.AddComponent<SurvivalTradeoffDraft>();
+            tradeoffDraft.Configure(settings);
         }
 
         private void Start()
@@ -90,6 +98,14 @@ namespace ArmySurvivor.Army
             run.RunStarted += Begin;
             run.RunEnded += OnRunEnded;
             combat.EnemyDefeated += CountKill;
+            StartCoroutine(StartImmediately());
+        }
+
+        private IEnumerator StartImmediately()
+        {
+            // Let RecruitmentController and the manual card UI finish their Start initialization.
+            yield return null;
+            if (enabled && !run.IsRunning) run.BeginRun();
         }
 
         private void OnDestroy()
@@ -135,7 +151,9 @@ namespace ArmySurvivor.Army
             bestAtStart = RecordManager.Best?.survivalSeconds ?? 0;
             activeBoss = null;
             combat.SetSurvivalBossAlive(false);
-            combat.ConfigureSurvival(new SurvivalWaveRule(settings, normalDefinitions), settings, run.PlayCamera);
+            combat.ConfigureSurvival(new SurvivalWaveRule(settings, normalDefinitions,
+                SurvivalTradeoffDraft.SpawnInterval), settings, run.PlayCamera);
+            run.TeamMoveMultiplier = SurvivalTradeoffDraft.MoveSpeed;
             if (eliteCards != null) eliteCards.ConfigureSurvival();
             resultPanel.SetActive(false);
             bossBar.SetActive(false);
@@ -251,12 +269,22 @@ namespace ArmySurvivor.Army
             activeBoss = null;
             combat.SetSurvivalBossAlive(false);
             Time.timeScale = originalTimeScale;
+            run.TeamMoveMultiplier = 1f;
         }
 
         private void Retry()
         {
             resultPanel.SetActive(false);
+            EquipmentInventory.Reset();
+            tradeoffDraft.ResetChoice();
+            recruitment.GenerateSurvivalSquad();
             run.BeginRun();
+        }
+
+        public void AnnounceWeapon(EquipmentItem weapon)
+        {
+            if (weapon != null && run.IsRunning)
+                ShowAlert("인장 보급 · " + weapon.displayName + " 획득!");
         }
 
         private void ToStart()

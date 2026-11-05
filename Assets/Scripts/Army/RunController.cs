@@ -112,8 +112,23 @@ namespace ArmySurvivor.Army
         {
             // UI 클릭 외에 코드에서 직접 호출해도 빈 편성으로 전투를 시작하지 않는다.
             if (IsRunning || !CanBeginRun) return;
-            if (relicDraft != null && relicDraft.TryOpen(BeginRunCore)) return;
+            if (relicDraft != null && relicDraft.TryOpen(BeginRunAfterManual)) return;
             ManualManager.Select(null);
+            BeginRunAfterManual();
+        }
+
+        private void BeginRunAfterManual()
+        {
+            if (GameModeManager.Current == GameMode.Survival)
+            {
+                var tradeoffs = GetComponent<SurvivalTradeoffDraft>();
+                if (tradeoffs == null || !tradeoffs.TryOpen(BeginRunCore))
+                {
+                    Debug.LogError("서바이벌 시작 선택지를 열 수 없습니다.", this);
+                    return;
+                }
+                return;
+            }
             BeginRunCore();
         }
 

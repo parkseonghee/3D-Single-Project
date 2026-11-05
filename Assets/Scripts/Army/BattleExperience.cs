@@ -384,7 +384,9 @@ namespace ArmySurvivor.Army
                 return false;
             if (unit.TryGetComponent<UnitHealth>(out var health) && health.IsDead) return false;
             Bottles--;
-            progress.Experience += Mathf.RoundToInt(experiencePerBottle * (GetComponent<CommanderProgression>()?.InvestmentMultiplier ?? 1f));
+            progress.Experience += Mathf.RoundToInt(experiencePerBottle *
+                (GetComponent<CommanderProgression>()?.InvestmentMultiplier ?? 1f) *
+                (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.Experience : 1f));
             while (progress.Experience >= progress.Required)
             {
                 progress.Experience -= progress.Required;

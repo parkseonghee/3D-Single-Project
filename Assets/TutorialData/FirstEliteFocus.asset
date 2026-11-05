@@ -38,7 +38,8 @@ MonoBehaviour:
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
-    pauseGame: 0
+    pauseGame: 1
+    allowFocusInputWhilePaused: 1
     blockOutsideClicks: 1
     allowKeyboard: 1
     showArrow: 1
@@ -76,7 +77,8 @@ MonoBehaviour:
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
-    pauseGame: 0
+    pauseGame: 1
+    allowFocusInputWhilePaused: 1
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1

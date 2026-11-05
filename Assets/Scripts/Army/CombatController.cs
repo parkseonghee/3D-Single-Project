@@ -84,11 +84,14 @@ namespace ArmySurvivor.Army
             if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
             if (Time.time < rewardWarCryUntil) speedBonus += rewardWarCryBonus;
             speedBonus += ManualBonus(unit).y;
-            return attack.interval / (1f + speedBonus);
+            return attack.interval / ((1f + speedBonus) *
+                (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.AttackSpeed : 1f));
         }
         private float AttackDamage(Transform unit, AttackDefinition attack)
         {
             float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            if (GameModeManager.Current == GameMode.Survival)
+                damage *= SurvivalTradeoffDraft.Damage * ArmySurvivor.Equipment.EquipmentInventory.SurvivalWeaponDamageMultiplier;
             damage *= 1f + ManualBonus(unit).x;
             if (Time.time < rewardWarCryUntil) damage *= 1f + rewardWarCryBonus;
             if (teamAttackRemaining > 0) damage *= 1f + teamAttackBonus;
@@ -311,18 +314,25 @@ namespace ArmySurvivor.Army
                 (enemy == null || enemy.prefab == null || spawnInterval <= 0)) return;
             combatRoot = new GameObject("Run Combat").transform;
             combatRoot.SetParent(transform, false);
-            RegisterHealth(run.Commander, commanderHealth, new Color(1, 0.8f, 0.2f));
+            RegisterHealth(run.Commander, commanderHealth *
+                (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.CommanderHealth : 1f),
+                new Color(1, 0.8f, 0.2f));
             foreach (var unit in recruitment.Units)
             {
                 cooldowns[unit.Key] = 0;
                 attackers[unit.Key] = unit.Key.GetComponentsInChildren<Animator>();
-                RegisterHealth(unit.Key, unit.Value.health, new Color(0.2f, 0.8f, 0.3f));
+                RegisterHealth(unit.Key, unit.Value.health *
+                    (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.SoldierHealth : 1f),
+                    new Color(0.2f, 0.8f, 0.3f));
             }
             spawnTimer = 0;
         }
         private void LateUpdate()
         {
-            if (run != null && run.IsRunning) Tick(Time.deltaTime);
+            if (run == null || !run.IsRunning) return;
+            if (Time.deltaTime > 0) Tick(Time.deltaTime);
+            else if (ArmySurvivor.Tutorial.TutorialManager.FocusInputWhilePaused &&
+                !run.IsPaused && !run.IsChoosingUpgrade) UpdateFocusCommand(0);
         }
         public void Tick(float dt)
         {

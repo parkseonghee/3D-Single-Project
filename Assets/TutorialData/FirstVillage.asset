@@ -51,6 +51,33 @@ MonoBehaviour:
     enemyMovementMultiplier: 1
     showNextButtonAfterJump: 0
     showNextWhenNoFocus: 0
+  - targetId: RiceHarvestButton
+    holeShape: 0
+    padding: {x: 18, y: 18}
+    cornerRadius: 20
+    title: "\uBCBC \uC0DD\uC0B0"
+    body: "\uC67C\uCABD\uC758 \uBCBC \uCC44\uCDE8 \uBC84\uD2BC\uC744 \uB20C\uB7EC
+      \uBCBC\uB97C \uC0DD\uC0B0\uD574 \uBCF4\uC138\uC694. \uBCBC\uB294 \uAC74\uBB3C
+      \uAC74\uC124\uACFC \uBCD1\uC0AC \uACE0\uC6A9\uC5D0 \uC0AC\uC6A9\uD569\uB2C8\uB2E4."
+    bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
+    advance: 2
+    eventKey: RiceHarvested
+    requireEventTargetMatch: 0
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
+    seconds: 0
+    fallbackSeconds: 0
+    commanderDistance: 0
+    pauseGame: 0
+    allowCommanderMovementWhilePaused: 0
+    blockOutsideClicks: 1
+    allowKeyboard: 1
+    showArrow: 1
+    enemyMovementMultiplier: 1
+    showNextButtonAfterJump: 0
+    showNextWhenNoFocus: 0
   - targetId: OpenBuildingMenu
     holeShape: 0
     padding: {x: 18, y: 18}

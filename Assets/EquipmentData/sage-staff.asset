@@ -15,6 +15,7 @@ MonoBehaviour:
   id: sage-staff
   displayName: "\uD604\uC790\uC758 \uC9C0\uD321\uC774"
   grade: 1
+  isWeapon: 1
   description: "\uD478\uB978 \uB9C8\uB825\uC774 \uAE43\uB4E0 \uD604\uC790\uC758 \uC758\uC7A5\uC6A9
     \uC9C0\uD321\uC774."
   model: {fileID: 100000, guid: 94e6046f8f40b4849b020b83f4b12b83, type: 3}

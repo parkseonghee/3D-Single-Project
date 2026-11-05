@@ -16,6 +16,7 @@ namespace ArmySurvivor.Equipment
     public static class EquipmentInventory
     {
         static EquipmentSave state = new EquipmentSave();
+        public static float SurvivalWeaponDamageMultiplier { get; private set; } = 1f;
 #if UNITY_EDITOR
         static EquipmentSave testOriginal;
         public static bool IsTesting => testOriginal != null;
@@ -50,7 +51,7 @@ namespace ArmySurvivor.Equipment
         public static string EquippedId => state.equippedId;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Initialize() {
-            Changed = null; state = new EquipmentSave();
+            Changed = null; state = new EquipmentSave(); SurvivalWeaponDamageMultiplier = 1f;
 #if UNITY_EDITOR
             testOriginal = null; UnlimitedTestTickets = false;
 #endif
@@ -84,6 +85,7 @@ namespace ArmySurvivor.Equipment
             testOriginal = null; UnlimitedTestTickets = false;
 #endif
             state = saved == null ? new EquipmentSave() : JsonUtility.FromJson<EquipmentSave>(JsonUtility.ToJson(saved));
+            SurvivalWeaponDamageMultiplier = 1f;
             state.tickets = Math.Max(0, state.tickets);
             state.sinceA = Math.Max(0, state.sinceA);
             state.sinceS = Math.Max(0, state.sinceS);
@@ -91,6 +93,29 @@ namespace ArmySurvivor.Equipment
             state.owned.RemoveAll(x => x == null || string.IsNullOrEmpty(x.id) || x.count < 1);
             if (Count(state.equippedId) < 1) state.equippedId = null;
             Changed?.Invoke();
+        }
+        public static EquipmentItem GrantRandomSurvivalWeapon(EquipmentCatalog catalog)
+        {
+            if (catalog?.items == null) return null;
+            var weapons = Array.FindAll(catalog.items, x => x != null && x.isWeapon);
+            if (weapons.Length == 0) return null;
+            // The existing supply catalog also defines rarity odds. A seal draws only
+            // weapons, but keeps those odds instead of making S-grade commonplace.
+            float roll = UnityEngine.Random.value;
+            ItemGrade grade = roll < catalog.sRate ? ItemGrade.S :
+                roll < catalog.sRate + catalog.aRate ? ItemGrade.A :
+                roll < catalog.sRate + catalog.aRate + catalog.bRate ? ItemGrade.B : ItemGrade.C;
+            var pool = Array.FindAll(weapons, x => x.grade == grade);
+            if (pool.Length == 0) pool = weapons;
+            var item = pool[UnityEngine.Random.Range(0, pool.Length)];
+            var owned = state.owned.Find(x => x.id == item.id);
+            if (owned == null) state.owned.Add(new OwnedEquipment { id = item.id, count = 1 });
+            else if (owned.count < int.MaxValue) owned.count++;
+            state.equippedId = item.id;
+            SurvivalWeaponDamageMultiplier = item.grade == ItemGrade.S ? 1.6f :
+                item.grade == ItemGrade.A ? 1.35f : item.grade == ItemGrade.B ? 1.2f : 1.1f;
+            Changed?.Invoke();
+            return item;
         }
         public static bool TryDraw(EquipmentCatalog catalog, int count, out List<EquipmentItem> result)
         {

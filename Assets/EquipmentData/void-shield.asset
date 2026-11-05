@@ -15,6 +15,7 @@ MonoBehaviour:
   id: void-shield
   displayName: "\uACF5\uD5C8\uC758 \uBC29\uD328"
   grade: 2
+  isWeapon: 0
   description: "\uC7A5\uBE44 \uD6A8\uACFC\uB294 \uCD94\uD6C4 \uAD6C\uD604\uB429\uB2C8\uB2E4."
   model: {fileID: 919132149155446097, guid: ec2dfcd77e69d49489c916b12a664ef5, type: 3}
   previewRotation: {x: 270, y: 0, z: 0}

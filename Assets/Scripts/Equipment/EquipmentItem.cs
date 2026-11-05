@@ -10,6 +10,7 @@ namespace ArmySurvivor.Equipment
         public string id;
         public string displayName;
         public ItemGrade grade;
+        public bool isWeapon = true;
         [TextArea] public string description;
         public GameObject model;
         public Vector3 previewRotation;

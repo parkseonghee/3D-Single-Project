@@ -92,4 +92,4 @@ VillageScene > Buildings에 Starting Farm, Starting Workshop(병영), Starting C
 
 ## 2026-09-14: 자원 UI와 환전
 VillageScene과 PlayScene의 Resource Bar에 벼/골드/특수 자원과 환전 버튼을 추가했다. ResourceHUD는 숫자만 갱신하며 문구는 TMP Inspector에서 편집한다. 기존 마을 정적 Rice 표시와 준비 화면 전용 숫자 갱신은 공통 HUD로 대체했다. BuildingPlacementController가 현재 세 자원을 관리하며 초기 골드/특수 자원은 0, 기존 시작 벼 설정은 유지한다. TryExchangeRice는 벼100을 골드40으로 원자적으로 환전한다. 환전 비율은 Inspector Exchange Rice Cost/Exchange Gold Gain으로 조절하며 버튼 문구도 수동 변경해야 한다. 부족한 벼나 정수 초과 시 거래하지 않는다. 환전 후 고용/건설 버튼도 잔액에 따라 갱신한다. 양쪽 씬 환전·잔액 부족·골드 유지·고용 비활성화를 검증했다.
-특수 자원은 표시와 초기값 연결까지 구현했다. 보스 보상/영구 강화/새 회차 초기화/디스크 영구 저장은 아직 미구현이며, 현 상태는 동일 실행 중 씬 왕복에서만 보존된다.
+2026-11-03 변경: 특수 자원은 소비처가 없어 제거했다. 위 문단은 초기 구현 기록이며, 현재 자원 HUD에는 벼와 골드만 표시한다.

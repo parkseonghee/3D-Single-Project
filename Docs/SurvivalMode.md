@@ -2,7 +2,8 @@
 
 ## 구조
 
-- `GameModeManager`는 StartScene에서 고른 모드를 씬 전환 동안 유지한다. 새 게임 기본값은 서바이벌이며, 기존 저장 파일의 모드 정보가 없으면 모험으로 읽는다.
+- 서바이벌의 새 시작 흐름, 인장 무기 보상, 12개 리스크·보상 선택지는 [SurvivalOpening.md](SurvivalOpening.md)에 정리한다. 서바이벌은 마을을 건너뛰고 PlayScene에서 무작위 병사 편성 → 교범 선택 → 생존 계약 선택 → 전투로 이어진다.
+- `GameModeManager`는 StartScene에서 고른 모드를 씬 전환 동안 유지한다. 서바이벌은 모험 Day 5에 도달하면 해금되며, 기존 저장 파일의 모드 정보가 없으면 모험으로 읽는다.
 - `DayController`는 모험 모드의 기존 Day 보상·진행을 맡는다. 서바이벌에서는 `SurvivalController`를 붙이고 Day UI를 숨긴다.
 - 모험 모드에서는 지휘관 사망 연출이 끝나면 `CombatController.CommanderDeathFinished`를 통해 `DayController`가 회차 패배를 확정한다. 보상·Day 진행·재전투를 막고 패배 패널에서 시작 화면으로 이동한다. 기존 저장 슬롯 파일은 자동 삭제하지 않는다.
 - `CombatController`는 두 모드가 공유하는 생성·이동·피해·풀링을 맡는다. `IWaveRule`의 `AdventureDayWaveRule`과 `SurvivalWaveRule`이 각 모드의 시간·종류·수량을 결정한다.

@@ -46,6 +46,7 @@ MonoBehaviour:
     commanderDistance: 2
     pauseGame: 1
     allowCommanderMovementWhilePaused: 1
+    allowFocusInputWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
@@ -72,6 +73,7 @@ MonoBehaviour:
     commanderDistance: 0
     pauseGame: 1
     allowCommanderMovementWhilePaused: 0
+    allowFocusInputWhilePaused: 0
     blockOutsideClicks: 1
     allowKeyboard: 0
     showArrow: 1
@@ -96,8 +98,9 @@ MonoBehaviour:
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
-    pauseGame: 0
-    allowCommanderMovementWhilePaused: 0
+    pauseGame: 1
+    allowCommanderMovementWhilePaused: 1
+    allowFocusInputWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1
@@ -125,6 +128,7 @@ MonoBehaviour:
     commanderDistance: 0
     pauseGame: 1
     allowCommanderMovementWhilePaused: 0
+    allowFocusInputWhilePaused: 0
     blockOutsideClicks: 0
     allowKeyboard: 1
     showArrow: 1

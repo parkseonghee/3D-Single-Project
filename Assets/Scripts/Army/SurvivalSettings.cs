@@ -6,6 +6,19 @@ namespace ArmySurvivor.Army
     [CreateAssetMenu(menuName = "Army Survivor/Survival Settings")]
     public sealed class SurvivalSettings : ScriptableObject
     {
+        [Serializable] public sealed class Tradeoff
+        {
+            public string title;
+            [TextArea(2, 4)] public string description;
+            [Min(0.1f)] public float commanderHealth = 1;
+            [Min(0.1f)] public float soldierHealth = 1;
+            [Min(0.1f)] public float damage = 1;
+            [Min(0.1f)] public float attackSpeed = 1;
+            [Min(0.1f)] public float moveSpeed = 1;
+            [Min(0.1f)] public float spawnInterval = 1;
+            [Min(0.1f)] public float pickupRadius = 1;
+            [Min(0.1f)] public float experience = 1;
+        }
         [Serializable] public sealed class Monster
         {
             public EnemyDefinition definition;
@@ -61,6 +74,8 @@ namespace ArmySurvivor.Army
         [Min(0)] public int normalKillScore = 1;
         [Min(0)] public int eliteKillScore = 50;
         [Min(0)] public int bossKillScore = 500;
+        [Header("시작 리스크와 보상 (무작위 3개 제시)")]
+        public Tradeoff[] openingTradeoffs;
 
         public int Tier(float seconds) => seconds < tier2Seconds ? 1 : seconds < tier3Seconds ? 2 : 3;
         public int AdventureTier(int day) => day < adventureTier2Day ? 1 : day < adventureTier3Day ? 2 : 3;

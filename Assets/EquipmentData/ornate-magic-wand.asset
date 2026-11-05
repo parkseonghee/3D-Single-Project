@@ -15,6 +15,7 @@ MonoBehaviour:
   id: ornate-magic-wand
   displayName: "\uD654\uB824\uD55C \uB9C8\uBC95 \uC9C0\uD321\uC774"
   grade: 2
+  isWeapon: 1
   description: "\uC7A5\uBE44 \uD6A8\uACFC\uB294 \uCD94\uD6C4 \uAD6C\uD604\uB429\uB2C8\uB2E4."
   model: {fileID: 919132149155446097, guid: d9e9dcea1e7bae342b37407309601fdd, type: 3}
   previewRotation: {x: 270, y: 0, z: 0}

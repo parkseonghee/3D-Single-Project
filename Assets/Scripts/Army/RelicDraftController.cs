@@ -58,7 +58,7 @@ namespace ArmySurvivor.Army
             if (IsOpen) return true;
             bool force = forceNext; forceNext = false;
             if (run.IsRunning || run.IsPaused || panel == null || cards == null || cards.Length == 0) return false;
-            if (!force)
+            if (!force && GameModeManager.Current == GameMode.Adventure)
             {
                 var travel = FindFirstObjectByType<SceneTravel>(FindObjectsInactive.Include);
                 if (library == null || travel == null || travel.Village == null || !travel.Village.HasBuilding(library)) return false;
