@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace ArmySurvivor.Army
 {
-    [RequireComponent(typeof(RunController), typeof(CombatController), typeof(DiabloHud))]
+    [RequireComponent(typeof(RunController), typeof(CombatController))]
     public sealed class DiabloController : MonoBehaviour
     {
         [Header("상태")]
@@ -22,7 +22,7 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(1)] private int arrowCount = 12;
         [SerializeField, Min(0.1f)] private float arrowDistance = 2;
         [SerializeField, Min(0)] private float arrowDamage = 35;
-        [Header("좌클릭 화염")]
+        [Header("이동 중 커서 방향 화염")]
         [SerializeField] private GameObject firePrefab;
         [SerializeField, Min(1)] private int fireCount = 3;
         [SerializeField, Range(0, 180)] private float fireSpread = 40;
@@ -43,7 +43,6 @@ namespace ArmySurvivor.Army
         private RunController run;
         private CombatController combat;
         private RecruitmentController recruitment;
-        private DiabloHud hud;
         private UnitHealth health;
         private AttackDefinition fire;
         private GameObject aura, absorptionRoot;
@@ -68,7 +67,7 @@ namespace ArmySurvivor.Army
         private void Awake()
         {
             run = GetComponent<RunController>(); combat = GetComponent<CombatController>();
-            recruitment = GetComponent<RecruitmentController>(); hud = GetComponent<DiabloHud>();
+            recruitment = GetComponent<RecruitmentController>();
         }
         private void OnEnable() { run.RunEnded += End; }
         public void Activate()
@@ -109,7 +108,6 @@ namespace ArmySurvivor.Army
             fire.speed = fireSpeed; fire.range = fireRange; fire.hitRadius = fireHitRadius; fire.height = fireHeight;
             absorptionTime = distance = fireTimer = 0; meteorTimer = meteorInterval;
             lastPosition = run.Commander.position; stopPending = true;
-            hud.Show(this, health);
         }
 
         private void Update()
@@ -142,7 +140,9 @@ namespace ArmySurvivor.Army
             { Destroy(absorptionRoot); absorptionRoot = null; }
             if (Remaining <= 0) { End(); return; }
             Vector3 delta = run.Commander.position - lastPosition; delta.y = 0;
-            distance += delta.magnitude; lastPosition = run.Commander.position;
+            bool moving = delta.sqrMagnitude > 0.000001f;
+            lastPosition = run.Commander.position;
+            distance += delta.magnitude;
             if (distance >= arrowDistance)
             {
                 distance %= arrowDistance;
@@ -151,9 +151,9 @@ namespace ArmySurvivor.Army
             }
             fireTimer = Mathf.Max(0, fireTimer - dt);
             var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.isPressed && fireTimer <= 0 && !combat.DiabloPointerBlocked(mouse.position.ReadValue()))
+            if (moving && mouse != null && fireTimer <= 0 && !combat.DiabloPointerBlocked(mouse.position.ReadValue()))
             {
-                var camera = Camera.main;
+                var camera = run.PlayCamera;
                 var plane = new Plane(Vector3.up, run.Commander.position);
                 if (camera != null)
                 {
@@ -161,12 +161,14 @@ namespace ArmySurvivor.Army
                     if (plane.Raycast(ray, out float enter))
                     {
                         Vector3 direction = ray.GetPoint(enter) - run.Commander.position;
-                        if (direction.sqrMagnitude < 0.001f) return;
-                        run.FaceTarget(run.Commander, ray.GetPoint(enter));
-                        PlayFireAttack();
-                        for (int i = 0; i < fireCount; i++)
-                            combat.FireDiabloProjectile(fire, Quaternion.Euler(0, fireCount == 1 ? 0 : fireSpread * (i / (float)(fireCount - 1) - 0.5f), 0) * direction, fireDamage, fireScale);
-                        fireTimer = fireCooldown;
+                        if (direction.sqrMagnitude >= 0.001f)
+                        {
+                            run.FaceTarget(run.Commander, ray.GetPoint(enter));
+                            PlayFireAttack();
+                            for (int i = 0; i < fireCount; i++)
+                                combat.FireDiabloProjectile(fire, Quaternion.Euler(0, fireCount == 1 ? 0 : fireSpread * (i / (float)(fireCount - 1) - 0.5f), 0) * direction, fireDamage, fireScale);
+                            fireTimer = fireCooldown;
+                        }
                     }
                 }
             }
@@ -208,7 +210,7 @@ namespace ArmySurvivor.Army
                     state.unit.gameObject.SetActive(state.active);
                     run.SetAttacking(state.unit, false);
                 }
-            absorbed.Clear(); hud.Hide();
+            absorbed.Clear();
         }
         private void OnDisable() { run.RunEnded -= End; End(); }
         private void OnDestroy() { if (fire != null) Destroy(fire); }

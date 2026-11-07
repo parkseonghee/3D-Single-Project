@@ -283,7 +283,7 @@ namespace ArmySurvivor.Army
                 case Reward.Healing: return "지휘관과 모든 생존 병력\n체력 즉시 전부 회복\n\n사망한 병력은 부활하지 않음";
                 case Reward.Speed: return $"지휘관과 모든 병력\n{speedDuration}초간 이동속도 +{speedBonus * 100:0}%";
                 case Reward.Mines: return "지휘관 주변에\n마법 함정 10개 설치\n\n적이 밟으면 메테오 낙하";
-                case Reward.Diablo: return $"{GetComponent<DiabloController>().Duration:0.#}초간 병력을 흡수하고 강화\n이동 시 원형 화살\n좌클릭 화염 · 자동 메테오";
+                case Reward.Diablo: return $"{GetComponent<DiabloController>().Duration:0.#}초간 병력을 흡수하고 강화\n이동 시 원형 관통 화살·커서 방향 화염\n자동 메테오";
                 default: return $"전 부대 {warCryDuration}초간\n공격력 +{warCryBonus * 100:0}%\n공격속도 +{warCryBonus * 100:0}%";
             }
         }

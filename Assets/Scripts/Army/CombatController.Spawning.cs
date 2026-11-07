@@ -38,17 +38,19 @@ namespace ArmySurvivor.Army
             inactive.Push(model);
         }
 
-        private Vector3 AdventureSpawnPosition(Vector3 direction)
+        private Vector3 AdventureSpawnPosition(Vector3 direction, float minimumSeparation)
         {
             Vector3 center = run.Commander.position;
             Bounds bounds = run.Ground.bounds;
             var camera = run.PlayCamera;
             Vector3 best = center;
-            float bestDistance = -1;
-            // Try the requested front first; rotate it only when the map edge leaves no room.
-            for (int attempt = 0; attempt < 8; attempt++)
+            float bestScore = float.NegativeInfinity;
+            // Keep the requested front, but try nearby angles when clamping would
+            // put several enemies at the same edge point.
+            for (int attempt = 0; attempt < 11; attempt++)
             {
-                Vector3 heading = Quaternion.Euler(0, attempt * 45, 0) * direction;
+                float offset = attempt == 0 ? 0 : (attempt + 1) / 2 * (attempt % 2 == 1 ? 15f : -15f);
+                Vector3 heading = Quaternion.Euler(0, offset, 0) * direction;
                 Vector3 candidate = center + heading * Mathf.Max(10, spawnDistance);
                 for (int step = 0; step < 12; step++)
                 {
@@ -58,12 +60,36 @@ namespace ArmySurvivor.Army
                     float distance = (candidate - center).sqrMagnitude;
                     Vector3 viewport = camera != null ? camera.WorldToViewportPoint(candidate) : new Vector3(-1, -1, -1);
                     bool visible = viewport.z > 0 && viewport.x >= 0 && viewport.x <= 1 && viewport.y >= 0 && viewport.y <= 1;
-                    if (!visible && distance >= 100) return candidate;
-                    if (distance > bestDistance) { bestDistance = distance; best = candidate; }
+                    float nearest = float.PositiveInfinity;
+                    foreach (Vector3 recent in recentAdventureSpawns)
+                        nearest = Mathf.Min(nearest, Vector3.Distance(candidate, recent));
+                    if (!visible && distance >= 100 && nearest >= minimumSeparation)
+                        return RememberAdventureSpawn(candidate);
+                    float score = (!visible ? 10000f : 0f) +
+                        Mathf.Min(nearest, minimumSeparation) * 10f + distance * .01f;
+                    if (score > bestScore) { bestScore = score; best = candidate; }
                     candidate += heading * 3;
                 }
             }
-            return best;
+            return RememberAdventureSpawn(best);
+        }
+
+        private Vector3 EncirclementSpawnPosition(Vector3 direction, float radius)
+        {
+            Vector3 center = run.Commander.position;
+            Bounds bounds = run.Ground.bounds;
+            Vector3 position = center + direction * radius;
+            position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
+            position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
+            position.y = center.y;
+            return position;
+        }
+
+        private Vector3 RememberAdventureSpawn(Vector3 position)
+        {
+            recentAdventureSpawns.Add(position);
+            if (recentAdventureSpawns.Count > 16) recentAdventureSpawns.RemoveAt(0);
+            return position;
         }
 
         private Vector3 SurvivalSpawnPosition()

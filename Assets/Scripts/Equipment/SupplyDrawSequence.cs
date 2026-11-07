@@ -122,7 +122,12 @@ namespace ArmySurvivor.Equipment
                         nextBurst = elapsed + Mathf.Max(.05f, data.supplyFireworkInterval);
                         for (int side = -1; side <= 1; side += 2)
                         {
-                            var point = origin + new Vector3(side * UnityEngine.Random.Range(5f, 14f), UnityEngine.Random.Range(1f, 5f), UnityEngine.Random.Range(0f, 10f));
+                            var offset = side < 0 ? data.supplyFireworkLeftOffset : data.supplyFireworkRightOffset;
+                            var jitter = data.supplyFireworkJitter;
+                            var point = origin + offset + new Vector3(
+                                UnityEngine.Random.Range(-Mathf.Abs(jitter.x), Mathf.Abs(jitter.x)),
+                                UnityEngine.Random.Range(-Mathf.Abs(jitter.y), Mathf.Abs(jitter.y)),
+                                UnityEngine.Random.Range(-Mathf.Abs(jitter.z), Mathf.Abs(jitter.z)));
                             var fx = Instantiate(data.supplyFirework, point, Quaternion.identity, stage.transform);
                             fx.transform.localScale *= data.supplyFireworkScale;
                             foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>())

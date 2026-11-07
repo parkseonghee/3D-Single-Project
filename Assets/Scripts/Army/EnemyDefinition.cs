@@ -19,5 +19,13 @@ namespace ArmySurvivor.Army
         [Min(0)] public float deathDuration;
         public string movingParameter;
         public string deathTrigger;
+        public string hitState;
+        [Min(0)] public float hitReactionDuration = 0.3f;
+        [Header("원거리 공격 (투사체가 없으면 근접 공격)")]
+        public GameObject projectilePrefab;
+        [Min(0.1f)] public float projectileSpeed = 12;
+        [Min(0.1f)] public float projectileRange = 14;
+        [Min(0.01f)] public float projectileHitRadius = 0.5f;
+        public float projectileHeight = 0.8f;
     }
 }

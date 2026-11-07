@@ -9,10 +9,10 @@ namespace ArmySurvivor.Army
         private readonly DaySettings.EnemySpawn[] pool;
         private readonly DaySettings.Wave[] waves;
         private readonly float interval, duration;
-        private readonly int limit, safetyLimit, waveLimit;
+        private readonly int limit, safetyLimit, waveLimit, day;
 
         public AdventureDayWaveRule(EnemyDefinition fallback, float interval, int limit,
-            DaySettings.EnemySpawn[] pool, float duration, DaySettings.Wave[] waves, int safetyLimit, int waveLimit)
+            DaySettings.EnemySpawn[] pool, float duration, DaySettings.Wave[] waves, int safetyLimit, int waveLimit, int day = 1)
         {
             this.fallback = fallback;
             this.interval = interval;
@@ -22,6 +22,7 @@ namespace ArmySurvivor.Army
             this.waves = waves;
             this.safetyLimit = Mathf.Max(1, safetyLimit);
             this.waveLimit = Mathf.Max(1, waveLimit);
+            this.day = day;
         }
 
         public WaveState Evaluate(float elapsed, bool bossAlive)
@@ -52,13 +53,13 @@ namespace ArmySurvivor.Army
             if (pool == null) return fallback;
             float total = 0;
             foreach (var entry in pool)
-                if (entry != null && entry.enemy != null && entry.enemy.prefab != null)
+                if (entry != null && entry.firstDay <= day && entry.enemy != null && entry.enemy.prefab != null)
                     total += Mathf.Max(0, entry.weight);
             if (total <= 0) return fallback;
             float roll = Random.value * total;
             foreach (var entry in pool)
             {
-                if (entry == null || entry.enemy == null || entry.enemy.prefab == null || entry.weight <= 0) continue;
+                if (entry == null || entry.firstDay > day || entry.enemy == null || entry.enemy.prefab == null || entry.weight <= 0) continue;
                 roll -= entry.weight;
                 if (roll <= 0) return entry.enemy;
             }

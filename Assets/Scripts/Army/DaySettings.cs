@@ -38,6 +38,19 @@ namespace ArmySurvivor.Army
         [Min(1)] public int splitUnlockDay = 5;
         [Min(1)] public int pincerUnlockDay = 11;
         [Min(1)] public int surroundUnlockDay = 21;
+        [Header("모험 적 생성 분산")]
+        [Range(0, 160)] public float spawnArcDegrees = 90;
+        [Min(0)] public float spawnSeparation = 3.5f;
+        [Header("모험 특별 웨이브 (하루 한 번)")]
+        [Range(.45f, .6f)] public float specialWaveStartProgress = .5f;
+        [Range(.04f, .15f)] public float specialWaveDurationProgress = .1f;
+        [Min(1)] public int specialWaveCount = 12;
+        [Range(.1f, 1f)] public float specialWaveHealthMultiplier = .7f;
+        [Range(.1f, 1f)] public float specialWaveDamageMultiplier = .8f;
+        [Min(0)] public float specialWaveWarningSeconds = 1.25f;
+        [Min(3f)] public float encirclementSpawnRadius = 11f;
+        [Min(.1f)] public float encirclementClosingSpeed = 1.5f;
+        [Min(.5f)] public float encirclementReleaseRadius = 3.5f;
         public float HealthScale(int day) => 1 + Mathf.Max(0, day - 1) * healthPerDay;
         public float DamageScale(int day) => 1 + Mathf.Max(0, day - 1) * damagePerDay;
 
@@ -46,6 +59,7 @@ namespace ArmySurvivor.Army
         {
             public EnemyDefinition enemy;
             [Min(0)] public float weight = 1;
+            [Min(1)] public int firstDay = 1;
         }
 
         [Serializable]

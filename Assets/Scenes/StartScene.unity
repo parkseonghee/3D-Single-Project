@@ -32852,6 +32852,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.UI.StartMenu
   gameScene: VillageScene
+  survivalScene: PlayScene
   newGameButton: {fileID: 1067785083}
   adventureModeButton: {fileID: 1162627896}
   survivalBestTimeText: {fileID: 263508276}

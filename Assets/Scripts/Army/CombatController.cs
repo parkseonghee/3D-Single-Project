@@ -104,6 +104,7 @@ namespace ArmySurvivor.Army
         public event System.Action<Vector3> EnemyKilled;
         public event System.Action MiniBossKilled;
         public event System.Action<bool, bool> EnemyDefeated; // elite, boss
+        public event System.Action<string> SpecialWaveAnnounced;
         public float TutorialEnemySpeedMultiplier { get; set; } = 1f;
 
         private class EnemyState
@@ -124,6 +125,10 @@ namespace ArmySurvivor.Army
             public float waveDamageMultiplier = 1f;
             public float suppressionRemaining;
             public Transform suppressionEffect;
+            public float hitReactionRemaining, nextHitReactionTime;
+            public bool encirclementApproach;
+            public Vector3 encirclementDirection;
+            public float encirclementRadius;
         }
         private class Shot
         {
@@ -143,6 +148,13 @@ namespace ArmySurvivor.Army
             public readonly HashSet<EnemyState> splashedEnemies = new HashSet<EnemyState>();
         }
         private readonly List<EnemyState> enemies = new List<EnemyState>();
+        private sealed class EnemyProjectile
+        {
+            public Transform visual;
+            public Vector3 direction;
+            public float remaining, speed, radius, damage;
+        }
+        private readonly List<EnemyProjectile> enemyProjectiles = new List<EnemyProjectile>();
         private readonly List<Shot> shots = new List<Shot>();
         private readonly Dictionary<Transform, float> cooldowns = new Dictionary<Transform, float>();
         private readonly Dictionary<Transform, float> weaponStrikeCooldowns = new Dictionary<Transform, float>();
@@ -199,6 +211,11 @@ namespace ArmySurvivor.Army
         private readonly Dictionary<GameObject, Stack<GameObject>> enemyObjects = new Dictionary<GameObject, Stack<GameObject>>();
         private IWaveRule waveRule;
         private int adventureSpawnSerial;
+        private int specialSpawnSerial;
+        private bool specialWaveSpawned;
+        private bool specialWaveAnnounced;
+        private float specialWaveWarningRemaining;
+        private readonly List<Vector3> recentAdventureSpawns = new List<Vector3>();
         public string AdventureWaveLabel => waveRule is AdventureRhythmRule rhythm
             ? $"{rhythm.Number} 웨이브 · {rhythm.Label}\n{rhythm.PatternName}" : "";
         private SurvivalSettings survivalSettings;
@@ -219,7 +236,7 @@ namespace ArmySurvivor.Army
         public int Kills { get; private set; }
         public int Hits { get; private set; }
         public int EnemyCount => enemies.Count;
-        public int ProjectileCount => shots.Count;
+        public int ProjectileCount => shots.Count + enemyProjectiles.Count;
         public bool BossDefeated { get; private set; }
 
         public void Configure(EnemyDefinition definition, float interval, int limit, DaySettings.EnemySpawn[] pool = null,
@@ -230,6 +247,11 @@ namespace ArmySurvivor.Army
                 ? (IWaveRule)new AdventureRhythmRule(definition, pool, duration, interval, limit, rhythmSettings, day)
                 : new AdventureDayWaveRule(definition, interval, limit, pool, duration, waveSettings, safetyLimit, waveLimit);
             adventureSpawnSerial = 0;
+            specialSpawnSerial = 0;
+            specialWaveSpawned = false;
+            specialWaveAnnounced = false;
+            specialWaveWarningRemaining = 0;
+            recentAdventureSpawns.Clear();
             survivalSettings = null;
             enemy = definition;
             spawnInterval = interval;
@@ -351,15 +373,41 @@ namespace ArmySurvivor.Army
                 return;
             }
             UpdateWave(run.Elapsed);
-            spawnTimer -= dt;
-            if (spawnTimer <= 0)
+            var specialRule = waveRule as AdventureRhythmRule;
+            if (specialRule != null && specialRule.SpecialWaveActive)
             {
-                int count = Mathf.Min(CurrentBatchSize, CurrentEnemyLimit - enemies.Count);
-                for (int i = 0; i < count; i++) Spawn();
-                // 일시 정지나 프레임 지연 뒤 밀린 몬스터가 한꺼번에 생성되지 않게 한다.
+                if (!specialWaveAnnounced)
+                {
+                    specialWaveAnnounced = true;
+                    specialWaveWarningRemaining = specialRule.SpecialWarningSeconds;
+                    SpecialWaveAnnounced?.Invoke(specialRule.PatternName);
+                }
+                if (!specialWaveSpawned)
+                {
+                    specialWaveWarningRemaining -= dt;
+                    if (specialWaveWarningRemaining <= 0)
+                    {
+                        int count = Mathf.Min(specialRule.SpecialWaveCount, Mathf.Max(0, CurrentEnemyLimit - enemies.Count));
+                        for (int i = 0; i < count; i++) Spawn();
+                        if (count > 0) specialWaveSpawned = true;
+                    }
+                }
+                // The special formation replaces ordinary tactical spawning in this short window.
                 spawnTimer = CurrentSpawnInterval;
             }
+            else
+            {
+                spawnTimer -= dt;
+                if (spawnTimer <= 0)
+                {
+                    int count = Mathf.Min(CurrentBatchSize, CurrentEnemyLimit - enemies.Count);
+                    for (int i = 0; i < count; i++) Spawn();
+                    // 일시 정지나 프레임 지연 뒤 밀린 몬스터가 한꺼번에 생성되지 않게 한다.
+                    spawnTimer = CurrentSpawnInterval;
+                }
+            }
             MoveEnemies(dt);
+            UpdateEnemyProjectiles(dt);
             UpdateFocusCommand(dt);
             UpdateMagicTraps(dt);
             if (!run.IsDiablo)
@@ -805,7 +853,15 @@ namespace ArmySurvivor.Army
             if (survivalSettings != null) position = SurvivalSpawnPosition();
             var rhythm = waveRule as AdventureRhythmRule;
             bool rhythmEnemy = rhythm != null && !isBoss && !isMiniBoss;
-            if (rhythmEnemy) position = AdventureSpawnPosition(rhythm.Direction(adventureSpawnSerial++));
+            Vector3 formationDirection = Vector3.zero;
+            bool encirclementEnemy = rhythmEnemy && rhythm.SpecialWaveActive &&
+                rhythm.SelectedSpecialPattern == AdventureRhythmRule.SpecialPattern.Encirclement;
+            if (rhythmEnemy)
+            {
+                formationDirection = rhythm.Direction(rhythm.SpecialWaveActive ? specialSpawnSerial++ : adventureSpawnSerial++);
+                position = encirclementEnemy ? EncirclementSpawnPosition(formationDirection, rhythm.EncirclementSpawnRadius) :
+                    AdventureSpawnPosition(formationDirection, rhythm.SpawnSeparation);
+            }
             Bounds bounds = run.Ground.bounds;
             position.x = Mathf.Clamp(position.x, bounds.min.x + boundaryMargin, bounds.max.x - boundaryMargin);
             position.z = Mathf.Clamp(position.z, bounds.min.z + boundaryMargin, bounds.max.z - boundaryMargin);
@@ -822,7 +878,9 @@ namespace ArmySurvivor.Army
             var charge = model.GetComponent<BossCharge>();
             if (charge != null) charge.ResetAttack();
             enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, bossCharge = charge, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss,
-                waveDamageMultiplier = rhythmEnemy ? rhythm.DamageMultiplier : 1f });
+                waveDamageMultiplier = rhythmEnemy ? rhythm.DamageMultiplier : 1f,
+                encirclementApproach = encirclementEnemy, encirclementDirection = formationDirection,
+                encirclementRadius = encirclementEnemy ? FlatDistance(position, run.Commander.position) : 0 });
             if (isMiniBoss)
             {
                 var tutorialTarget = model.GetComponent<ArmySurvivor.Tutorial.TutorialTarget>();
@@ -857,6 +915,13 @@ namespace ArmySurvivor.Army
                     if (state.suppressionRemaining <= 0) ClearSuppression(state);
                 }
                 state.attackCooldown -= dt;
+                if (state.hitReactionRemaining > 0)
+                {
+                    state.hitReactionRemaining = Mathf.Max(0, state.hitReactionRemaining - dt);
+                    if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
+                        state.animator.SetBool(enemy.movingParameter, false);
+                    continue;
+                }
                 if (state.bossCharge != null)
                 {
                     allies.TryGetValue(run.Commander, out var commanderHealth);
@@ -865,6 +930,32 @@ namespace ArmySurvivor.Army
                         (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f) * TutorialEnemySpeedMultiplier);
                     continue;
                 }
+                var encirclementRule = waveRule as AdventureRhythmRule;
+                if (state.encirclementApproach && encirclementRule != null)
+                {
+                    float releaseRadius = encirclementRule.EncirclementReleaseRadius;
+                    state.encirclementRadius = Mathf.Max(releaseRadius,
+                        state.encirclementRadius - encirclementRule.EncirclementClosingSpeed * dt);
+                    Vector3 destination = run.Commander.position + state.encirclementDirection * state.encirclementRadius;
+                    Bounds ground = run.Ground.bounds;
+                    destination.x = Mathf.Clamp(destination.x, ground.min.x + boundaryMargin, ground.max.x - boundaryMargin);
+                    destination.z = Mathf.Clamp(destination.z, ground.min.z + boundaryMargin, ground.max.z - boundaryMargin);
+                    destination.y = state.root.position.y;
+                    Vector3 movement = destination - state.root.position;
+                    float ringSpeedMultiplier = (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f)
+                        * TutorialEnemySpeedMultiplier;
+                    state.root.position = Vector3.MoveTowards(state.root.position, destination,
+                        Mathf.Max(enemy.speed, encirclementRule.EncirclementClosingSpeed) * ringSpeedMultiplier * dt);
+                    Vector3 facing = run.Commander.position - state.root.position;
+                    facing.y = 0;
+                    if (facing.sqrMagnitude > .001f)
+                        state.root.rotation = Quaternion.RotateTowards(state.root.rotation, Quaternion.LookRotation(facing), enemy.turnSpeed * dt);
+                    if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
+                        state.animator.SetBool(enemy.movingParameter, movement.sqrMagnitude > .001f);
+                    if (state.encirclementRadius > releaseRadius ||
+                        FlatDistance(state.root.position, run.Commander.position) > releaseRadius + .5f) continue;
+                    state.encirclementApproach = false;
+                }
                 if (state.attackTarget != null)
                 {
                     state.attackTime += dt;
@@ -872,15 +963,20 @@ namespace ArmySurvivor.Army
                     {
                         state.attackHit = true;
                         Transform victim = state.attackTarget;
-                        if (allies.TryGetValue(victim, out var health) && !health.IsDead &&
+                        if (allies.TryGetValue(victim, out var health) && !health.IsDead && victim.gameObject.activeInHierarchy &&
                             FlatDistance(state.root.position, victim.position) <= enemy.stoppingDistance + 0.15f)
                         {
-                            health.TakeDamage(enemy.damage * state.waveDamageMultiplier * run.CurrentTactic.receivedDamageMultiplier);
-                            if (health.IsDead)
+                            if (enemy.projectilePrefab != null)
+                                FireEnemyProjectile(state, victim);
+                            else
                             {
-                                pending.Remove(victim);
-                                melee.Remove(victim);
-                                run.SetAttacking(victim, false);
+                                health.TakeDamage(enemy.damage * state.waveDamageMultiplier * run.CurrentTactic.receivedDamageMultiplier);
+                                if (health.IsDead)
+                                {
+                                    pending.Remove(victim);
+                                    melee.Remove(victim);
+                                    run.SetAttacking(victim, false);
+                                }
                             }
                         }
                     }
@@ -921,6 +1017,52 @@ namespace ArmySurvivor.Army
                         if (!string.IsNullOrEmpty(enemy.attackState)) state.animator.Play(enemy.attackState, 0, 0);
                     }
                 }
+            }
+        }
+        private void FireEnemyProjectile(EnemyState source, Transform target)
+        {
+            EnemyDefinition definition = source.definition;
+            Vector3 direction = target.position - source.root.position;
+            direction.y = 0;
+            if (direction.sqrMagnitude < 0.001f) return;
+            direction.Normalize();
+            var visual = Instantiate(definition.projectilePrefab,
+                source.root.position + Vector3.up * definition.projectileHeight,
+                Quaternion.LookRotation(direction), combatRoot).transform;
+            enemyProjectiles.Add(new EnemyProjectile { visual = visual, direction = direction,
+                remaining = definition.projectileRange, speed = definition.projectileSpeed,
+                radius = definition.projectileHitRadius,
+                damage = definition.damage * source.waveDamageMultiplier * run.CurrentTactic.receivedDamageMultiplier });
+        }
+        private void UpdateEnemyProjectiles(float dt)
+        {
+            for (int i = enemyProjectiles.Count - 1; i >= 0; i--)
+            {
+                EnemyProjectile shot = enemyProjectiles[i];
+                if (shot.visual == null) { enemyProjectiles.RemoveAt(i); continue; }
+                Vector3 previous = shot.visual.position;
+                float step = Mathf.Min(shot.remaining, shot.speed * dt);
+                Vector3 next = previous + shot.direction * step;
+                shot.visual.position = next;
+                shot.remaining -= step;
+                bool hit = false;
+                foreach (var ally in allies)
+                {
+                    if (ally.Key == null || !ally.Key.gameObject.activeInHierarchy || ally.Value == null || ally.Value.IsDead ||
+                        FlatDistanceToSegment(ally.Key.position, previous, next) > shot.radius) continue;
+                    ally.Value.TakeDamage(shot.damage);
+                    if (ally.Value.IsDead)
+                    {
+                        pending.Remove(ally.Key);
+                        melee.Remove(ally.Key);
+                        run.SetAttacking(ally.Key, false);
+                    }
+                    hit = true;
+                    break;
+                }
+                if (!hit && shot.remaining > 0) continue;
+                Destroy(shot.visual.gameObject);
+                enemyProjectiles.RemoveAt(i);
             }
         }
         private EnemyState NearestEnemy(Vector3 position, float range)
@@ -1187,6 +1329,15 @@ namespace ArmySurvivor.Army
             }
             else
             {
+                if (target.attackTarget == null && target.animator != null &&
+                    !string.IsNullOrEmpty(target.definition.hitState) &&
+                    Time.time >= target.nextHitReactionTime &&
+                    target.animator.HasState(0, Animator.StringToHash(target.definition.hitState)))
+                {
+                    target.hitReactionRemaining = target.definition.hitReactionDuration;
+                    target.nextHitReactionTime = Time.time + Mathf.Max(1f, target.hitReactionRemaining);
+                    target.animator.Play(target.definition.hitState, 0, 0);
+                }
                 if (suppression) ApplySuppression(target);
                 if (knockback > 0)
                 {
@@ -1277,7 +1428,7 @@ namespace ArmySurvivor.Army
                 ally.Value.enabled = false;
             }
             allies.Clear();
-            enemies.Clear(); shots.Clear(); cooldowns.Clear(); weaponStrikeCooldowns.Clear();
+            enemies.Clear(); shots.Clear(); enemyProjectiles.Clear(); cooldowns.Clear(); weaponStrikeCooldowns.Clear();
             basicAttackCounts.Clear();
             magicTrapCooldowns.Clear(); magicTraps.Clear();
             laserCooldowns.Clear(); lasers.Clear();

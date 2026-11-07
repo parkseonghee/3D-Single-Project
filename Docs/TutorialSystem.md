@@ -29,7 +29,7 @@
 | Asset | 시작 | 주요 대상/이벤트 |
 |---|---|---|
 | `FirstVillage` | `VillageEntered` | 마을 자원, 건설 메뉴, 병영 건설, 전투 준비 화면, 병사 5회 고용, 편성 변경, 출전 |
-| `FirstBattle` | `BattleStarted` | 일시정지 설명, 지휘관 이동, 자동 전투 설명, 경험치 병 획득/투자 |
+| `FirstBattle` | `BattleStarted` | 지휘관 이동·자동 전투 설명 후 경험치 병을 강조하며 일시정지. 화면 클릭으로 전투를 재개하고, 병을 주우면 레벨업·투자 설명으로 진행 |
 | `FirstLibrary` | `BuildingBuilt:Library` | 도서관, 교범 선택 (`ManualSelected`) |
 | `FirstEliteFocus` | 정예 몬스터 등장(`EliteSpawned`), 지휘관 12m 이내 | 강조된 정예 몬스터 우클릭, 집중 공격 확인, 빈 땅 좌클릭 해제 |
 

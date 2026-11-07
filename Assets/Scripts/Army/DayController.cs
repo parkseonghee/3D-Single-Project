@@ -61,6 +61,7 @@ namespace ArmySurvivor.Army
             run.RunStarted += BeginStage;
             run.RunEnded += EndStage;
             combat.CommanderDeathFinished += DefeatCampaign;
+            combat.SpecialWaveAnnounced += ShowSpecialWaveNotice;
             returnButton.onClick.AddListener(CollectAndReturn);
             defeatToStartButton.onClick.AddListener(ReturnToStart);
             resultPanel.SetActive(false);
@@ -74,6 +75,7 @@ namespace ArmySurvivor.Army
             run.RunStarted -= BeginStage;
             run.RunEnded -= EndStage;
             if (combat != null) combat.CommanderDeathFinished -= DefeatCampaign;
+            if (combat != null) combat.SpecialWaveAnnounced -= ShowSpecialWaveNotice;
             if (returnButton != null) returnButton.onClick.RemoveListener(CollectAndReturn);
             if (defeatToStartButton != null) defeatToStartButton.onClick.RemoveListener(ReturnToStart);
             ReleaseRuntimeDefinitions();
@@ -98,7 +100,8 @@ namespace ArmySurvivor.Army
                 for (int i = 0; i < pool.Length; i++)
                     if (stage.enemies[i] != null)
                         pool[i] = new DaySettings.EnemySpawn {
-                            enemy = SharedDefinition(stage.enemies[i].enemy), weight = stage.enemies[i].weight };
+                            enemy = SharedDefinition(stage.enemies[i].enemy), weight = stage.enemies[i].weight,
+                            firstDay = stage.enemies[i].firstDay };
             }
             runtimeBoss = SharedDefinition(stage.boss);
             combat.Configure(normal, stage.spawnInterval, stage.maximumEnemies, pool,
@@ -109,12 +112,16 @@ namespace ArmySurvivor.Army
                 sharedHealth != null && sharedHealth.elite != null
                     ? sharedHealth.elite.Health(1) * settings.HealthScale(Day) : 0, 1f / 3f);
             EnsureWaveLabel();
+            EnsureSpecialWaveNotice();
+            specialWaveNotice.gameObject.SetActive(false);
+            specialWaveNoticeRemaining = 0;
             UpdateProgress();
         }
 
         private void EndStage()
         {
             if (waveLabel != null) waveLabel.gameObject.SetActive(false);
+            if (specialWaveNotice != null) specialWaveNotice.gameObject.SetActive(false);
             bossSpawned = false;
             ReleaseRuntimeDefinitions();
         }
@@ -137,9 +144,51 @@ namespace ArmySurvivor.Army
             runtimeBoss = null;
         }
 
-        private void LateUpdate() => UpdateProgress();
+        private void LateUpdate()
+        {
+            UpdateProgress();
+            if (specialWaveNotice == null || specialWaveNoticeRemaining <= 0) return;
+            if (run.IsChoosingUpgrade || run.IsPaused)
+            {
+                specialWaveNotice.gameObject.SetActive(false);
+                return;
+            }
+            if (!specialWaveNotice.gameObject.activeSelf) specialWaveNotice.gameObject.SetActive(true);
+            specialWaveNoticeRemaining = Mathf.Max(0, specialWaveNoticeRemaining - Time.unscaledDeltaTime);
+            Color color = specialWaveNotice.color;
+            color.a = Mathf.Clamp01(specialWaveNoticeRemaining / .5f);
+            specialWaveNotice.color = color;
+            if (specialWaveNoticeRemaining <= 0) specialWaveNotice.gameObject.SetActive(false);
+        }
 
         private TMP_Text waveLabel;
+        private TMP_Text specialWaveNotice;
+        private float specialWaveNoticeRemaining;
+        private void EnsureSpecialWaveNotice()
+        {
+            if (specialWaveNotice != null) return;
+            var rect = new GameObject("Adventure Special Wave Notice", typeof(RectTransform)).GetComponent<RectTransform>();
+            rect.SetParent(dayNumber.canvas.transform, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1);
+            rect.pivot = new Vector2(.5f, 1);
+            rect.anchoredPosition = new Vector2(0, -175);
+            rect.sizeDelta = new Vector2(800, 70);
+            specialWaveNotice = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            specialWaveNotice.font = dayNumber.font;
+            specialWaveNotice.fontSize = 38;
+            specialWaveNotice.fontStyle = FontStyles.Bold;
+            specialWaveNotice.alignment = TextAlignmentOptions.Center;
+            specialWaveNotice.color = new Color(1, .84f, .45f);
+            specialWaveNotice.raycastTarget = false;
+        }
+        private void ShowSpecialWaveNotice(string waveName)
+        {
+            EnsureSpecialWaveNotice();
+            specialWaveNotice.text = waveName + " 웨이브";
+            specialWaveNotice.color = new Color(1, .84f, .45f);
+            specialWaveNoticeRemaining = 3f;
+            specialWaveNotice.gameObject.SetActive(true);
+        }
         private void EnsureWaveLabel()
         {
             if (waveLabel == null)

@@ -16,6 +16,7 @@
 - Supply Firework / Supply Gate Open: 연결 완료. 다른 이펙트/클립으로 교체 가능.
 - Supply Sequence Duration: 전체 길이.
 - Supply Firework Interval / Scale: 폭죽 빈도/크기.
+- Supply Firework Left Offset / Right Offset: 성문 중심에서 좌우 폭죽 생성 위치를 각각 조절. Y를 낮추면 폭죽이 낮게 터진다. Supply Firework Jitter는 각 축의 무작위 흔들림 범위이며, 0으로 하면 지정 위치에 정확히 생성된다.
 - Supply Camera Start / End / Look At: 성문 위치 기준 월드 방향 오프셋. 현재 마을 정면은 -Z.
 - Supply Camera Fov: 시야각.
 - Supply Door Start: 전체 시간 대비 문이 열리기 시작하는 비율.

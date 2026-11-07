@@ -66,8 +66,9 @@ namespace ArmySurvivor.Editor
                 {
                     Step("Commander", "지휘관 이동", "WASD로 지휘관을 움직여 보세요. 전투 중에도 적을 우클릭하면 집중 공격할 수 있습니다.", TutorialAdvance.CommanderDistance),
                     Step("Soldier", "자동 전투", "병사들은 가까운 적을 자동으로 공격합니다.", TutorialAdvance.NextButton),
-                    Step("ExpBottle", "경험치 병", "몬스터가 떨어뜨린 경험치 병을 주우세요.", TutorialAdvance.Event, "ExpBottleCollected"),
-                    Step("SoldierPortrait", "경험치 투자", "경험치 병을 얻으면 Ctrl+1~5로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
+                    Step("ExpBottle", "경험치 병", "몬스터가 경험치 병을 떨어뜨렸습니다. 화면을 클릭하면 전투가 재개됩니다.", TutorialAdvance.NextButton),
+                    Step("ExpBottle", "경험치 병 줍기", "지휘관을 움직여 경험치 병을 주우세요.", TutorialAdvance.Event, "ExpBottleCollected"),
+                    Step("SoldierPortrait", "병사 레벨업", "경험치 병을 얻으면 Ctrl+1~5로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
                 };
                 battle.steps[0].commanderDistance = 2f;
                 battle.steps[0].pauseGame = true;
@@ -78,9 +79,11 @@ namespace ArmySurvivor.Editor
                 battle.steps[2].holeShape = TutorialHoleShape.Circle;
                 battle.steps[2].blockOutsideClicks = false;
                 battle.steps[2].pauseGame = true;
-                battle.steps[2].allowCommanderMovementWhilePaused = true;
-                battle.steps[3].pauseGame = true;
+                battle.steps[2].allowKeyboard = false;
                 battle.steps[3].blockOutsideClicks = false;
+                battle.steps[3].holeShape = TutorialHoleShape.Circle;
+                battle.steps[4].pauseGame = true;
+                battle.steps[4].blockOutsideClicks = false;
                 EditorUtility.SetDirty(battle);
             }
             TutorialSequence ticket = LoadOrCreate<TutorialSequence>("FirstTicket");

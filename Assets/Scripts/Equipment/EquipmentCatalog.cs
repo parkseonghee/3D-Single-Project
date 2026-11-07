@@ -24,6 +24,11 @@ namespace ArmySurvivor.Equipment
         [Min(1)] public float supplySequenceDuration = 4.5f;
         [Min(0.05f)] public float supplyFireworkInterval = 0.15f;
         [Min(0.1f)] public float supplyFireworkScale = 1.5f;
+        [Header("폭죽 생성 위치 — 성문 중심 기준 월드 오프셋")]
+        public Vector3 supplyFireworkLeftOffset = new Vector3(-4, 0.75f, 0);
+        public Vector3 supplyFireworkRightOffset = new Vector3(4, 0.75f, 0);
+        [Tooltip("각 축에 무작위로 더할 최대 거리입니다. 모두 0이면 설정한 위치에 정확히 생성됩니다.")]
+        public Vector3 supplyFireworkJitter = new Vector3(1, 0.5f, 2);
         public Vector3 supplyCameraStart = new Vector3(0, 12, -28);
         public Vector3 supplyCameraEnd = new Vector3(0, 4, -9);
         public Vector3 supplyLookAt = new Vector3(0, 4, 0);

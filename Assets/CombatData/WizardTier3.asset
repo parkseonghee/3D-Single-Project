@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
+  m_Name: WizardTier3
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  prefab: {fileID: 3570037843871439805, guid: f1a0736750994a7439e1afa508bb6be6, type: 3}
+  health: 128
+  armor: 0
+  damage: 14
+  attackInterval: 2.4
+  attackWindup: 0.2
+  attackDuration: 0.45
+  attackState: Base Layer.Attack
+  speed: 2.5
+  stoppingDistance: 8
+  turnSpeed: 300
+  deathDuration: 1.3
+  movingParameter: Moving
+  deathTrigger: Death
+  hitState: Base Layer.Hit
+  hitReactionDuration: 0.3
+  projectilePrefab: {fileID: 3892673226519651931, guid: d5e1bb24374ed174990fbd63f323a49b, type: 3}
+  projectileSpeed: 11
+  projectileRange: 13
+  projectileHitRadius: 0.55
+  projectileHeight: 1.1
