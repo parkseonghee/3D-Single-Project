@@ -50,8 +50,8 @@ namespace ArmySurvivor.Army
             }
             var first = settings.GetStage(1);
             var example = new AdventureRhythmRule(first.enemy, first.enemies, 90, 2.5f, 12, settings, 1);
-            Check(example.SelectedSpecialPattern == AdventureRhythmRule.SpecialPattern.Encirclement,
-                "The currently enabled special wave must be the encirclement");
+            Check(!string.IsNullOrEmpty(AdventureRhythmRule.SpecialName(example.SelectedSpecialPattern)),
+                "Special wave needs an announcement name");
             Check(example.EncirclementSpawnRadius > example.EncirclementReleaseRadius &&
                 example.EncirclementClosingSpeed > 0 && example.SpecialWarningSeconds < 90 * settings.specialWaveDurationProgress,
                 "Encirclement warning or closing parameters are invalid");
@@ -76,22 +76,37 @@ namespace ArmySurvivor.Army
                 formation.Evaluate(50, false);
                 Check(formation.SpecialWaveActive && formation.SelectedSpecialPattern == pattern, "Special pattern unavailable");
                 var bearings = new Vector3[settings.specialWaveCount];
+                int ranged = 0, hunters = 0, elites = 0, rings = 0;
+                float latestDelay = 0;
                 for (int i = 0; i < bearings.Length; i++)
                 {
-                    bearings[i] = formation.SpecialDirection(i, bearings.Length);
+                    var order = formation.GetSpecialOrder(i);
+                    bearings[i] = order.direction;
                     Check(Mathf.Abs(bearings[i].magnitude - 1) < .001f, "Invalid special direction");
+                    Check(order.delay >= latestDelay && order.delay < 90 * settings.specialWaveDurationProgress,
+                        "Special spawn delay is out of order: " + pattern);
+                    Check(order.speed > 0 && order.health > 0 && order.radius >= 3, "Invalid special stats: " + pattern);
+                    latestDelay = order.delay;
+                    if (order.ranged) ranged++;
+                    if (order.hunter) hunters++;
+                    if (order.elite) elites++;
+                    if (order.ring) rings++;
                 }
                 float widest = 0;
                 for (int i = 0; i < bearings.Length; i++)
                     for (int j = i + 1; j < bearings.Length; j++)
                         widest = Mathf.Max(widest, Vector3.Angle(bearings[i], bearings[j]));
-                Check(widest >= 130, "Special formation does not cover its intended arc: " + pattern);
+                Check(widest >= 40, "Special formation is too narrow: " + pattern);
+                if (pattern == AdventureRhythmRule.SpecialPattern.RangedSiege) Check(ranged > 0 && rings > 0, "Ranged siege roles missing");
+                if (pattern == AdventureRhythmRule.SpecialPattern.CommanderHunt) Check(hunters == bearings.Length, "Hunters missing");
+                if (pattern == AdventureRhythmRule.SpecialPattern.EliteEscort || pattern == AdventureRhythmRule.SpecialPattern.EliteReinforcement)
+                    Check(elites == 1, "Expected one elite in " + pattern);
                 if (pattern == AdventureRhythmRule.SpecialPattern.Encirclement)
                     for (int i = 0; i < bearings.Length; i++)
                         Check(Mathf.Abs(Vector3.Angle(bearings[i], bearings[(i + 1) % bearings.Length]) - 360f / bearings.Length) < .01f,
                             "Encirclement enemies are not evenly spaced");
             }
-            Debug.Log("ADVENTURE_WAVES_VERIFICATION_PASSED: days 1-100, one special window, three formations, wave limits, timeline, scaling");
+            Debug.Log("ADVENTURE_WAVES_VERIFICATION_PASSED: days 1-100, one special window, 16 formations, wave limits, timeline, scaling");
         }
     }
 }

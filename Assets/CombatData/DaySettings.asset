@@ -51,6 +51,7 @@ MonoBehaviour:
   encirclementSpawnRadius: 11
   encirclementClosingSpeed: 1.5
   encirclementReleaseRadius: 3.5
+  specialEliteHealthMultiplier: 3
   finalDay: 100
   bossInterval: 10
   stages:

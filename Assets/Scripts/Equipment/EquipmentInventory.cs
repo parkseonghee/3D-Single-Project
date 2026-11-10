@@ -16,7 +16,26 @@ namespace ArmySurvivor.Equipment
     public static class EquipmentInventory
     {
         static EquipmentSave state = new EquipmentSave();
-        public static float SurvivalWeaponDamageMultiplier { get; private set; } = 1f;
+        static EquipmentCatalog cachedCatalog;
+        public static EquipmentItem EquippedItem
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(state.equippedId) || Count(state.equippedId) < 1) return null;
+                if (cachedCatalog == null) cachedCatalog = Resources.Load<EquipmentCatalog>("EquipmentCatalog");
+                return cachedCatalog != null ? cachedCatalog.Find(state.equippedId) : null;
+            }
+        }
+        public static float SurvivalWeaponDamageMultiplier
+        {
+            get
+            {
+                EquipmentItem item = EquippedItem;
+                if (item == null || !item.isWeapon) return 1f;
+                return item.grade == ItemGrade.S ? 1.6f : item.grade == ItemGrade.A ? 1.35f :
+                    item.grade == ItemGrade.B ? 1.2f : 1.1f;
+            }
+        }
 #if UNITY_EDITOR
         static EquipmentSave testOriginal;
         public static bool IsTesting => testOriginal != null;
@@ -51,7 +70,7 @@ namespace ArmySurvivor.Equipment
         public static string EquippedId => state.equippedId;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Initialize() {
-            Changed = null; state = new EquipmentSave(); SurvivalWeaponDamageMultiplier = 1f;
+            Changed = null; state = new EquipmentSave(); cachedCatalog = null;
 #if UNITY_EDITOR
             testOriginal = null; UnlimitedTestTickets = false;
 #endif
@@ -85,7 +104,6 @@ namespace ArmySurvivor.Equipment
             testOriginal = null; UnlimitedTestTickets = false;
 #endif
             state = saved == null ? new EquipmentSave() : JsonUtility.FromJson<EquipmentSave>(JsonUtility.ToJson(saved));
-            SurvivalWeaponDamageMultiplier = 1f;
             state.tickets = Math.Max(0, state.tickets);
             state.sinceA = Math.Max(0, state.sinceA);
             state.sinceS = Math.Max(0, state.sinceS);
@@ -112,8 +130,6 @@ namespace ArmySurvivor.Equipment
             if (owned == null) state.owned.Add(new OwnedEquipment { id = item.id, count = 1 });
             else if (owned.count < int.MaxValue) owned.count++;
             state.equippedId = item.id;
-            SurvivalWeaponDamageMultiplier = item.grade == ItemGrade.S ? 1.6f :
-                item.grade == ItemGrade.A ? 1.35f : item.grade == ItemGrade.B ? 1.2f : 1.1f;
             Changed?.Invoke();
             return item;
         }

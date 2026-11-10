@@ -59,6 +59,7 @@ namespace ArmySurvivor.Army
             return consumed;
         }
         public float DamageReduction { get; set; }
+        public float EquipmentDamageReduction { get; set; }
         public float DiabloDamageReduction { get; set; }
         public bool IsInvulnerable { get; set; }
         private float rewardInvulnerableUntil;
@@ -120,6 +121,7 @@ namespace ArmySurvivor.Army
         public void Initialize(float maximum, Color color)
         {
             DamageReduction = 0;
+            EquipmentDamageReduction = 0;
             DiabloDamageReduction = 0;
             IsInvulnerable = false;
             rewardInvulnerableUntil = 0;
@@ -161,7 +163,8 @@ namespace ArmySurvivor.Army
         {
             if (IsDead || IsInvulnerable || Time.time < rewardInvulnerableUntil) return;
             if (baseShield > 0 && Time.time >= shieldExpiresAt) ClearShield();
-            damage = Mathf.Max(0, damage) * (1f - Mathf.Clamp01(DamageReduction)) * (1f - Mathf.Clamp01(DiabloDamageReduction));
+            damage = Mathf.Max(0, damage) * (1f - Mathf.Clamp01(DamageReduction)) *
+                (1f - Mathf.Clamp01(EquipmentDamageReduction)) * (1f - Mathf.Clamp01(DiabloDamageReduction));
             float previous = Current;
             float absorbed = ConsumeShield(damage, false);
             Current = Mathf.Max(0, Current - (damage - absorbed));

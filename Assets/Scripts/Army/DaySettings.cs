@@ -51,6 +51,7 @@ namespace ArmySurvivor.Army
         [Min(3f)] public float encirclementSpawnRadius = 11f;
         [Min(.1f)] public float encirclementClosingSpeed = 1.5f;
         [Min(.5f)] public float encirclementReleaseRadius = 3.5f;
+        [Min(1f)] public float specialEliteHealthMultiplier = 3f;
         public float HealthScale(int day) => 1 + Mathf.Max(0, day - 1) * healthPerDay;
         public float DamageScale(int day) => 1 + Mathf.Max(0, day - 1) * damagePerDay;
 

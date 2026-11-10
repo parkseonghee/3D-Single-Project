@@ -229,7 +229,7 @@ namespace ArmySurvivor.Equipment
             gradeText.text=$"<pos=12>{selected.grade}<pos=56><size=24>{selected.grade}급 장비</size>";gradeText.color=GradeColor(selected.grade);
             itemName.text=selected.displayName; detail.text=selected.description;
             ownership.text=EquipmentInventory.Count(selected.id)>0?$"보유 {EquipmentInventory.Count(selected.id)}개":"미보유 · 미리보기";
-            notice.text=VillageMode?"획득한 장비는 출전 준비에서\n장착할 수 있습니다.":"장착 상태는 저장 슬롯에 기록됩니다.\n현재 장비 능력치는 적용되지 않습니다.";
+            notice.text=VillageMode?"획득한 장비는 출전 준비에서\n장착할 수 있습니다.":"장착한 장비의 능력은 전투에 적용됩니다.\n장착 상태는 저장 슬롯에 기록됩니다.";
             equip.gameObject.SetActive(!VillageMode);equip.interactable=Available&&EquipmentInventory.Count(selected.id)>0;
             equip.GetComponentInChildren<TMP_Text>().text=selected.id==EquipmentInventory.EquippedId?"장착 해제":"지휘관 공용 슬롯에 장착";
         }

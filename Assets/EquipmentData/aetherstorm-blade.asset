@@ -16,6 +16,15 @@ MonoBehaviour:
   displayName: "\uC5D0\uD14C\uB974\uC2A4\uD1B0 \uBE14\uB808\uC774\uB4DC"
   grade: 2
   isWeapon: 1
-  description: "\uC7A5\uBE44 \uD6A8\uACFC\uB294 \uCD94\uD6C4 \uAD6C\uD604\uB429\uB2C8\uB2E4."
+  description: "\uD3ED\uD48D\uC758 \uD798\uC744 \uD488\uC740 \uAC80.\n\uC7A5\uCC29:
+    \uBD80\uB300 \uACF5\uACA9 \uD53C\uD574 +12%, \uC9C0\uD718\uAD00 \uC774\uB3D9\uC18D\uB3C4
+    +10%."
   model: {fileID: 919132149155446097, guid: fd7feb85b75a190469d45c72e852eb9f, type: 3}
   previewRotation: {x: 270, y: 0, z: 0}
+  squadDamageBonus: 0.12
+  squadAttackSpeedBonus: 0
+  commanderMoveBonus: 0.1
+  commanderDamageReduction: 0
+  commanderHealOnKillRatio: 0
+  slowOnHitChance: 0
+  slowOnHitDuration: 0

@@ -49,6 +49,14 @@ namespace ArmySurvivor.Equipment
             }
             if (combat != null) combat.EnemyKilled += Drop;
             if (run != null) { run.RunStarted += ClearDrops; run.RunEnded += ClearDrops; }
+            EquipmentInventory.Changed += RefreshEquippedDefense;
+            RefreshEquippedDefense();
+        }
+        void RefreshEquippedDefense()
+        {
+            if (run == null || !run.IsRunning || run.Commander == null ||
+                !run.Commander.TryGetComponent<UnitHealth>(out var health)) return;
+            health.EquipmentDamageReduction = EquipmentInventory.EquippedItem?.commanderDamageReduction ?? 0f;
         }
         void Drop(Vector3 position)
         {
@@ -110,6 +118,7 @@ namespace ArmySurvivor.Equipment
         {
             if (combat != null) combat.EnemyKilled -= Drop;
             if (run != null) { run.RunStarted -= ClearDrops; run.RunEnded -= ClearDrops; }
+            EquipmentInventory.Changed -= RefreshEquippedDefense;
             ClearDrops();
         }
     }

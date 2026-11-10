@@ -47,6 +47,7 @@ namespace ArmySurvivor.Army
         private float noticeUntil;
         public bool IsChoosing => choosing;
         public bool HasSpawned => spawned;
+        public EnemyDefinition ConfiguredEliteDefinition => definition;
 
         private void Awake()
         {

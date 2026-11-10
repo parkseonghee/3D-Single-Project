@@ -84,6 +84,7 @@ namespace ArmySurvivor.Army
             if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
             if (Time.time < rewardWarCryUntil) speedBonus += rewardWarCryBonus;
             speedBonus += ManualBonus(unit).y;
+            speedBonus += ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.squadAttackSpeedBonus ?? 0f;
             return attack.interval / ((1f + speedBonus) *
                 (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.AttackSpeed : 1f));
         }
@@ -129,6 +130,9 @@ namespace ArmySurvivor.Army
             public bool encirclementApproach;
             public Vector3 encirclementDirection;
             public float encirclementRadius;
+            public float specialHoldRemaining;
+            public float specialSpeedMultiplier = 1f;
+            public bool huntCommander;
         }
         private class Shot
         {
@@ -215,6 +219,8 @@ namespace ArmySurvivor.Army
         private bool specialWaveSpawned;
         private bool specialWaveAnnounced;
         private float specialWaveWarningRemaining;
+        private float specialWaveElapsed;
+        private bool specialWaveTestActive;
         private readonly List<Vector3> recentAdventureSpawns = new List<Vector3>();
         public string AdventureWaveLabel => waveRule is AdventureRhythmRule rhythm
             ? $"{rhythm.Number} 웨이브 · {rhythm.Label}\n{rhythm.PatternName}" : "";
@@ -251,6 +257,8 @@ namespace ArmySurvivor.Army
             specialWaveSpawned = false;
             specialWaveAnnounced = false;
             specialWaveWarningRemaining = 0;
+            specialWaveElapsed = 0;
+            specialWaveTestActive = false;
             recentAdventureSpawns.Clear();
             survivalSettings = null;
             enemy = definition;
@@ -339,6 +347,8 @@ namespace ArmySurvivor.Army
             RegisterHealth(run.Commander, commanderHealth *
                 (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.CommanderHealth : 1f),
                 new Color(1, 0.8f, 0.2f));
+            allies[run.Commander].EquipmentDamageReduction =
+                ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderDamageReduction ?? 0f;
             foreach (var unit in recruitment.Units)
             {
                 cooldowns[unit.Key] = 0;
@@ -374,22 +384,32 @@ namespace ArmySurvivor.Army
             }
             UpdateWave(run.Elapsed);
             var specialRule = waveRule as AdventureRhythmRule;
-            if (specialRule != null && specialRule.SpecialWaveActive)
+            if (specialRule != null && (specialRule.SpecialWaveActive || specialWaveTestActive))
             {
                 if (!specialWaveAnnounced)
                 {
                     specialWaveAnnounced = true;
                     specialWaveWarningRemaining = specialRule.SpecialWarningSeconds;
-                    SpecialWaveAnnounced?.Invoke(specialRule.PatternName);
+                    SpecialWaveAnnounced?.Invoke(AdventureRhythmRule.SpecialName(specialRule.SelectedSpecialPattern));
                 }
                 if (!specialWaveSpawned)
                 {
                     specialWaveWarningRemaining -= dt;
                     if (specialWaveWarningRemaining <= 0)
                     {
-                        int count = Mathf.Min(specialRule.SpecialWaveCount, Mathf.Max(0, CurrentEnemyLimit - enemies.Count));
-                        for (int i = 0; i < count; i++) Spawn();
-                        if (count > 0) specialWaveSpawned = true;
+                        specialWaveElapsed += dt;
+                        int specialCapacity = specialWaveTestActive
+                            ? Mathf.Min(enemySafetyLimit, CurrentEnemyLimit + specialRule.SpecialWaveCount)
+                            : CurrentEnemyLimit;
+                        while (specialSpawnSerial < specialRule.SpecialWaveCount && enemies.Count < specialCapacity)
+                        {
+                            var order = specialRule.GetSpecialOrder(specialSpawnSerial);
+                            if (order.delay > specialWaveElapsed) break;
+                            SpawnSpecialWaveEnemy(specialRule, order);
+                            specialSpawnSerial++;
+                        }
+                        specialWaveSpawned = specialSpawnSerial >= specialRule.SpecialWaveCount;
+                        if (specialWaveSpawned) specialWaveTestActive = false;
                     }
                 }
                 // The special formation replaces ordinary tactical spawning in this short window.
@@ -844,22 +864,69 @@ namespace ArmySurvivor.Army
             Spawn(definition, isBoss, isMiniBoss);
             return enemies.Count > 0 ? enemies[enemies.Count - 1].root.gameObject : null;
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public bool TriggerSpecialWaveForTesting(AdventureRhythmRule.SpecialPattern pattern)
+        {
+            if (run == null || !run.IsRunning || combatRoot == null || !(waveRule is AdventureRhythmRule rhythm)) return false;
+            rhythm.SetPatternForTesting(pattern);
+            specialSpawnSerial = 0;
+            specialWaveSpawned = specialWaveAnnounced = false;
+            specialWaveWarningRemaining = specialWaveElapsed = 0;
+            specialWaveTestActive = true;
+            return true;
+        }
+        public string SpecialWaveTestStatus => waveRule is AdventureRhythmRule rhythm
+            ? $"Day {rhythm.Day} · {AdventureRhythmRule.SpecialName(rhythm.SelectedSpecialPattern)} · {specialSpawnSerial}/{rhythm.SpecialWaveCount} · 적 {enemies.Count}/{CurrentEnemyLimit}"
+            : "모험 모드 전투가 시작되지 않았습니다.";
+#endif
 
         private void Spawn(EnemyDefinition definition, bool isBoss, bool isMiniBoss = false)
+            => Spawn(definition, isBoss, isMiniBoss, null);
+
+        private void SpawnSpecialWaveEnemy(AdventureRhythmRule rule, AdventureRhythmRule.SpecialOrder order)
+        {
+            if (rule.SelectedSpecialPattern == AdventureRhythmRule.SpecialPattern.RearAmbush)
+            {
+                Vector3 rear = -run.Commander.forward;
+                rear.y = 0;
+                if (rear.sqrMagnitude > .01f)
+                    order.direction = Quaternion.Euler(0, Mathf.Lerp(-55f, 55f,
+                        specialSpawnSerial / (float)Mathf.Max(1, rule.SpecialWaveCount - 1)), 0) * rear.normalized;
+            }
+            EnemyDefinition chosen = null;
+            if (order.elite)
+            {
+                EnemyDefinition configuredElite = GetComponent<MiniBossController>()?.ConfiguredEliteDefinition;
+                if (configuredElite != null && configuredElite.prefab != null)
+                {
+                    Spawn(configuredElite, false, true, order);
+                    return;
+                }
+            }
+            if (order.ranged && enemyPool != null)
+                foreach (var entry in enemyPool)
+                    if (entry != null && entry.enemy != null && entry.enemy.prefab != null &&
+                        entry.firstDay <= rule.Day && entry.enemy.projectilePrefab != null)
+                    { chosen = entry.enemy; break; }
+            Spawn(chosen ?? rule.ChooseEnemy(run.Elapsed), false, false, order);
+        }
+
+        private void Spawn(EnemyDefinition definition, bool isBoss, bool isMiniBoss,
+            AdventureRhythmRule.SpecialOrder? specialOrder)
         {
             if (definition == null || definition.prefab == null) return;
             float angle = Random.value * Mathf.PI * 2;
             Vector3 position = run.Commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * spawnDistance;
             if (survivalSettings != null) position = SurvivalSpawnPosition();
             var rhythm = waveRule as AdventureRhythmRule;
-            bool rhythmEnemy = rhythm != null && !isBoss && !isMiniBoss;
+            bool rhythmEnemy = rhythm != null && !isBoss && (!isMiniBoss || specialOrder.HasValue);
             Vector3 formationDirection = Vector3.zero;
-            bool encirclementEnemy = rhythmEnemy && rhythm.SpecialWaveActive &&
-                rhythm.SelectedSpecialPattern == AdventureRhythmRule.SpecialPattern.Encirclement;
+            bool encirclementEnemy = specialOrder.HasValue && specialOrder.Value.ring;
             if (rhythmEnemy)
             {
-                formationDirection = rhythm.Direction(rhythm.SpecialWaveActive ? specialSpawnSerial++ : adventureSpawnSerial++);
-                position = encirclementEnemy ? EncirclementSpawnPosition(formationDirection, rhythm.EncirclementSpawnRadius) :
+                formationDirection = specialOrder.HasValue ? specialOrder.Value.direction : rhythm.Direction(adventureSpawnSerial++);
+                position = specialOrder.HasValue && (encirclementEnemy || specialOrder.Value.ranged)
+                    ? EncirclementSpawnPosition(formationDirection, specialOrder.Value.radius) :
                     AdventureSpawnPosition(formationDirection, rhythm.SpawnSeparation);
             }
             Bounds bounds = run.Ground.bounds;
@@ -868,19 +935,26 @@ namespace ArmySurvivor.Army
             position.y = run.Commander.position.y;
             GameObject model = TakeEnemyObject(definition.prefab, position);
             if (isMiniBoss) { model.name = "정예 몬스터 - 정예 오크"; model.transform.localScale *= 1.5f; }
+            else if (specialOrder.HasValue && specialOrder.Value.elite)
+            { model.name = "특별 웨이브 정예"; model.transform.localScale *= 1.3f; }
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
             float hitPoints = definition.health;
-            if (rhythmEnemy) hitPoints *= rhythm.HealthMultiplier;
+            if (rhythmEnemy) hitPoints *= specialOrder.HasValue ? rhythm.SpecialHealthMultiplier : rhythm.HealthMultiplier;
+            if (specialOrder.HasValue) hitPoints *= specialOrder.Value.health *
+                (specialOrder.Value.elite && !isMiniBoss ? rhythm.SpecialEliteHealthMultiplier : 1f);
             if (survivalSettings != null && !isBoss && !isMiniBoss)
                 hitPoints *= survivalSettings.HealthMultiplier(run.Elapsed);
             health.Initialize(hitPoints, isMiniBoss ? new Color(1f, 0.65f, 0.1f) : new Color(0.95f, 0.2f, 0.2f));
             var charge = model.GetComponent<BossCharge>();
             if (charge != null) charge.ResetAttack();
             enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, bossCharge = charge, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss,
-                waveDamageMultiplier = rhythmEnemy ? rhythm.DamageMultiplier : 1f,
+                waveDamageMultiplier = rhythmEnemy ? specialOrder.HasValue ? rhythm.SpecialDamageMultiplier : rhythm.DamageMultiplier : 1f,
                 encirclementApproach = encirclementEnemy, encirclementDirection = formationDirection,
-                encirclementRadius = encirclementEnemy ? FlatDistance(position, run.Commander.position) : 0 });
+                encirclementRadius = encirclementEnemy ? FlatDistance(position, run.Commander.position) : 0,
+                specialHoldRemaining = specialOrder.HasValue ? specialOrder.Value.hold : 0,
+                specialSpeedMultiplier = specialOrder.HasValue ? specialOrder.Value.speed : 1f,
+                huntCommander = specialOrder.HasValue && specialOrder.Value.hunter });
             if (isMiniBoss)
             {
                 var tutorialTarget = model.GetComponent<ArmySurvivor.Tutorial.TutorialTarget>();
@@ -934,8 +1008,9 @@ namespace ArmySurvivor.Army
                 if (state.encirclementApproach && encirclementRule != null)
                 {
                     float releaseRadius = encirclementRule.EncirclementReleaseRadius;
-                    state.encirclementRadius = Mathf.Max(releaseRadius,
-                        state.encirclementRadius - encirclementRule.EncirclementClosingSpeed * dt);
+                    if (state.specialHoldRemaining > 0) state.specialHoldRemaining -= dt;
+                    else state.encirclementRadius = Mathf.Max(releaseRadius,
+                        state.encirclementRadius - encirclementRule.EncirclementClosingSpeed * state.specialSpeedMultiplier * dt);
                     Vector3 destination = run.Commander.position + state.encirclementDirection * state.encirclementRadius;
                     Bounds ground = run.Ground.bounds;
                     destination.x = Mathf.Clamp(destination.x, ground.min.x + boundaryMargin, ground.max.x - boundaryMargin);
@@ -945,14 +1020,14 @@ namespace ArmySurvivor.Army
                     float ringSpeedMultiplier = (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f)
                         * TutorialEnemySpeedMultiplier;
                     state.root.position = Vector3.MoveTowards(state.root.position, destination,
-                        Mathf.Max(enemy.speed, encirclementRule.EncirclementClosingSpeed) * ringSpeedMultiplier * dt);
+                        Mathf.Max(enemy.speed, encirclementRule.EncirclementClosingSpeed) * state.specialSpeedMultiplier * ringSpeedMultiplier * dt);
                     Vector3 facing = run.Commander.position - state.root.position;
                     facing.y = 0;
                     if (facing.sqrMagnitude > .001f)
                         state.root.rotation = Quaternion.RotateTowards(state.root.rotation, Quaternion.LookRotation(facing), enemy.turnSpeed * dt);
                     if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
                         state.animator.SetBool(enemy.movingParameter, movement.sqrMagnitude > .001f);
-                    if (state.encirclementRadius > releaseRadius ||
+                    if (state.specialHoldRemaining > 0 || state.encirclementRadius > releaseRadius ||
                         FlatDistance(state.root.position, run.Commander.position) > releaseRadius + .5f) continue;
                     state.encirclementApproach = false;
                 }
@@ -987,6 +1062,7 @@ namespace ArmySurvivor.Army
                 float distance = FlatDistance(state.root.position, target.position);
                 foreach (var unit in recruitment.Units)
                 {
+                    if (state.huntCommander) break;
                     if (unit.Key == null || !unit.Key.gameObject.activeSelf || allies[unit.Key].IsDead) continue;
                     float candidate = FlatDistance(state.root.position, unit.Key.position);
                     if (candidate < distance) { distance = candidate; target = unit.Key; }
@@ -994,7 +1070,7 @@ namespace ArmySurvivor.Army
                 Vector3 direction = target.position - state.root.position;
                 direction.y = 0;
                 float speedMultiplier = (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f)
-                    * TutorialEnemySpeedMultiplier;
+                    * TutorialEnemySpeedMultiplier * state.specialSpeedMultiplier;
                 float step = Mathf.Min(enemy.speed * speedMultiplier * dt, Mathf.Max(0, distance - enemy.stoppingDistance));
                 if (step > 0)
                 {
@@ -1298,6 +1374,8 @@ namespace ArmySurvivor.Army
             bool suppression = false, Transform source = null, bool manualDamage = false, bool chargeImpact = false)
         {
             if (target.health <= 0 || damage <= 0) return;
+            if (source != null && allies.ContainsKey(source))
+                damage *= 1f + (ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.squadDamageBonus ?? 0f);
             float supportMultiplier = target.isBoss || target.isMiniBoss
                 ? GetComponent<CommanderProgression>()?.EliteDamageMultiplier ?? 1f : 1f;
             bool wasSuppressed = target.suppressionRemaining > 0;
@@ -1324,6 +1402,11 @@ namespace ArmySurvivor.Army
                 if (target == focusTarget) ArmySurvivor.Tutorial.TutorialEvents.Raise("FocusTargetKilled", target.root);
                 if (target.isMiniBoss) ArmySurvivor.Tutorial.TutorialEvents.Raise("EliteKilled", target.root);
                 HealOnKill(source);
+                if (source != null && allies.ContainsKey(source) && allies.TryGetValue(run.Commander, out UnitHealth commanderVitality))
+                {
+                    float healRatio = ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderHealOnKillRatio ?? 0f;
+                    if (healRatio > 0) commanderVitality.Heal(commanderVitality.Maximum * healRatio);
+                }
                 target.attackTarget = null;
                 target.deathTime = Mathf.Max(target.definition.deathDuration, target.vitality.DeathDuration + 0.25f);
             }
@@ -1339,6 +1422,13 @@ namespace ArmySurvivor.Army
                     target.animator.Play(target.definition.hitState, 0, 0);
                 }
                 if (suppression) ApplySuppression(target);
+                else if (source != null && allies.ContainsKey(source))
+                {
+                    var equipped = ArmySurvivor.Equipment.EquipmentInventory.EquippedItem;
+                    if (equipped != null && equipped.slowOnHitChance > 0 &&
+                        Random.value < equipped.slowOnHitChance)
+                        ApplySuppression(target, equipped.slowOnHitDuration);
+                }
                 if (knockback > 0)
                 {
                     Vector3 position = target.root.position + direction * knockback;
@@ -1372,10 +1462,11 @@ namespace ArmySurvivor.Army
             }
             Destroy(effect, healingEffectLifetime);
         }
-        private void ApplySuppression(EnemyState target)
+        private void ApplySuppression(EnemyState target, float duration = -1)
         {
             // 중복 명중은 감속을 누적하지 않고 지속시간만 갱신한다.
-            target.suppressionRemaining = suppressionDuration;
+            target.suppressionRemaining = Mathf.Max(target.suppressionRemaining,
+                duration >= 0 ? duration : suppressionDuration);
             if (target.suppressionEffect != null || suppressionDebuffPrefab == null) return;
             Transform effect = Instantiate(suppressionDebuffPrefab, target.root).transform;
             effect.localPosition = suppressionDebuffLocalPosition;
@@ -1417,6 +1508,7 @@ namespace ArmySurvivor.Army
             healingEffects.Clear();
             if (combatRoot != null) { combatRoot.gameObject.SetActive(false); Destroy(combatRoot.gameObject); }
             combatRoot = null;
+            specialWaveTestActive = false;
             BossDefeated = false;
             foreach (var unit in melee.Keys) if (unit != null && run != null) run.SetAttacking(unit, false);
             melee.Clear();
