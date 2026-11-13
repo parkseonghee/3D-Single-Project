@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47427111125f0504f9041465311f9d64, type: 3}
+  m_Name: WizardCircle
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.BattlefieldModifierDefinition
+  displayName: "\uB9C8\uBC95\uC0AC \uC9D1\uACB0"
+  description: "\uC6D0\uAC70\uB9AC\uC5D0\uC11C \uACF5\uACA9\uD558\uB294 \uB9C8\uBC95\uC0AC\uC758
+    \uCD9C\uD604 \uBE44\uC728\uC774 \uD06C\uAC8C \uC624\uB985\uB2C8\uB2E4."
+  effect: 0
+  multiplier: 3
+  targets:
+  - {fileID: 11400000, guid: ca8b30d3c0ffbc84e92735909b3bb645, type: 2}
+  - {fileID: 11400000, guid: 3eab3f4d2fdb93544b730c45ec15327c, type: 2}
+  - {fileID: 11400000, guid: 7db2ff2b6a1b2754aaf12854999ba001, type: 2}
+  minimumDay: 5

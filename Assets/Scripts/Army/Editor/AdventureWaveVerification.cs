@@ -14,7 +14,7 @@ namespace ArmySurvivor.Army
         {
             var settings = AssetDatabase.LoadAssetAtPath<DaySettings>("Assets/CombatData/DaySettings.asset");
             Check(settings != null, "Settings missing");
-            for (int day = 1; day <= 100; day++)
+            for (int day = 1; day <= settings.finalDay; day++)
             {
                 var stage = settings.GetStage(day);
                 var rule = new AdventureRhythmRule(stage.enemy, stage.enemies, stage.survivalSeconds,
@@ -106,7 +106,7 @@ namespace ArmySurvivor.Army
                         Check(Mathf.Abs(Vector3.Angle(bearings[i], bearings[(i + 1) % bearings.Length]) - 360f / bearings.Length) < .01f,
                             "Encirclement enemies are not evenly spaced");
             }
-            Debug.Log("ADVENTURE_WAVES_VERIFICATION_PASSED: days 1-100, one special window, 16 formations, wave limits, timeline, scaling");
+            Debug.Log($"ADVENTURE_WAVES_VERIFICATION_PASSED: days 1-{settings.finalDay}, one special window, 16 formations, wave limits, timeline, scaling");
         }
     }
 }

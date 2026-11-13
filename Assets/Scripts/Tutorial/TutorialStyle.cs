@@ -33,17 +33,9 @@ namespace ArmySurvivor.Tutorial
         public Vector4 titleOffsets = new Vector4(20, -64, -20, -18);
         public Vector4 bodyOffsets = new Vector4(20, -165, -20, -75);
         public Vector4 progressOffsets = new Vector4(20, 8, 100, 42);
-        public Vector4 skipButtonOffsets = new Vector4(-170, -70, -20, -20);
         public Vector2 arrowSize = new Vector2(36, 48);
         public float arrowFontSize = 42;
         public string arrowGlyph = "▼";
-        public Vector2 confirmationSize = new Vector2(500, 180);
-        public Vector4 confirmationQuestionOffsets = new Vector4(20, -75, -20, -15);
-        public Vector4 confirmButtonOffsets = new Vector4(20, 25, 230, 75);
-        public Vector4 cancelButtonOffsets = new Vector4(270, 25, 480, 75);
-        public string skipLabel = "건너뛰기";
-        public string cancelLabel = "취소";
-        public string skipQuestion = "튜토리얼 전체를 건너뛸까요?";
         [Header("화살표")]
         public bool showArrow = true;
         [Min(0)] public float arrowBob = 8;

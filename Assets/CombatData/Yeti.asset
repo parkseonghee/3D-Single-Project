@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
   m_Name: Yeti
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  displayName: "\uC608\uD2F0"
   prefab: {fileID: 7195423321794688100, guid: 34cab676b0c96924e852399f457e1ba7, type: 3}
   health: 180
+  armor: 0
   damage: 24
   attackInterval: 2.2
   attackWindup: 0.5
@@ -25,3 +27,10 @@ MonoBehaviour:
   deathDuration: 1.3
   movingParameter: Moving
   deathTrigger: Death
+  hitState: 
+  hitReactionDuration: 0.3
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 12
+  projectileRange: 14
+  projectileHitRadius: 0.5
+  projectileHeight: 0.8

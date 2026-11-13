@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47427111125f0504f9041465311f9d64, type: 3}
+  m_Name: YetiHerd
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.BattlefieldModifierDefinition
+  displayName: "\uC608\uD2F0 \uBB34\uB9AC"
+  description: "\uCCB4\uB825\uC774 \uB192\uC740 \uC608\uD2F0\uC758 \uCD9C\uD604 \uBE44\uC728\uC774
+    \uD06C\uAC8C \uC624\uB985\uB2C8\uB2E4."
+  effect: 0
+  multiplier: 2.5
+  targets:
+  - {fileID: 11400000, guid: 3efdd06fc1a1f354187cf6e057400428, type: 2}
+  - {fileID: 11400000, guid: 98de29ee1a7f2eb42bf91c11b51045ee, type: 2}
+  - {fileID: 11400000, guid: 45c8bd0dfd379b7488324c237bf6a010, type: 2}
+  minimumDay: 1

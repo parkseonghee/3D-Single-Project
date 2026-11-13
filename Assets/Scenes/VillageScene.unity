@@ -343701,7 +343701,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Building.RiceHarvest
   resources: {fileID: 1042471449}
-  harvestsPerDay: 4
+  harvestsPerDay: 1
   harvestButton: {fileID: 1836521723}
   dayAmount: {fileID: 1599966176}
   harvestAmount: {fileID: 564964662}

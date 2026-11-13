@@ -46,7 +46,7 @@ namespace ArmySurvivor.Army
         [Min(1)] public float tier2Seconds = 300;
         [Min(1)] public float tier3Seconds = 600;
         [Min(1)] public int adventureTier2Day = 11;
-        [Min(1)] public int adventureTier3Day = 51;
+        [Min(1)] public int adventureTier3Day = 21;
         [Min(1)] public float scalingStartSeconds = 900;
         [Min(0)] public float healthIncreasePerMinute = 0.1f;
         public SpawnBand[] spawnBands;

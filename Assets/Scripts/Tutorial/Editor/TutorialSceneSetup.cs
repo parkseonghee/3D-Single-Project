@@ -38,7 +38,7 @@ namespace ArmySurvivor.Editor
                 village.steps = new[]
                 {
                     Step("VillageResources", "마을의 자원", "벼는 건설과 고용에 쓰고, 골드는 성장에 사용합니다.", TutorialAdvance.NextButton),
-                    Step("RiceHarvestButton", "벼 생산", "왼쪽의 벼 채취 버튼을 눌러 벼를 생산해 보세요. 벼는 건물 건설과 병사 고용에 사용합니다.", TutorialAdvance.Event, "RiceHarvested"),
+                    Step("RiceHarvestButton", "벼 생산", "왼쪽의 벼 채취 버튼을 눌러 오늘의 벼를 수확하세요. 벼는 건물 건설과 병사 고용에 사용합니다.", TutorialAdvance.Event, "RiceHarvested"),
                     Step("OpenBuildingMenu", "건설 메뉴", "건설 메뉴를 열어 건물을 선택하세요.", TutorialAdvance.TargetClick),
                     Step("WorkshopButton", "병영 건설", "건설 메뉴에서 병영을 선택하고 빈 땅에 배치하세요.", TutorialAdvance.Event, "BuildingBuilt:Workshop"),
                     Step("SupplyDepotButton", "왕국 보급소 건설", "왕국 보급소를 선택하고 빈 땅에 배치하세요. 전투에서 얻은 인장으로 장비를 보급받을 수 있습니다.", TutorialAdvance.Event, "BuildingBuilt:SupplyDepot"),
@@ -48,6 +48,7 @@ namespace ArmySurvivor.Editor
                 };
                 village.steps[village.steps.Length - 1].blockOutsideClicks = false;
                 village.steps[1].blockOutsideClicks = true;
+                village.steps[1].requiredEventCount = 1;
                 village.steps[3].hideWhenTargetMissing = true;
                 village.steps[4].blockOutsideClicks = false;
                 village.steps[4].showAsTopBanner = true;

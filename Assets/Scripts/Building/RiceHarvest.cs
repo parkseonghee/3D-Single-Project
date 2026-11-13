@@ -8,7 +8,8 @@ namespace ArmySurvivor.Building
     public partial class RiceHarvest : MonoBehaviour
     {
         [SerializeField] private BuildingPlacementController resources;
-        [SerializeField, Min(1)] private int harvestsPerDay = 4;
+        // 2026-11-12: 클릭 1회로 하루 총량을 모두 수확한다(기획서 5.1).
+        [SerializeField, Min(1)] private int harvestsPerDay = 1;
         [SerializeField] private Button harvestButton;
         [SerializeField] private TMP_Text dayAmount;
         [SerializeField] private TMP_Text harvestAmount;
@@ -20,6 +21,7 @@ namespace ArmySurvivor.Building
         public int DailyTotal { get; private set; }
         public int RemainingCount { get; private set; }
         public int RemainingRice { get; private set; }
+        public int TodayHarvestedCount => Mathf.Clamp(harvestsPerDay - RemainingCount, 0, harvestsPerDay);
         private int portion;
         private int lastRice = -1;
 

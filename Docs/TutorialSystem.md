@@ -12,9 +12,9 @@
 
 `TutorialSpotlight.shader`를 쓴 화면 전체 Image가 어두운 배경, 둥근 사각형/원형 구멍, 깜빡이는 테두리를 함께 그린다. 셰이더는 `TutorialStyle.asset`의 `spotlightShader`에 직접 연결하여 플레이어 빌드에 포함한다. 셰이더가 누락되거나 지원되지 않을 때는 Image 렌더링을 꺼서 흰색 기본 이미지가 화면을 덮지 않게 한다. 네 패널 방식은 원형 구멍과 부드러운 모서리를 구현할 때 패널이 더 필요하므로 단일 셰이더를 택했다. 구멍은 화면 좌표를 Canvas 로컬 좌표로 변환해 계산하므로 Canvas Scaler와 해상도 변경을 따른다. UI 대상은 `RectTransform`의 네 모서리를, 월드 대상은 렌더러 바운딩 박스를 카메라에 투영한다.
 
-`blockOutsideClicks`가 켜지면 구멍 밖 UI/월드 클릭을 막는다. 구멍 안은 `ICanvasRaycastFilter`가 레이캐스트를 통과시켜 기존 버튼 및 우클릭 집중 공격 입력이 실행된다. 말풍선과 건너뛰기 버튼은 그 위에서 표시된다. `allowKeyboard`를 끄면 지휘관 이동·전술키와 병사 경험치 투자 단축키를 막는다. 일시정지는 `Time.timeScale`로 처리하며 튜토리얼 UI의 애니메이션은 `unscaledDeltaTime`을 사용한다.
+`blockOutsideClicks`가 켜지면 구멍 밖 UI/월드 클릭을 막는다. 구멍 안은 `ICanvasRaycastFilter`가 레이캐스트를 통과시켜 기존 버튼 및 우클릭 집중 공격 입력이 실행된다. 말풍선은 그 위에서 표시된다. `allowKeyboard`를 끄면 지휘관 이동·전술키와 병사 경험치 투자 단축키를 막는다. 일시정지는 `Time.timeScale`로 처리하며 튜토리얼 UI의 애니메이션은 `unscaledDeltaTime`을 사용한다.
 
-설명 단계(`NextButton`)는 별도 다음 버튼 없이 화면을 좌클릭하면 진행한다. 이때 스포트라이트가 클릭을 받아 뒤의 게임 버튼이 함께 눌리지 않게 한다. 시작 프레임의 클릭은 무시해 같은 클릭으로 두 단계를 넘기지 않는다. 건너뛰기 버튼과 확인창 클릭은 진행 클릭으로 처리하지 않는다. `requiredEventCount`를 지정한 이벤트 단계는 성공 이벤트가 그 횟수만큼 발생해야 넘어간다. `hideWhenTargetMissing` 단계는 강조 UI가 닫힌 동안 말풍선을 숨기고 이벤트는 계속 기다린다. 카드 선택 등 `RunController.IsChoosingUpgrade` 상태에서는 튜토리얼 표시를 잠시 숨긴다.
+설명 단계(`NextButton`)는 별도 다음 버튼 없이 화면을 좌클릭하면 진행한다. 이때 스포트라이트가 클릭을 받아 뒤의 게임 버튼이 함께 눌리지 않게 한다. 시작 프레임의 클릭은 무시해 같은 클릭으로 두 단계를 넘기지 않는다. `requiredEventCount`를 지정한 이벤트 단계는 성공 이벤트가 그 횟수만큼 발생해야 넘어간다. 첫 마을의 벼 생산 단계는 채취 버튼을 1회 눌러 그날 총량을 수확하면 진행한다(2026-11-12, 기존 4회에서 변경). `hideWhenTargetMissing` 단계는 강조 UI가 닫힌 동안 말풍선을 숨기고 이벤트는 계속 기다린다. 카드 선택 등 `RunController.IsChoosingUpgrade` 상태에서는 튜토리얼 표시를 잠시 숨긴다.
 
 ## 새 튜토리얼 만들기
 

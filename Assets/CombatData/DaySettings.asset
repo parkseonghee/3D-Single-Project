@@ -52,11 +52,11 @@ MonoBehaviour:
   encirclementClosingSpeed: 1.5
   encirclementReleaseRadius: 3.5
   specialEliteHealthMultiplier: 3
-  finalDay: 100
+  finalDay: 30
   bossInterval: 10
   stages:
   - fromDay: 1
-    survivalSeconds: 90
+    survivalSeconds: 150
     enemy: {fileID: 11400000, guid: 423cb0d3aee114141819fe3758d01c9b, type: 2}
     enemies:
     - enemy: {fileID: 11400000, guid: 423cb0d3aee114141819fe3758d01c9b, type: 2}
@@ -80,7 +80,7 @@ MonoBehaviour:
     availableWaveCount: 2
     goldReward: 100
   - fromDay: 11
-    survivalSeconds: 120
+    survivalSeconds: 150
     enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
     enemies:
     - enemy: {fileID: 11400000, guid: 3e0f1c823eb44b340997ede7a648d7e4, type: 2}
@@ -103,7 +103,7 @@ MonoBehaviour:
     maximumEnemies: 16
     availableWaveCount: 3
     goldReward: 160
-  - fromDay: 51
+  - fromDay: 21
     survivalSeconds: 150
     enemy: {fileID: 11400000, guid: 7cc296e9d0a007e4790f7e438f182545, type: 2}
     enemies:
@@ -127,3 +127,14 @@ MonoBehaviour:
     maximumEnemies: 20
     availableWaveCount: 4
     goldReward: 240
+  firstModifierDay: 2
+  modifierSeed: 7
+  battlefieldModifiers:
+  - {fileID: 11400000, guid: 2ce81f75c9b7e6240856bbce3e6a3ace, type: 2}
+  - {fileID: 11400000, guid: a5cdb1f2992c5de4599e913fe191d7d8, type: 2}
+  - {fileID: 11400000, guid: c6c27500c23e68448bc5673cb2f4e7ed, type: 2}
+  - {fileID: 11400000, guid: 25ae46a1d62525a4bbf485a2e71646e9, type: 2}
+  - {fileID: 11400000, guid: 7323b271d12786d449db4420dfc771f3, type: 2}
+  - {fileID: 11400000, guid: 1375ea5f5805a644084b9b8a735c65d9, type: 2}
+  - {fileID: 11400000, guid: e121de0b03cceb74aaf9c9d857ecb147, type: 2}
+  - {fileID: 11400000, guid: e26c8b21e7f5caf43a9ff1d46c1d4252, type: 2}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ArmySurvivor.Army
@@ -77,7 +78,7 @@ namespace ArmySurvivor.Army
             [Min(1)] public int availableWaveCount = 4;
             [Min(0)] public int goldReward = 100;
         }
-        [Min(1)] public int finalDay = 100;
+        [Min(1)] public int finalDay = 30;
         [Min(1)] public int bossInterval = 10;
         public Stage[] stages;
 
@@ -87,6 +88,84 @@ namespace ArmySurvivor.Army
             foreach (Stage stage in stages)
                 if (stage.fromDay <= day && stage.fromDay >= result.fromDay) result = stage;
             return result;
+        }
+
+        [Header("출전 미리보기 / 전장 변수 (하루 1개)")]
+        [Min(1)] public int firstModifierDay = 2;
+        [Tooltip("값을 바꾸면 Day별 변수 배정이 다시 섞인다.")]
+        public int modifierSeed = 7;
+        public BattlefieldModifierDefinition[] battlefieldModifiers;
+
+        // 같은 Day는 화면 재진입·저장/불러오기와 무관하게 항상 같은 변수를 고른다.
+        public BattlefieldModifierDefinition GetBattlefieldModifier(int day)
+        {
+            if (day < firstModifierDay || battlefieldModifiers == null) return null;
+            Stage stage = GetStage(day);
+            int count = 0;
+            foreach (var modifier in battlefieldModifiers)
+                if (modifier != null && modifier.IsAvailable(stage, day)) count++;
+            if (count == 0) return null;
+            int pick = (int)(Mix((uint)day * 0x9E3779B1u + (uint)modifierSeed) % (uint)count);
+            BattlefieldModifierDefinition chosen = Available(stage, day, pick);
+            // 이틀 연속 같은 변수가 나오지 않게 전날 결과와 같으면 다음 후보를 쓴다.
+            if (count > 1 && day > firstModifierDay && chosen == GetBattlefieldModifier(day - 1))
+                chosen = Available(stage, day, (pick + 1) % count);
+            return chosen;
+        }
+
+        private BattlefieldModifierDefinition Available(Stage stage, int day, int index)
+        {
+            foreach (var modifier in battlefieldModifiers)
+            {
+                if (modifier == null || !modifier.IsAvailable(stage, day)) continue;
+                if (index-- == 0) return modifier;
+            }
+            return null;
+        }
+
+        // 정수 해시(murmur3 finalizer). 연속된 Day 값도 고르게 흩어진다.
+        private static uint Mix(uint h)
+        {
+            h ^= h >> 16; h *= 0x85EBCA6Bu; h ^= h >> 13; h *= 0xC2B2AE35u; h ^= h >> 16;
+            return h;
+        }
+
+        public struct EnemyShare
+        {
+            public EnemyDefinition enemy;
+            public float share;
+            public bool boosted;
+        }
+
+        // 전투와 같은 규칙(firstDay, 가중치, 변수 배율)으로 그날 일반 적 출현 비율을 계산한다.
+        public void GetEnemyShares(int day, BattlefieldModifierDefinition modifier, List<EnemyShare> results)
+        {
+            results.Clear();
+            Stage stage = GetStage(day);
+            float total = 0;
+            if (stage.enemies != null)
+                foreach (EnemySpawn entry in stage.enemies)
+                {
+                    if (entry == null || entry.enemy == null || entry.firstDay > day || entry.weight <= 0) continue;
+                    float multiplier = modifier != null ? modifier.WeightMultiplier(entry.enemy) : 1f;
+                    float weight = entry.weight * multiplier;
+                    if (weight <= 0) continue;
+                    total += weight;
+                    results.Add(new EnemyShare { enemy = entry.enemy, share = weight, boosted = multiplier > 1f });
+                }
+            if (total <= 0)
+            {
+                results.Clear();
+                if (stage.enemy != null) results.Add(new EnemyShare { enemy = stage.enemy, share = 1 });
+                return;
+            }
+            for (int i = 0; i < results.Count; i++)
+            {
+                EnemyShare item = results[i];
+                item.share /= total;
+                results[i] = item;
+            }
+            results.Sort((a, b) => b.share.CompareTo(a.share));
         }
     }
 }

@@ -5,6 +5,8 @@ namespace ArmySurvivor.Army
     [CreateAssetMenu(menuName = "Army Survivor/Enemy Definition")]
     public class EnemyDefinition : ScriptableObject
     {
+        [Tooltip("출전 미리보기 등 UI에 표시하는 이름")]
+        public string displayName;
         public GameObject prefab;
         [Min(1)] public float health;
         [Min(0)] public float armor;

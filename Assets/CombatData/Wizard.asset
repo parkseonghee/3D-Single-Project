@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
   m_Name: Wizard
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  displayName: "\uB9C8\uBC95\uC0AC"
   prefab: {fileID: 3570037843871439805, guid: f1a0736750994a7439e1afa508bb6be6, type: 3}
   health: 55
   armor: 0

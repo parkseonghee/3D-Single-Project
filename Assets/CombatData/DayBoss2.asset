@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0526612c9c28c444e9dcbb65b4db1f4b, type: 3}
   m_Name: DayBoss2
   m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Army.EnemyDefinition
+  displayName: "\uD06C\uB9AC\uC2A4\uD0C8 \uACE8\uB818 (\uAC01\uC131)"
   prefab: {fileID: 6779060514762844880, guid: c8da8886ebf32624e9e99d74b7a710bc, type: 3}
   health: 1000
   armor: 0
@@ -26,3 +27,10 @@ MonoBehaviour:
   deathDuration: 3.25
   movingParameter: 
   deathTrigger: 
+  hitState: 
+  hitReactionDuration: 0.3
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 12
+  projectileRange: 14
+  projectileHitRadius: 0.5
+  projectileHeight: 0.8

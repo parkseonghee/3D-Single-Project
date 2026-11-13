@@ -27,7 +27,21 @@ namespace ArmySurvivor.Army
         [Header("예비 병력: 한 전투에 1회")]
         [Min(.1f)] public float reviveDelay = 5f;
         [Range(.01f, 1)] public float reviveHealth = .5f;
-        [SerializeField] private TMP_FontAsset font;
+        [Header("지휘관 카드 UI")]
+        [SerializeField] private Sprite[] cardSprites = new Sprite[6];
+        [SerializeField] private CardMotion.Config cardMotionConfig = new CardMotion.Config();
+        [Header("지휘관 카드 UI - 씬 배치 참조")]
+        [SerializeField] private GameObject canvasRoot;
+        [SerializeField] private GameObject panel;
+        [SerializeField] private GameObject hud;
+        [SerializeField] private TMP_Text hudText;
+        [SerializeField] private TMP_Text title;
+        [SerializeField] private TMP_Text status;
+        [SerializeField] private Image expFill;
+        [SerializeField] private Button[] buttons = new Button[3];
+        [SerializeField] private CardMotion[] cardMotions = new CardMotion[3];
+        [SerializeField] private TMP_Text[] cardTitles = new TMP_Text[3];
+        [SerializeField] private TMP_Text[] labels = new TMP_Text[3];
         public int Level { get; private set; } = 1;
         public int Experience { get; private set; }
         public int Required => firstLevelExperience + (Level - 1) * experienceIncrease;
@@ -48,11 +62,7 @@ namespace ArmySurvivor.Army
         private int pending;
         private bool reserveUsed;
         private float retreatRemaining, retreatCooldownLeft, reviveRemaining, previousScale;
-        private GameObject canvasRoot, panel, hud;
-        private TMP_Text hudText, title, status;
-        private Image expFill;
-        private readonly Button[] buttons = new Button[3];
-        private readonly TMP_Text[] labels = new TMP_Text[3];
+        private bool selectionInProgress, uiBound;
         public int Rank(Support support) => ranks[(int)support];
 
         private void Awake()
@@ -60,6 +70,7 @@ namespace ArmySurvivor.Army
             run = GetComponent<RunController>();
             experience = GetComponent<BattleExperience>();
             recruitment = GetComponent<RecruitmentController>();
+            EnsureUI();
         }
         private void OnEnable()
         {
@@ -69,7 +80,9 @@ namespace ArmySurvivor.Army
         }
         private void Begin()
         {
-            End(); EnsureUI(); hud.SetActive(true);
+            End();
+            if (!EnsureUI()) return;
+            hud.SetActive(true);
             commanderHealth = run.Commander.GetComponent<UnitHealth>();
             if (commanderHealth != null) commanderHealth.OnDamageTaken += CommanderDamaged;
             foreach (var unit in recruitment.Units)
@@ -142,19 +155,23 @@ namespace ArmySurvivor.Army
                 Support temp = offered[i]; offered[i] = offered[j]; offered[j] = temp;
             }
             if (offered.Count > 3) offered.RemoveRange(3, offered.Count - 3);
-            EnsureUI();
+            if (!EnsureUI()) return;
             IsChoosing = true; run.IsChoosingUpgrade = true;
             previousScale = Time.timeScale; Time.timeScale = 0;
-            title.text = $"지휘관 레벨 업 · Lv.{Level - pending + 1}\n지원 카드 선택";
             for (int i = 0; i < buttons.Length; i++)
             {
                 buttons[i].gameObject.SetActive(i < offered.Count);
                 if (i >= offered.Count) continue;
-                buttons[i].interactable = true;
-                ((RectTransform)buttons[i].transform).anchoredPosition = new Vector2((i - (offered.Count - 1) * .5f) * 420, 0);
-                labels[i].text = $"<size=34>{Name(offered[i])}</size>\n<size=22>단계 {Rank(offered[i]) + 1}</size>\n\n{Description(offered[i])}\n\n<size=23>선택</size>";
+                Image cardImage = buttons[i].GetComponent<Image>();
+                int spriteIndex = (int)offered[i];
+                cardImage.sprite = cardSprites != null && spriteIndex < cardSprites.Length ? cardSprites[spriteIndex] : null;
+                cardImage.color = cardImage.sprite != null ? Color.white : new Color(.10f, .16f, .22f);
+                cardTitles[i].text = Name(offered[i]);
+                labels[i].text = $"<size=22>단계 {Rank(offered[i]) + 1}</size>\n\n{Description(offered[i])}";
             }
             panel.SetActive(true);
+            selectionInProgress = false;
+            for (int i = 0; i < offered.Count; i++) cardMotions[i].PlayEntrance(i);
         }
         public bool Choose(int index)
         {
@@ -162,6 +179,31 @@ namespace ArmySurvivor.Army
             ranks[(int)offered[index]]++; pending--;
             status.text = Name(offered[index]) + " 획득";
             Close(); Refresh(); return true;
+        }
+        private void SelectCard(int index)
+        {
+            if (!IsChoosing || selectionInProgress || index < 0 || index >= offered.Count) return;
+            selectionInProgress = true;
+            foreach (CardMotion motion in cardMotions) if (motion != null) motion.LockInteraction();
+            cardMotions[index].PlaySelection(() =>
+            {
+                if (!isActiveAndEnabled || !IsChoosing) return;
+                int remaining = offered.Count - 1;
+                if (remaining <= 0) { FinishCardSelection(index); return; }
+                for (int i = 0; i < offered.Count; i++)
+                {
+                    if (i == index) continue;
+                    cardMotions[i].FadeOut(() =>
+                    {
+                        remaining--;
+                        if (remaining == 0) FinishCardSelection(index);
+                    });
+                }
+            });
+        }
+        private void FinishCardSelection(int index)
+        {
+            if (!Choose(index)) selectionInProgress = false;
         }
         private void Close()
         {
@@ -178,6 +220,7 @@ namespace ArmySurvivor.Army
             Level = 1; Experience = pending = 0; Array.Clear(ranks, 0, ranks.Length);
             reserveUsed = false; retreatRemaining = retreatCooldownLeft = 0;
             offered.Clear();
+            selectionInProgress = false;
             if (hud != null) hud.SetActive(false);
             if (status != null) status.text = "";
             Changed?.Invoke();
@@ -202,54 +245,34 @@ namespace ArmySurvivor.Army
                 default: return $"모험 전투 승리 보상\n추가 골드 총 {n * contractGold}\n\n패배·중도 복귀 시 지급하지 않음";
             }
         }
-        private void EnsureUI()
+        private bool EnsureUI()
         {
-            if (canvasRoot != null) return;
-            if (font == null) font = TMP_Settings.defaultFontAsset;
-            canvasRoot = new GameObject("Commander Support Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvasRoot.transform.SetParent(transform, false);
-            var canvas = canvasRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 290;
-            var scaler = canvasRoot.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080); scaler.matchWidthOrHeight = .5f;
-            var bar = Rect("Commander EXP", canvasRoot.transform, new Vector2(0, -100), new Vector2(520, 75));
-            bar.anchorMin = bar.anchorMax = new Vector2(.5f, 1); hud = bar.gameObject;
-            hudText = Text("Level", bar, new Vector2(0, 15), new Vector2(520, 30), 22);
-            var track = Rect("EXP Track", bar, new Vector2(0, -10), new Vector2(480, 7));
-            track.gameObject.AddComponent<Image>().color = new Color(.04f, .08f, .12f, .9f);
-            var fill = Rect("EXP Fill", track, Vector2.zero, Vector2.zero); fill.anchorMin = Vector2.zero; fill.anchorMax = Vector2.one;
-            fill.offsetMin = fill.offsetMax = Vector2.zero;
-            expFill = fill.gameObject.AddComponent<Image>(); expFill.color = new Color(.95f, .73f, .3f); expFill.raycastTarget = false;
-            status = Text("Status", bar, new Vector2(0, -32), new Vector2(800, 28), 18);
-            var overlay = Rect("Support Choice", canvasRoot.transform, Vector2.zero, Vector2.zero);
-            overlay.anchorMin = Vector2.zero; overlay.anchorMax = Vector2.one; overlay.offsetMin = overlay.offsetMax = Vector2.zero;
-            panel = overlay.gameObject; panel.AddComponent<Image>().color = new Color(.015f, .04f, .06f, .96f);
-            title = Text("Title", overlay, new Vector2(0, 295), new Vector2(1200, 110), 38);
+            bool missing = canvasRoot == null || panel == null || hud == null || hudText == null ||
+                title == null || status == null || expFill == null || buttons == null ||
+                cardMotions == null || cardTitles == null || labels == null ||
+                buttons.Length < 3 || cardMotions.Length < 3 || cardTitles.Length < 3 || labels.Length < 3;
+            if (missing)
+            {
+                Debug.LogError("CommanderProgression: PlayScene의 Commander Support Canvas 참조가 연결되지 않았습니다.", this);
+                return false;
+            }
+            if (uiBound) return true;
             for (int i = 0; i < 3; i++)
             {
+                if (buttons[i] == null || cardMotions[i] == null || cardTitles[i] == null || labels[i] == null)
+                {
+                    Debug.LogError($"CommanderProgression: 지휘관 카드 {i + 1}의 씬 참조가 비어 있습니다.", this);
+                    return false;
+                }
                 int index = i;
-                var card = Rect("Support " + i, overlay, Vector2.zero, new Vector2(390, 410));
-                card.gameObject.AddComponent<Image>().color = new Color(.10f, .16f, .22f);
-                buttons[i] = card.gameObject.AddComponent<Button>(); buttons[i].onClick.AddListener(() => Choose(index));
-                labels[i] = Text("Description", card, Vector2.zero, new Vector2(355, 380), 25);
+                cardMotions[i].Configure(buttons[i], () => SelectCard(index), cardMotionConfig);
             }
-            var help = Text("Help", overlay, new Vector2(0, -285), new Vector2(1200, 60), 24);
-            help.text = "1장을 선택하면 전투가 계속됩니다. · 지원 효과는 이번 전투에만 적용";
-            panel.SetActive(false);
-        }
-        private static RectTransform Rect(string name, Transform parent, Vector2 pos, Vector2 size)
-        {
-            var r = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
-            r.SetParent(parent, false); r.anchorMin = r.anchorMax = new Vector2(.5f, .5f); r.anchoredPosition = pos; r.sizeDelta = size; return r;
-        }
-        private TMP_Text Text(string name, Transform parent, Vector2 pos, Vector2 size, float fontSize)
-        {
-            var t = Rect(name, parent, pos, size).gameObject.AddComponent<TextMeshProUGUI>();
-            t.font = font; t.fontSize = fontSize; t.color = new Color(1, .92f, .75f); t.alignment = TextAlignmentOptions.Center; t.raycastTarget = false; return t;
+            uiBound = true;
+            return true;
         }
         private void OnDisable()
         {
             run.RunStarted -= Begin; run.RunEnded -= End; experience.OnBottlesCollected -= GainPickups; End();
         }
-        private void OnDestroy() { if (canvasRoot != null) Destroy(canvasRoot); }
     }
 }

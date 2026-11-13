@@ -91,6 +91,7 @@ namespace ArmySurvivor.Army
         private float AttackDamage(Transform unit, AttackDefinition attack)
         {
             float damage = attack.damage * run.CurrentTactic.damageMultiplier;
+            if (BattlefieldModifier != null) damage *= BattlefieldModifier.AllyDamageMultiplier(attack);
             if (GameModeManager.Current == GameMode.Survival)
                 damage *= SurvivalTradeoffDraft.Damage * ArmySurvivor.Equipment.EquipmentInventory.SurvivalWeaponDamageMultiplier;
             damage *= 1f + ManualBonus(unit).x;
@@ -107,6 +108,8 @@ namespace ArmySurvivor.Army
         public event System.Action<bool, bool> EnemyDefeated; // elite, boss
         public event System.Action<string> SpecialWaveAnnounced;
         public float TutorialEnemySpeedMultiplier { get; set; } = 1f;
+        // 모험 모드 전장 변수. DayController가 전장 시작 때 설정하고 종료 때 비운다.
+        public BattlefieldModifierDefinition BattlefieldModifier { get; set; }
 
         private class EnemyState
         {

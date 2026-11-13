@@ -45,9 +45,7 @@ namespace ArmySurvivor.Tutorial
         private RectTransform bubble;
         private CanvasGroup bubbleGroup;
         private TMP_Text titleText, bodyText, progressText;
-        private Button skipButton;
         private RectTransform arrow;
-        private GameObject confirmation;
         private float stepElapsed;
         private int stepEventCount;
         private int stepStartedFrame;
@@ -148,17 +146,15 @@ namespace ArmySurvivor.Tutorial
             { HideOverlay(); return; }
             spotlight.gameObject.SetActive(true);
             bubble.gameObject.SetActive(true);
-            skipButton.gameObject.SetActive(true);
             stepElapsed += Time.unscaledDeltaTime;
             UpdateVisuals(step);
             bool clickToAdvance = step.advance == TutorialAdvance.NextButton ||
                 (step.showNextButtonAfterJump && forceNextAvailable) ||
                 (step.showNextWhenNoFocus && combat != null && !combat.HasFocusCommand);
             if (clickToAdvance && Time.frameCount > stepStartedFrame && Mouse.current != null &&
-                Mouse.current.leftButton.wasPressedThisFrame &&
-                (confirmation == null || !confirmation.activeSelf) &&
-                !RectTransformUtility.RectangleContainsScreenPoint((RectTransform)skipButton.transform,
-                    Mouse.current.position.ReadValue()))
+                Mouse.current.leftButton.wasPressedThisFrame)
+            { Advance(); return; }
+            if (step.advance == TutorialAdvance.Event && stepEventCount >= Mathf.Max(1, step.requiredEventCount))
             { Advance(); return; }
             if (step.advance == TutorialAdvance.Seconds && stepElapsed >= step.seconds) Advance();
             else if (step.advance == TutorialAdvance.CommanderDistance && run != null &&
@@ -182,6 +178,11 @@ namespace ArmySurvivor.Tutorial
             startedStep = true;
             stepElapsed = 0;
             stepEventCount = 0;
+            if (step.advance == TutorialAdvance.Event && step.eventKey == "RiceHarvested")
+            {
+                RiceHarvest harvest = FindFirstObjectByType<RiceHarvest>(FindObjectsInactive.Include);
+                if (harvest != null) stepEventCount = Mathf.Min(step.requiredEventCount, harvest.TodayHarvestedCount);
+            }
             stepStartedFrame = Time.frameCount;
             if (run != null) commanderStart = run.Commander.position;
             if (step.pauseGame && Time.timeScale > 0)
@@ -196,16 +197,14 @@ namespace ArmySurvivor.Tutorial
             if (combat != null) combat.TutorialEnemySpeedMultiplier = step.enemyMovementMultiplier;
             spotlight.gameObject.SetActive(true);
             bubble.gameObject.SetActive(true);
-            skipButton.gameObject.SetActive(true);
             titleText.text = step.title;
             bodyText.text = step.body;
             SetBubbleLayout(step.showAsTopBanner);
             progressText.text = step.advance == TutorialAdvance.Event && step.requiredEventCount > 1
-                ? $"{activeStep + 1}/{activeSequence.steps.Length} · 0/{step.requiredEventCount}"
+                ? $"{activeStep + 1}/{activeSequence.steps.Length} · {stepEventCount}/{step.requiredEventCount}"
                 : $"{activeStep + 1}/{activeSequence.steps.Length}";
             spotlight.BlockOutside = step.blockOutsideClicks;
             spotlight.BlockHole = step.advance == TutorialAdvance.NextButton;
-            confirmation.SetActive(false);
         }
 
         private void UpdateVisuals(TutorialStep step)
@@ -532,8 +531,6 @@ namespace ArmySurvivor.Tutorial
             if (spotlight != null) spotlight.gameObject.SetActive(false);
             if (bubble != null) bubble.gameObject.SetActive(false);
             if (arrow != null) arrow.gameObject.SetActive(false);
-            if (skipButton != null) skipButton.gameObject.SetActive(false);
-            if (confirmation != null) confirmation.SetActive(false);
         }
 
         private void BuildOverlay()
@@ -561,8 +558,6 @@ namespace ArmySurvivor.Tutorial
             titleText = Label("Title", bubble, style.titleSize, Min(style.titleOffsets), Max(style.titleOffsets));
             bodyText = Label("Body", bubble, style.bodySize, Min(style.bodyOffsets), Max(style.bodyOffsets));
             progressText = Label("Progress", bubble, style.progressSize, Min(style.progressOffsets), Max(style.progressOffsets), true);
-            skipButton = Button(style.skipLabel, canvasRect, Min(style.skipButtonOffsets), Max(style.skipButtonOffsets),
-                () => confirmation.SetActive(true), true);
             arrow = MakeRect("Arrow", canvasRect, style.arrowSize);
             var arrowText = arrow.gameObject.AddComponent<TextMeshProUGUI>();
             arrowText.text = style.arrowGlyph;
@@ -570,13 +565,6 @@ namespace ArmySurvivor.Tutorial
             arrowText.alignment = TextAlignmentOptions.Center;
             arrowText.color = style.outlineColor;
             arrowText.raycastTarget = false;
-            confirmation = MakeRect("Skip Confirmation", canvasRect, style.confirmationSize).gameObject;
-            confirmation.AddComponent<Image>().color = style.bubbleColor;
-            RectTransform confirmRect = (RectTransform)confirmation.transform;
-            Label("Question", confirmRect, style.bodySize, Min(style.confirmationQuestionOffsets), Max(style.confirmationQuestionOffsets)).text = style.skipQuestion;
-            Button(style.skipLabel, confirmRect, Min(style.confirmButtonOffsets), Max(style.confirmButtonOffsets), () => Stop(true));
-            Button(style.cancelLabel, confirmRect, Min(style.cancelButtonOffsets), Max(style.cancelButtonOffsets), () => confirmation.SetActive(false));
-            confirmation.SetActive(false);
         }
 
         private static RectTransform MakeRect(string name, RectTransform parent, Vector2 size)
@@ -614,21 +602,5 @@ namespace ArmySurvivor.Tutorial
             return label;
         }
 
-        private Button Button(string name, RectTransform parent, Vector2 min, Vector2 max, UnityEngine.Events.UnityAction action, bool topRight = false)
-        {
-            RectTransform rect = MakeRect(name, parent, Vector2.zero);
-            rect.anchorMin = topRight ? Vector2.one : Vector2.zero;
-            rect.anchorMax = rect.anchorMin;
-            rect.offsetMin = min;
-            rect.offsetMax = max;
-            rect.gameObject.AddComponent<Image>().color = style.bubbleColor;
-            Button button = rect.gameObject.AddComponent<Button>();
-            button.onClick.AddListener(action);
-            TMP_Text text = Label(name + " Text", rect, style.progressSize, Vector2.zero, Vector2.zero);
-            Stretch((RectTransform)text.transform);
-            text.text = name;
-            text.alignment = TextAlignmentOptions.Center;
-            return button;
-        }
     }
 }

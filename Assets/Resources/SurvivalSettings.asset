@@ -60,7 +60,7 @@ MonoBehaviour:
   tier2Seconds: 300
   tier3Seconds: 600
   adventureTier2Day: 11
-  adventureTier3Day: 51
+  adventureTier3Day: 21
   scalingStartSeconds: 900
   healthIncreasePerMinute: 0.1
   spawnBands:

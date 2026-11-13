@@ -39,6 +39,10 @@ namespace ArmySurvivor.Army
         public bool CampaignComplete { get; private set; }
         public bool CampaignDefeated { get; private set; }
         public bool IsBossDay => Day % settings.bossInterval == 0;
+        public DaySettings Settings => settings;
+        // 출전 미리보기와 전투가 같은 값을 쓰도록 Day에서 바로 계산한다.
+        public BattlefieldModifierDefinition CurrentModifier => settings.GetBattlefieldModifier(Day);
+        public event System.Action DayChanged;
         public RectTransform BattleTopHud => dayNumber != null ? dayNumber.transform.parent as RectTransform : null;
 
         private void Start()
@@ -86,13 +90,16 @@ namespace ArmySurvivor.Army
             stage = settings.GetStage(Day);
             dayNumber.text = Day.ToString();
             bossNotice.SetActive(IsBossDay);
+            DayChanged?.Invoke();
         }
 
         private void BeginStage()
         {
             RefreshDay();
             bossSpawned = false;
-            EnemyDefinition normal = SharedDefinition(stage.enemy);
+            BattlefieldModifierDefinition modifier = CurrentModifier;
+            combat.BattlefieldModifier = modifier;
+            EnemyDefinition normal = SharedDefinition(stage.enemy, modifier);
             DaySettings.EnemySpawn[] pool = null;
             if (stage.enemies != null)
             {
@@ -100,10 +107,13 @@ namespace ArmySurvivor.Army
                 for (int i = 0; i < pool.Length; i++)
                     if (stage.enemies[i] != null)
                         pool[i] = new DaySettings.EnemySpawn {
-                            enemy = SharedDefinition(stage.enemies[i].enemy), weight = stage.enemies[i].weight,
+                            enemy = SharedDefinition(stage.enemies[i].enemy, modifier),
+                            // 복사본이 아닌 원본 에셋으로 대상 여부를 판정한다.
+                            weight = stage.enemies[i].weight *
+                                (modifier != null ? modifier.WeightMultiplier(stage.enemies[i].enemy) : 1f),
                             firstDay = stage.enemies[i].firstDay };
             }
-            runtimeBoss = SharedDefinition(stage.boss);
+            runtimeBoss = SharedDefinition(stage.boss, null);
             combat.Configure(normal, stage.spawnInterval, stage.maximumEnemies, pool,
                 stage.survivalSeconds, settings.waves, settings.enemySafetyLimit, settings.GetWaveLimit(Day), settings, Day);
             var miniBoss = GetComponent<MiniBossController>();
@@ -123,15 +133,19 @@ namespace ArmySurvivor.Army
             if (waveLabel != null) waveLabel.gameObject.SetActive(false);
             if (specialWaveNotice != null) specialWaveNotice.gameObject.SetActive(false);
             bossSpawned = false;
+            combat.BattlefieldModifier = null;
             ReleaseRuntimeDefinitions();
         }
 
-        private EnemyDefinition SharedDefinition(EnemyDefinition source)
+        // modifier는 일반 적에만 넘긴다. 보스는 null로 호출해 변수 영향을 받지 않는다.
+        private EnemyDefinition SharedDefinition(EnemyDefinition source, BattlefieldModifierDefinition modifier)
         {
             if (source == null) return null;
             EnemyDefinition copy = Instantiate(source);
-            copy.health = (sharedHealth != null ? sharedHealth.AdventureHealth(source, 1) : source.health) * settings.HealthScale(Day);
+            copy.health = (sharedHealth != null ? sharedHealth.AdventureHealth(source, 1) : source.health) * settings.HealthScale(Day)
+                * (modifier != null ? modifier.EnemyHealthMultiplier : 1f);
             copy.damage = source.damage * settings.DamageScale(Day);
+            copy.speed = source.speed * (modifier != null ? modifier.EnemySpeedMultiplier : 1f);
             runtimeDefinitions.Add(copy);
             return copy;
         }
