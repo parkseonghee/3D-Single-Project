@@ -12,6 +12,12 @@ namespace ArmySurvivor.UI
         [SerializeField] private string survivalScene = "PlayScene";
         [SerializeField] private Button newGameButton;
         [SerializeField] private Button adventureModeButton;
+        [Header("이어하기 (모험 자동 저장)")]
+        [SerializeField] private Button continueButton;
+        [SerializeField] private TMP_Text continueStatus;
+        [SerializeField] private string continueFormat = "Day {0} 아침 · 재도전권 {1}";
+        [SerializeField] private string battleQuitText = " (전투 중 종료 · 이어하면 재도전권 1장 사용)";
+        [SerializeField] private string campaignEndedText = "전투 중 종료되어 남은 재도전권이 없습니다. 회차가 종료되었습니다.";
         [SerializeField] private TMP_Text survivalBestTimeText;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private Slider volumeSlider;
@@ -27,6 +33,13 @@ namespace ArmySurvivor.UI
             newGameButton.onClick.AddListener(() => StartMode(GameMode.Survival));
             adventureModeButton.onClick = new Button.ButtonClickedEvent();
             adventureModeButton.onClick.AddListener(() => StartMode(GameMode.Adventure));
+            if (continueButton != null)
+            {
+                // 씬에 남아 있던 슬롯 창 연결을 지우고 자동 저장 이어하기로 바꾼다.
+                continueButton.onClick = new Button.ButtonClickedEvent();
+                continueButton.onClick.AddListener(Continue);
+                RefreshContinue();
+            }
 
             bool survivalUnlocked = GameModeManager.SurvivalUnlocked;
             newGameButton.interactable = survivalUnlocked;
@@ -46,6 +59,33 @@ namespace ArmySurvivor.UI
         }
 
         public void NewGame() => StartMode(GameMode.Survival);
+
+        private void RefreshContinue()
+        {
+            var info = ArmySurvivor.Saving.GameSave.AutoSaveSummary();
+            continueButton.interactable = !loading && info.HasValue;
+            if (continueStatus != null)
+                continueStatus.text = info.HasValue
+                    ? string.Format(continueFormat, info.Value.day, info.Value.tokens) + (info.Value.battleInProgress ? battleQuitText : "")
+                    : "";
+        }
+
+        public void Continue()
+        {
+            if (loading) return;
+            switch (ArmySurvivor.Saving.GameSave.LoadAutoSave(gameScene))
+            {
+                case ArmySurvivor.Saving.GameSave.ContinueResult.CampaignEnded:
+                    RefreshContinue();
+                    if (continueStatus != null) continueStatus.text = campaignEndedText;
+                    return;
+                case ArmySurvivor.Saving.GameSave.ContinueResult.Missing:
+                    RefreshContinue();
+                    return;
+            }
+            loading = true;
+            newGameButton.interactable = adventureModeButton.interactable = continueButton.interactable = false;
+        }
 
         private void LoadNewGame(string scene)
         {

@@ -81603,7 +81603,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &408073564
 RectTransform:
   m_ObjectHideFlags: 0
@@ -418698,6 +418698,7 @@ MonoBehaviour:
   overwriteText: "\uAC19\uC740 \uC2AC\uB86F\uC758 \uC800\uC7A5 \uBC84\uD2BC\uC744
     \uB2E4\uC2DC \uB204\uB974\uBA74 \uB36E\uC5B4\uC501\uB2C8\uB2E4."
   failureText: "\uC800\uC7A5 \uD30C\uC77C\uC744 \uCC98\uB9AC\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4."
+  retryTokensPerCampaign: 3
 --- !u!4 &2146514108
 Transform:
   m_ObjectHideFlags: 0

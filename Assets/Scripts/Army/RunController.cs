@@ -84,6 +84,8 @@ namespace ArmySurvivor.Army
         public Collider Ground => ground;
         public event Action RunStarted;
         public event Action RunEnded;
+        // 모험 모드 중도 복귀 요청(기획서 8). 구독자가 확인 후 ReturnToPreparation을 호출한다.
+        public event Action RetreatRequested;
         public event Action<int, int> OnFormationChanged;
         public float Elapsed { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -98,7 +100,7 @@ namespace ArmySurvivor.Army
             commanderProgression = GetComponent<CommanderProgression>();
             startButton.onClick.AddListener(BeginRun);
             startButton.interactable = CanBeginRun;
-            prepareButton.onClick.AddListener(ReturnToPreparation);
+            prepareButton.onClick.AddListener(PrepareClicked);
             for (int i = 0; i < tactics.Length; i++)
             {
                 int index = i;
@@ -330,6 +332,12 @@ namespace ArmySurvivor.Army
             Vector3 target = commander.position + Vector3.up;
             playCamera.transform.position = target + cameraOffset;
             playCamera.transform.LookAt(target);
+        }
+
+        private void PrepareClicked()
+        {
+            if (GameModeManager.Current == GameMode.Adventure && RetreatRequested != null) RetreatRequested();
+            else ReturnToPreparation();
         }
 
         public void ReturnToPreparation()

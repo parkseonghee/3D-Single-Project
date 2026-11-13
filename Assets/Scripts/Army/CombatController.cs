@@ -690,6 +690,10 @@ namespace ArmySurvivor.Army
             var health = unit.GetComponent<UnitHealth>();
             if (health == null) health = unit.gameObject.AddComponent<UnitHealth>();
             health.Initialize(maximum, color);
+            // Initialize가 피해 감소를 0으로 되돌린다. 베테랑 철벽은 BattleExperience.Begin에서 먼저
+            // 적용될 수 있으므로(RunStarted 구독 순서 무관) 여기서 다시 반영한다.
+            if (experience != null && experience.HasIronWall(unit))
+                health.DamageReduction = experience.IronWallDamageReduction;
             allies[unit] = health;
         }
 

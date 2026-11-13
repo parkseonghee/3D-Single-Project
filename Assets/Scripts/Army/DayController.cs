@@ -1,4 +1,5 @@
 using ArmySurvivor.Building;
+using ArmySurvivor.Saving;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -21,11 +22,17 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text goldAmount;
         [SerializeField] private GameObject endingLabel;
         [SerializeField] private Button returnButton;
+        [Header("베테랑 (기획서 4.6)")]
+        [SerializeField] private VeteranProgression veterans;
         [Header("모험 모드 패배")]
         [SerializeField] private GameObject defeatPanel;
         [SerializeField] private TMP_Text defeatedDay;
         [SerializeField] private Button defeatToStartButton;
         [SerializeField] private string startSceneName = "StartScene";
+        [Header("재도전권 (기획서 8)")]
+        [SerializeField] private CampaignRetry retry;
+        [SerializeField] private TMP_Text resultRetryInfo;
+        [SerializeField] private TMP_Text defeatRetryInfo;
 
         private SceneTravel travel;
         private RiceHarvest harvest;
@@ -65,8 +72,9 @@ namespace ArmySurvivor.Army
             run.RunStarted += BeginStage;
             run.RunEnded += EndStage;
             combat.CommanderDeathFinished += DefeatCampaign;
+            run.RetreatRequested += RetreatRequested;
             combat.SpecialWaveAnnounced += ShowSpecialWaveNotice;
-            returnButton.onClick.AddListener(CollectAndReturn);
+            returnButton.onClick.AddListener(ReturnClicked);
             defeatToStartButton.onClick.AddListener(ReturnToStart);
             resultPanel.SetActive(false);
             defeatPanel.SetActive(false);
@@ -78,9 +86,10 @@ namespace ArmySurvivor.Army
             if (run == null) return;
             run.RunStarted -= BeginStage;
             run.RunEnded -= EndStage;
+            run.RetreatRequested -= RetreatRequested;
             if (combat != null) combat.CommanderDeathFinished -= DefeatCampaign;
             if (combat != null) combat.SpecialWaveAnnounced -= ShowSpecialWaveNotice;
-            if (returnButton != null) returnButton.onClick.RemoveListener(CollectAndReturn);
+            if (returnButton != null) returnButton.onClick.RemoveListener(ReturnClicked);
             if (defeatToStartButton != null) defeatToStartButton.onClick.RemoveListener(ReturnToStart);
             ReleaseRuntimeDefinitions();
         }
@@ -126,6 +135,8 @@ namespace ArmySurvivor.Army
             specialWaveNotice.gameObject.SetActive(false);
             specialWaveNoticeRemaining = 0;
             UpdateProgress();
+            // 전투 중 강제 종료 후 이어하기도 재도전권을 쓰도록 표시한다.
+            GameSave.MarkBattleInProgress(true);
         }
 
         private void EndStage()
@@ -232,22 +243,45 @@ namespace ArmySurvivor.Army
             }
             victorySupportGold = GetComponent<CommanderProgression>()?.VictoryGold ?? 0;
             AwaitingResult = true;
+            GameSave.MarkBattleInProgress(false);
+            // 전장 성장은 RunEnded에서 지워지므로 그 전에 베테랑 자격을 기록한다. 마지막 Day는 다음 전장이 없어 생략한다.
+            if (veterans != null && Day < settings.finalDay) veterans.CaptureClear();
             run.ReturnToPreparation();
             run.CanStart = false;
             clearedDay.text = Day.ToString();
             goldAmount.text = (stage.goldReward + victorySupportGold).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
+            if (resultRetryInfo != null && retry != null) resultRetryInfo.text = retry.TokensLabel(CampaignState.RetryTokens);
             resultPanel.SetActive(true);
         }
 
-        private void DefeatCampaign()
+        private void DefeatCampaign() => Fail(false);
+
+        // 일시정지 메뉴의 '준비로'. 전투 결과가 정해진 뒤에는 기존처럼 바로 돌아간다.
+        private void RetreatRequested()
+        {
+            if (AwaitingResult || CampaignComplete || CampaignDefeated || run.CommanderDead || retry == null)
+            { run.ReturnToPreparation(); return; }
+            if (retry.IsOpen) return;
+            retry.ShowRetreatConfirm(Day, () => Fail(true));
+        }
+
+        // 사망과 중도 복귀를 같은 규칙으로 처리한다: 재도전권 1장 → Day 아침 재시작, 0장 → 회차 종료.
+        private void Fail(bool retreat)
         {
             if (GameModeManager.Current != GameMode.Adventure || CampaignDefeated || AwaitingResult || CampaignComplete) return;
             CampaignDefeated = true;
             run.CanStart = false;
             run.ReturnToPreparation();
             resultPanel.SetActive(false);
+            if (retry != null && GameSave.ConsumeRetryToken(out int remaining))
+            {
+                retry.ShowRetry(Day, remaining, retreat);
+                return;
+            }
+            GameSave.DeleteAutoSave();
             defeatedDay.text = Day.ToString();
+            if (defeatRetryInfo != null && retry != null) defeatRetryInfo.text = retry.TokensLabel(0);
             defeatPanel.SetActive(true);
         }
 
@@ -258,6 +292,18 @@ namespace ArmySurvivor.Army
         }
 
         private int victorySupportGold;
+
+        // 결과창 귀환 버튼: 베테랑 자격자가 있으면 선택 화면을 먼저 띄우고, 끝나면 귀환한다.
+        private void ReturnClicked()
+        {
+            if (!AwaitingResult || (veterans != null && veterans.IsOpen)) return;
+            if (veterans != null && veterans.TryOpen(CollectAndReturn))
+            {
+                resultPanel.SetActive(false);
+                return;
+            }
+            CollectAndReturn();
+        }
 
         public void CollectAndReturn()
         {
@@ -284,6 +330,9 @@ namespace ArmySurvivor.Army
                     ArmySurvivor.Equipment.EquipmentInventory.AddTickets(catalog.firstDayTicketReward);
                 ArmySurvivor.Tutorial.TutorialEvents.Raise("FirstSupplyDrawUnlocked");
             }
+            // 마을 도착 = 다음 Day 아침(보상·보급권 지급 후). 회차를 끝냈으면 이어할 저장을 지운다.
+            if (CampaignComplete) GameSave.DeleteAutoSave();
+            else FindFirstObjectByType<GameSave>(FindObjectsInactive.Include)?.WriteAutoSave();
         }
     }
 }

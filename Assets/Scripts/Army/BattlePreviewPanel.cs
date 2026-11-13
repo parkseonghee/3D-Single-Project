@@ -16,6 +16,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text bossLine;
         [SerializeField] private TMP_Text modifierName;
         [SerializeField] private TMP_Text modifierDescription;
+        [SerializeField] private TMP_Text retryTokens;
 
         [Header("표시 문구")]
         [SerializeField] private string titleFormat = "Day {0} 출전 정보";
@@ -23,6 +24,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private string modifierFormat = "전장 변수 · {0}";
         [SerializeField] private string noModifierName = "전장 변수 없음";
         [SerializeField] private string noModifierDescription = "기본 전장입니다.";
+        [SerializeField] private string retryFormat = "재도전권 {0} / {1}";
         [SerializeField] private Color boostedColor = new Color(1f, .62f, .35f);
 
         private readonly List<DaySettings.EnemyShare> shares = new List<DaySettings.EnemyShare>();
@@ -77,6 +79,10 @@ namespace ArmySurvivor.Army
                 modifierName.text = modifier != null ? string.Format(modifierFormat, modifier.displayName) : noModifierName;
             if (modifierDescription != null)
                 modifierDescription.text = modifier != null ? modifier.description : noModifierDescription;
+            if (retryTokens != null)
+                retryTokens.text = ArmySurvivor.Saving.CampaignState.Active
+                    ? string.Format(retryFormat, ArmySurvivor.Saving.CampaignState.RetryTokens, ArmySurvivor.Saving.CampaignState.MaxRetryTokens)
+                    : "";
         }
 
         private static string EnemyName(EnemyDefinition enemy) =>

@@ -281,8 +281,10 @@ namespace ArmySurvivor.Army
             foreach (Transform unit in recruitment.SoldiersRoot)
             {
                 if (!recruitment.Units.TryGetValue(unit, out UnitDefinition definition)) continue;
-                units.Add(unit, new UnitProgress(requiredExperiencePerLevel, requiredLevelOffset));
+                var progress = new UnitProgress(requiredExperiencePerLevel, requiredLevelOffset);
+                units.Add(unit, progress);
                 focusStationaryTimes[unit] = 0;
+                ApplyVeteranSkills(unit, progress);
             }
             EnsureDropRoots();
             StartCoroutine(WarmBottlePool());
@@ -492,6 +494,8 @@ namespace ArmySurvivor.Army
             recruitment.Units.TryGetValue(unit, out var definition) && definition.canLearnIronWall &&
             GetProgress(unit) is UnitProgress progress && !progress.IronWall;
 
+        public bool HasIronWall(Transform unit) => GetProgress(unit)?.IronWall == true;
+        public float IronWallDamageReduction => ironWallDamageReduction;
         public bool HasTeamAttackSpeed(Transform unit) => GetProgress(unit)?.TeamAttackSpeed == true;
         public bool HasChainCharge(Transform unit) => GetProgress(unit)?.ChainCharge == true;
         public int FlameHoovesLevel(Transform unit) => GetProgress(unit)?.FlameHoovesLevel ?? 0;
@@ -613,7 +617,14 @@ namespace ArmySurvivor.Army
                     if (CardFor(choice) != null) CardFor(choice).SetActive(false);
                 // 부분 Fisher-Yates 셔플로 후보 중 최대 3개를 균등하게 선택한다.
                 int count = Mathf.Min(maximumCardChoices, candidates.Count);
-                for (int i = 0; i < count; i++)
+                // 기획서 4.6: 강화할 수 있는 베테랑 스킬이 있으면 그중 1장을 첫 칸에 보장한다.
+                int first = GuaranteeVeteranCard(request.unit, candidates) ? 1 : 0;
+                for (int i = 0; i < first; i++)
+                {
+                    shownChoices.Add(candidates[i]);
+                    CardFor(candidates[i]).SetActive(true);
+                }
+                for (int i = first; i < count; i++)
                 {
                     int randomIndex = UnityEngine.Random.Range(i, candidates.Count);
                     (candidates[i], candidates[randomIndex]) = (candidates[randomIndex], candidates[i]);
@@ -702,6 +713,21 @@ namespace ArmySurvivor.Army
             UnitProgress progress = GetProgress(request.unit);
             if (progress != null)
             {
+                // 베테랑 자격은 "이번 전장에서 새로 배운 스킬" 수로 판정한다(강화는 제외).
+                if (!IsLearned(progress, choice)) RecordLearned(request.unit, choice);
+                ApplySkill(request.unit, progress, choice);
+            }
+            if (levelUps.Count > 0) ShowNextUpgrade();
+            else CloseUpgrade();
+            RefreshUI();
+            ArmySurvivor.Tutorial.TutorialEvents.Raise("CardSelected");
+            return true;
+        }
+
+        // 카드 선택과 베테랑 스킬 적용이 같은 경로를 쓴다.
+        private void ApplySkill(Transform unit, UnitProgress progress, int choice)
+        {
+            {
                 if (choice == 3) progress.Piercing = true;
                 else if (choice == 4) progress.MultiShotLevel++;
                 else if (choice == 5) progress.FocusLevel++;
@@ -728,15 +754,10 @@ namespace ArmySurvivor.Army
                 else if (choice == 20)
                 {
                     progress.IronWall = true;
-                    if (request.unit.TryGetComponent<UnitHealth>(out var health))
+                    if (unit.TryGetComponent<UnitHealth>(out var health))
                         health.DamageReduction = ironWallDamageReduction;
                 }
             }
-            if (levelUps.Count > 0) ShowNextUpgrade();
-            else CloseUpgrade();
-            RefreshUI();
-            ArmySurvivor.Tutorial.TutorialEvents.Raise("CardSelected");
-            return true;
         }
 
         private void CloseUpgrade()
@@ -765,6 +786,7 @@ namespace ArmySurvivor.Army
             focusEffects.Clear();
             focusStationaryTimes.Clear();
             units.Clear();
+            learnedThisBattle.Clear();
             RosterChanged?.Invoke();
             Bottles = 0;
             if (panel != null) panel.SetActive(false);
