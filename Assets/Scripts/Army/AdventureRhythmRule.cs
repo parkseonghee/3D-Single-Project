@@ -23,7 +23,6 @@ namespace ArmySurvivor.Army
         private readonly int day, waveLimit;
         private readonly float duration, interval, heading;
         private readonly int capacity;
-        private readonly EnemyDefinition weakest;
         private readonly AdventureDayWaveRule mixed;
         private SpecialPattern specialPattern;
         public Phase CurrentPhase { get; private set; }
@@ -61,14 +60,11 @@ namespace ArmySurvivor.Army
         {
             this.settings = settings; this.day = day; this.duration = Mathf.Max(1, duration);
             this.interval = interval; this.capacity = capacity; waveLimit = settings.GetWaveLimit(day);
-            heading = Random.Range(0f, 360f); weakest = fallback;
+            heading = Random.Range(0f, 360f);
             specialPattern = forcedSpecialPattern ?? PickSpecialPattern(day);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (!forcedSpecialPattern.HasValue && TestPatternOverride.HasValue) specialPattern = TestPatternOverride.Value;
 #endif
-            if (pool != null) foreach (var entry in pool)
-                if (entry != null && entry.firstDay <= day && entry.enemy != null && entry.enemy.prefab != null && entry.weight > 0 &&
-                    (weakest == null || entry.enemy.health < weakest.health)) weakest = entry.enemy;
             mixed = new AdventureDayWaveRule(fallback, interval, capacity, pool, duration, null, settings.enemySafetyLimit, waveLimit, day);
         }
         private static SpecialPattern PickSpecialPattern(int day)
@@ -171,7 +167,9 @@ namespace ArmySurvivor.Army
                     IsSwarm ? settings.swarmCapacity + (waveLimit - 2) * 4 : capacity, 1, settings.enemySafetyLimit)
             };
         }
-        public EnemyDefinition ChooseEnemy(float elapsed) => IsSwarm || CurrentPhase == Phase.Warmup ? weakest : mixed.ChooseEnemy(elapsed);
+        // 2026-11-13: 모든 구간이 DaySettings 출현 가중치를 따른다. 섬멸 구간의 약화는 Health/DamageMultiplier로 유지한다.
+        // (이전에는 탐색·섬멸이 체력 최저 적만 생성해 닌자가 90% 이상을 차지했고, 출전 미리보기 비율과 어긋났다.)
+        public EnemyDefinition ChooseEnemy(float elapsed) => mixed.ChooseEnemy(elapsed);
         public Vector3 Direction(int serial)
         {
             if (SpecialWaveActive) return SpecialDirection(serial, SpecialWaveCount);
