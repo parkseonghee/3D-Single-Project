@@ -121,7 +121,14 @@ namespace ArmySurvivor.Equipment
         public void Draw(int count)
         {
             if (drawSequence.IsPlaying || !CanDraw || !EquipmentInventory.TryDraw(catalog,count,out var results)) return;
-            drawSequence.Play(catalog, () => { ShowResults(results); TutorialEvents.Raise("EquipmentDrawn"); });
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.SupplyDraw);
+            drawSequence.Play(catalog, () =>
+            {
+                // A등급 이상이 섞여 있으면 결과가 열릴 때 특별 효과음을 낸다.
+                if (results.Exists(x => x != null && x.grade >= ItemGrade.A)) ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.SupplyRare);
+                ShowResults(results);
+                TutorialEvents.Raise("EquipmentDrawn");
+            });
         }
         void ShowResults(List<EquipmentItem> results)
         {

@@ -490,6 +490,7 @@ namespace ArmySurvivor.Building
             buildCounts[building] = count + 1;
             Cancel();
             PlayBuildingEffect(constructionEffectPrefab, position + constructionEffectOffset, constructionEffectScale);
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.BuildingPlace);
             var tutorialTarget = root.AddComponent<ArmySurvivor.Tutorial.TutorialTarget>();
             tutorialTarget.SetId("Building:" + building.name);
             ArmySurvivor.Tutorial.TutorialEvents.Raise("BuildingBuilt:" + building.name, root.transform);

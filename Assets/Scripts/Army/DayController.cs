@@ -262,6 +262,7 @@ namespace ArmySurvivor.Army
             ShowBossReward(IsBossDay ? GrantBossReward() : null);
             if (resultRetryInfo != null && retry != null) resultRetryInfo.text = retry.TokensLabel(CampaignState.RetryTokens);
             resultPanel.SetActive(true);
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.Victory);
         }
 
         // 승리 확정 시 바로 인벤토리에 넣는다. 다음 아침 자동 저장 전에 종료하면 그날을 다시 하므로 중복 지급되지 않는다.
@@ -313,6 +314,7 @@ namespace ArmySurvivor.Army
             run.CanStart = false;
             run.ReturnToPreparation();
             resultPanel.SetActive(false);
+            if (!retreat) ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.Defeat);
             if (retry != null && GameSave.ConsumeRetryToken(out int remaining))
             {
                 retry.ShowRetry(Day, remaining, retreat);

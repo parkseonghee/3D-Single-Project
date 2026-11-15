@@ -143,6 +143,7 @@ namespace ArmySurvivor.Army
             tutorialTarget.SetId("Soldier");
             StartCoroutine(Appear(root, Vector3.one));
             RefreshUI();
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.Recruit);
             ArmySurvivor.Tutorial.TutorialEvents.Raise("SoldierHired", root);
             return true;
         }

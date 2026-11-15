@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0003923d77d1b438ff8b28ea108bc6, type: 3}
+  m_Name: SoundLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.Audio.SoundLibrary
+  sfxVoices: 24
+  bgmFadeSeconds: 1.2
+  sfx:
+  - id: 0
+    clips: []
+    volume: 0.7
+    pitch: {x: 0.97, y: 1.03}
+    minInterval: 0.03
+  - id: 1
+    clips: []
+    volume: 0.45
+    pitch: {x: 0.9, y: 1.1}
+    minInterval: 0.06
+  - id: 2
+    clips: []
+    volume: 0.6
+    pitch: {x: 0.9, y: 1.1}
+    minInterval: 0.08
+  - id: 3
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 4
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 5
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 6
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 7
+    clips: []
+    volume: 0.8
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.35
+  - id: 8
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 9
+    clips: []
+    volume: 0.5
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.08
+  - id: 10
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 11
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.15
+  - id: 12
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 13
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 14
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 15
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 16
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 17
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 18
+    clips: []
+    volume: 1
+    pitch: {x: 1, y: 1}
+    minInterval: 0.5
+  - id: 19
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - id: 20
+    clips: []
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.1
+  bgm:
+  - id: 1
+    clip: {fileID: 0}
+    volume: 0.6
+  - id: 2
+    clip: {fileID: 0}
+    volume: 0.6
+  - id: 3
+    clip: {fileID: 0}
+    volume: 0.6
+  - id: 4
+    clip: {fileID: 0}
+    volume: 0.6
+  - id: 5
+    clip: {fileID: 0}
+    volume: 0.6
+  - id: 6
+    clip: {fileID: 0}
+    volume: 0.6
+  scenes:
+  - scene: StartScene
+    bgm: 1
+  - scene: VillageScene
+    bgm: 2
+  - scene: PlayScene
+    bgm: 3

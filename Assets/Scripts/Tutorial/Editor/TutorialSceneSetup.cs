@@ -65,15 +65,13 @@ namespace ArmySurvivor.Editor
                 battle.cancelOnCommanderDeath = true;
                 battle.steps = new[]
                 {
-                    Step("Commander", "지휘관 이동", "WASD로 지휘관을 움직여 보세요. 전투 중에도 적을 우클릭하면 집중 공격할 수 있습니다.", TutorialAdvance.CommanderDistance),
+                    Step("Commander", "지휘관 이동", "WASD로 지휘관을 움직일 수 있습니다. 전투 중에도 적을 우클릭하면 집중 공격할 수 있습니다.", TutorialAdvance.NextButton),
                     Step("Soldier", "자동 전투", "병사들은 가까운 적을 자동으로 공격합니다.", TutorialAdvance.NextButton),
                     Step("ExpBottle", "경험치 병", "몬스터가 경험치 병을 떨어뜨렸습니다. 화면을 클릭하면 전투가 재개됩니다.", TutorialAdvance.NextButton),
                     Step("ExpBottle", "경험치 병 줍기", "지휘관을 움직여 경험치 병을 주우세요.", TutorialAdvance.Event, "ExpBottleCollected"),
                     Step("SoldierPortrait", "병사 레벨업", "경험치 병을 얻으면 Ctrl+숫자키로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
                 };
-                battle.steps[0].commanderDistance = 2f;
                 battle.steps[0].pauseGame = true;
-                battle.steps[0].allowCommanderMovementWhilePaused = true;
                 battle.steps[0].blockOutsideClicks = false;
                 battle.steps[1].pauseGame = true;
                 battle.steps[1].allowKeyboard = false;
@@ -146,34 +144,24 @@ namespace ArmySurvivor.Editor
                 focus.jumpEventKey = "EliteKilled";
                 focus.requireJumpTargetMatch = true;
                 focus.cancelIfJumpBeforeStart = true;
-                focus.jumpToStep = 2;
+                focus.jumpToStep = 0;
                 focus.steps = new[]
                 {
-                    Step("EliteEnemy", "정예 몬스터 집중 공격", "정예 몬스터를 마우스 오른쪽 버튼으로 클릭하세요. 병사들이 이 적을 우선 공격합니다.", TutorialAdvance.Event, "FocusTargetSet"),
-                    Step("FocusMarker", "집중 공격 중", "표시된 정예 몬스터를 부대가 집중 공격하고 있습니다. 처치하거나 잠시 지켜보세요.", TutorialAdvance.Event, "FocusTargetKilled"),
-                    Step(null, "집중 공격 해제", "빈 땅을 마우스 왼쪽 버튼으로 클릭하면 집중 공격이 해제되고 병사들이 다시 주변 적을 공격합니다.", TutorialAdvance.Event, "FocusTargetCleared")
+                    Step("EliteEnemy", "정예 몬스터 집중 공격", "정예 몬스터를 마우스 오른쪽 버튼으로 클릭하세요. 병사들이 이 적을 우선 공격합니다.", TutorialAdvance.Event, "FocusTargetSet")
                 };
                 focus.steps[0].requireEventTargetMatch = true;
                 focus.steps[0].holeShape = TutorialHoleShape.Circle;
-                focus.steps[1].holeShape = TutorialHoleShape.Circle;
-                focus.steps[1].fallbackSeconds = 6f;
-                focus.steps[2].bubblePlacement = TutorialBubblePlacement.Below;
-                focus.steps[2].showNextButtonAfterJump = true;
-                focus.steps[2].showNextWhenNoFocus = true;
                 foreach (TutorialStep step in focus.steps)
                 {
                     step.enemyMovementMultiplier = 0.3f;
                     step.blockOutsideClicks = true;
                     step.pauseGame = false;
                 }
-                focus.steps[2].blockOutsideClicks = false;
                 EditorUtility.SetDirty(focus);
             }
             // 지시를 읽는 동안 정예는 멈추되, 우클릭 지정과 좌클릭 해제는 받는다.
             focus.steps[0].pauseGame = true;
             focus.steps[0].allowFocusInputWhilePaused = true;
-            focus.steps[2].pauseGame = true;
-            focus.steps[2].allowFocusInputWhilePaused = true;
             EditorUtility.SetDirty(focus);
 
             AssetDatabase.SaveAssets();

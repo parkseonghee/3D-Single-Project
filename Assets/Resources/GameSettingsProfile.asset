@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe06b17e8086ce4c805b0c0c079f4ff, type: 3}
+  m_Name: GameSettingsProfile
+  m_EditorClassIdentifier: Assembly-CSharp::ArmySurvivor.UI.GameSettingsProfile
+  defaultMaster: 0.8
+  defaultBgm: 0.7
+  defaultSfx: 0.8
+  defaultFullscreen: 1
+  defaultVSync: 1
+  minResolutionHeight: 720
+  graphicsTiers:
+  - label: "\uB0AE\uC74C"
+    renderScale: 0.75
+    msaa: 1
+    shadowDistance: 25
+    shadowResolution: 1024
+    shadowCascades: 1
+  - label: "\uC911\uAC04"
+    renderScale: 1
+    msaa: 1
+    shadowDistance: 40
+    shadowResolution: 2048
+    shadowCascades: 2
+  - label: "\uB192\uC74C"
+    renderScale: 1
+    msaa: 1
+    shadowDistance: 50
+    shadowResolution: 2048
+    shadowCascades: 4
+  - label: "\uCD5C\uACE0"
+    renderScale: 1
+    msaa: 4
+    shadowDistance: 60
+    shadowResolution: 4096
+    shadowCascades: 4
+  defaultGraphicsTier: 2
+  frameRateOptions: 1e0000003c000000780000009000000000000000
+  defaultFrameRate: 60
+  percentFormat: '{0}%'
+  resolutionFormat: "{0} \xD7 {1}"
+  frameRateFormat: '{0} FPS'
+  unlimitedFrameRateText: "\uC81C\uD55C \uC5C6\uC74C"
+  onText: "\uCF1C\uC9D0"
+  offText: "\uAEBC\uC9D0"
+  fullscreenText: "\uC804\uCCB4 \uD654\uBA74"
+  windowedText: "\uCC3D \uBAA8\uB4DC"

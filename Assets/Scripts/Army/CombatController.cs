@@ -113,6 +113,8 @@ namespace ArmySurvivor.Army
         public event System.Action MiniBossKilled;
         public event System.Action<bool, bool> EnemyDefeated; // elite, boss
         public event System.Action<string> SpecialWaveAnnounced;
+        public event System.Action BossSpawned;
+        public event System.Action EliteSpawned;
         public float TutorialEnemySpeedMultiplier { get; set; } = 1f;
         // 모험 모드 전장 변수. DayController가 전장 시작 때 설정하고 종료 때 비운다.
         public BattlefieldModifierDefinition BattlefieldModifier { get; set; }
@@ -932,6 +934,8 @@ namespace ArmySurvivor.Army
             AdventureRhythmRule.SpecialOrder? specialOrder)
         {
             if (definition == null || definition.prefab == null) return;
+            if (isBoss) BossSpawned?.Invoke();
+            else if (isMiniBoss) EliteSpawned?.Invoke();
             float angle = Random.value * Mathf.PI * 2;
             Vector3 position = run.Commander.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * spawnDistance;
             if (survivalSettings != null) position = SurvivalSpawnPosition();

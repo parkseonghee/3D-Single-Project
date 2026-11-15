@@ -23,22 +23,29 @@ MonoBehaviour:
   jumpEventKey: EliteKilled
   requireJumpTargetMatch: 1
   cancelIfJumpBeforeStart: 1
-  jumpToStep: 2
+  jumpToStep: 0
   steps:
   - targetId: EliteEnemy
     holeShape: 1
     padding: {x: 18, y: 18}
     cornerRadius: 20
-    title: "정예 몬스터 집중 공격"
-    body: "정예 몬스터를 마우스 오른쪽 버튼으로 클릭하세요. 병사들이 이 적을 우선 공격합니다."
+    title: "\uC815\uC608 \uBAAC\uC2A4\uD130 \uC9D1\uC911 \uACF5\uACA9"
+    body: "\uC815\uC608 \uBAAC\uC2A4\uD130\uB97C \uB9C8\uC6B0\uC2A4 \uC624\uB978\uCABD
+      \uBC84\uD2BC\uC73C\uB85C \uD074\uB9AD\uD558\uC138\uC694. \uBCD1\uC0AC\uB4E4\uC774
+      \uC774 \uC801\uC744 \uC6B0\uC120 \uACF5\uACA9\uD569\uB2C8\uB2E4."
     bubblePlacement: 0
+    showAsTopBanner: 0
+    revealBuilding: {fileID: 0}
     advance: 2
     eventKey: FocusTargetSet
     requireEventTargetMatch: 1
+    requiredEventCount: 1
+    hideWhenTargetMissing: 0
     seconds: 0
     fallbackSeconds: 0
     commanderDistance: 0
     pauseGame: 1
+    allowCommanderMovementWhilePaused: 0
     allowFocusInputWhilePaused: 1
     blockOutsideClicks: 1
     allowKeyboard: 1
@@ -46,42 +53,3 @@ MonoBehaviour:
     enemyMovementMultiplier: 0.3
     showNextButtonAfterJump: 0
     showNextWhenNoFocus: 0
-  - targetId: FocusMarker
-    holeShape: 1
-    padding: {x: 18, y: 18}
-    cornerRadius: 20
-    title: "집중 공격 중"
-    body: "표시된 정예 몬스터를 부대가 집중 공격하고 있습니다. 처치하거나 잠시 지켜보세요."
-    bubblePlacement: 0
-    advance: 2
-    eventKey: FocusTargetKilled
-    seconds: 0
-    fallbackSeconds: 6
-    commanderDistance: 0
-    pauseGame: 0
-    blockOutsideClicks: 1
-    allowKeyboard: 1
-    showArrow: 1
-    enemyMovementMultiplier: 0.3
-    showNextButtonAfterJump: 0
-    showNextWhenNoFocus: 0
-  - targetId: 
-    holeShape: 0
-    padding: {x: 18, y: 18}
-    cornerRadius: 20
-    title: "집중 공격 해제"
-    body: "빈 땅을 마우스 왼쪽 버튼으로 클릭하면 집중 공격이 해제되고 병사들이 다시 주변 적을 공격합니다."
-    bubblePlacement: 2
-    advance: 2
-    eventKey: FocusTargetCleared
-    seconds: 0
-    fallbackSeconds: 0
-    commanderDistance: 0
-    pauseGame: 1
-    allowFocusInputWhilePaused: 1
-    blockOutsideClicks: 0
-    allowKeyboard: 1
-    showArrow: 1
-    enemyMovementMultiplier: 0.3
-    showNextButtonAfterJump: 1
-    showNextWhenNoFocus: 1

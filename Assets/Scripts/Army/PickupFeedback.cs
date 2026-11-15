@@ -72,7 +72,11 @@ namespace ArmySurvivor.Army
             return particles;
         }
         public void ExperienceCollected() { Emit(experience, experienceParticles, ref nextExperience); }
-        public void SealCollected() { Emit(seal, sealParticles, ref nextSeal); }
+        public void SealCollected()
+        {
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.SealPickup);
+            Emit(seal, sealParticles, ref nextSeal);
+        }
         private void Emit(ParticleSystem particles, int count, ref float next)
         {
             if (particles == null || run == null || !run.IsRunning || run.Commander == null || Time.time < next) return;

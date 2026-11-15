@@ -25,21 +25,12 @@ namespace ArmySurvivor.UI
         [SerializeField] private Button newAdventureCancelButton;
         [SerializeField, TextArea] private string newAdventureFormat = "진행 중인 모험(Day {0}, 재도전권 {1})이 삭제됩니다.\n새 모험을 시작할까요?";
         [SerializeField] private TMP_Text survivalBestTimeText;
-        [SerializeField] private GameObject settingsPanel;
-        [SerializeField] private Slider volumeSlider;
-        [SerializeField] private Toggle fullscreenToggle;
-        [SerializeField] private Toggle damageNumbersToggle;
+        [Tooltip("씬에 배치한 Settings Canvas 프리팹의 설정 창")]
+        [SerializeField] private SettingsPanel settings;
         private bool loading;
 
         private void Start()
         {
-            volumeSlider.SetValueWithoutNotify(AudioListener.volume);
-            fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
-            if (damageNumbersToggle != null)
-            {
-                damageNumbersToggle.SetIsOnWithoutNotify(DamageNumbers.Enabled);
-                damageNumbersToggle.onValueChanged.AddListener(value => DamageNumbers.Enabled = value);
-            }
             // 버튼과 기록 문구는 StartScene에 배치하고 여기서는 동작만 연결한다.
             newGameButton.onClick = new Button.ButtonClickedEvent();
             newGameButton.onClick.AddListener(() => StartMode(GameMode.Survival));
@@ -136,14 +127,8 @@ namespace ArmySurvivor.UI
             SceneManager.LoadSceneAsync(scene);
         }
 
-        public void OpenSettings()
-        {
-            settingsPanel.transform.SetAsLastSibling();
-            settingsPanel.SetActive(true);
-        }
-        public void CloseSettings() => settingsPanel.SetActive(false);
-        public void SetVolume(float value) => AudioListener.volume = value;
-        public void SetFullscreen(bool value) => Screen.fullScreen = value;
+        public void OpenSettings() => settings.Open();
+        public void CloseSettings() => settings.Close();
 
         public void Quit()
         {

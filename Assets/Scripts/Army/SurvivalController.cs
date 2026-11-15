@@ -271,6 +271,7 @@ namespace ArmySurvivor.Army
             SetHudVisible(false);
             bossBar.SetActive(false);
             resultPanel.SetActive(true);
+            ArmySurvivor.Audio.GameAudio.Play(best ? ArmySurvivor.Audio.Sfx.NewRecord : ArmySurvivor.Audio.Sfx.Defeat);
             string header = (best ? newRecordText + "\n" : "") + string.Format(resultTimeFormat, RecordManager.TimeLabel(seconds));
             string stats = string.Format(resultStatsFormat, normalKills, eliteKills, bossKills, record.score);
             string footer = string.Format(resultPreviousFormat, RecordManager.TimeLabel(previous?.survivalSeconds ?? 0));
