@@ -9,6 +9,8 @@ namespace ArmySurvivor.Building
         public string displayName;
         public GameObject prefab;
         public Sprite icon;
+        [Tooltip("건설 목록 카드에 보이는 짧은 효과 설명 (1~2줄)")]
+        [TextArea(2, 3)] public string cardDescription;
         [Header("건설 비용")]
         [Min(0)] public int riceCost = 120;
         [Min(1)] public float costMultiplier = 1.5f;

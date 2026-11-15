@@ -26,6 +26,8 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text bossRewardText;
         [SerializeField] private string bossSealFormat = "보스 보상 · 보급 인장 +{0}";
         [SerializeField] private string bossItemFormat = "확정 보급 · {0}등급 {1}";
+        [Tooltip("결과·패배 창의 Day 표시. {0} = Day")]
+        [SerializeField] private string resultDayFormat = "Day {0}";
         [Header("베테랑 (기획서 4.6)")]
         [SerializeField] private VeteranProgression veterans;
         [Header("모험 모드 패배")]
@@ -193,6 +195,8 @@ namespace ArmySurvivor.Army
         private TMP_Text waveLabel;
         private TMP_Text specialWaveNotice;
         private float specialWaveNoticeRemaining;
+        [Tooltip("특수 웨이브 알림 위치 (화면 위 기준). 지휘관 EXP 표시와 정예 알림 아래에 둔다.")]
+        [SerializeField] private float specialWaveNoticeY = -370;
         private void EnsureSpecialWaveNotice()
         {
             if (specialWaveNotice != null) return;
@@ -200,7 +204,7 @@ namespace ArmySurvivor.Army
             rect.SetParent(dayNumber.canvas.transform, false);
             rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1);
             rect.pivot = new Vector2(.5f, 1);
-            rect.anchoredPosition = new Vector2(0, -175);
+            rect.anchoredPosition = new Vector2(0, specialWaveNoticeY);
             rect.sizeDelta = new Vector2(800, 70);
             specialWaveNotice = rect.gameObject.AddComponent<TextMeshProUGUI>();
             specialWaveNotice.font = dayNumber.font;
@@ -252,7 +256,7 @@ namespace ArmySurvivor.Army
             if (veterans != null && Day < settings.finalDay) veterans.CaptureClear();
             run.ReturnToPreparation();
             run.CanStart = false;
-            clearedDay.text = Day.ToString();
+            clearedDay.text = string.Format(resultDayFormat, Day);
             goldAmount.text = (stage.goldReward + victorySupportGold).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
             ShowBossReward(IsBossDay ? GrantBossReward() : null);
@@ -315,7 +319,7 @@ namespace ArmySurvivor.Army
                 return;
             }
             GameSave.DeleteAutoSave();
-            defeatedDay.text = Day.ToString();
+            defeatedDay.text = string.Format(resultDayFormat, Day);
             if (defeatRetryInfo != null && retry != null) defeatRetryInfo.text = retry.TokensLabel(0);
             defeatPanel.SetActive(true);
         }

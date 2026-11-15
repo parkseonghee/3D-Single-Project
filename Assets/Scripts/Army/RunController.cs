@@ -237,7 +237,7 @@ namespace ArmySurvivor.Army
             Vector3 right = Vector3.Cross(Vector3.up, forward);
             input = Vector2.ClampMagnitude(input, 1);
             Vector3 direction = right * input.x + forward * input.y;
-            float equipmentMoveBonus = ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderMoveBonus ?? 0f;
+            float equipmentMoveBonus = ArmySurvivor.Equipment.EquipmentInventory.CommanderMoveBonus;
             Vector3 target = commander.position + direction * (moveSpeed * CurrentTactic.moveMultiplier * TeamMoveMultiplier *
                 DiabloMoveMultiplier * (1f + equipmentMoveBonus) * deltaTime);
             target = ClampCommanderPosition(target);

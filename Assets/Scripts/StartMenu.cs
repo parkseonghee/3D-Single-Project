@@ -16,7 +16,7 @@ namespace ArmySurvivor.UI
         [SerializeField] private Button continueButton;
         [SerializeField] private TMP_Text continueStatus;
         [SerializeField] private string continueFormat = "Day {0} 아침 · 재도전권 {1}";
-        [SerializeField] private string battleQuitText = " (전투 중 종료 · 이어하면 재도전권 1장 사용)";
+        [SerializeField] private string battleQuitText = "\n전투 중 종료 · 이어하면 재도전권 1장 사용";
         [SerializeField] private string campaignEndedText = "전투 중 종료되어 남은 재도전권이 없습니다. 회차가 종료되었습니다.";
         [Header("새 모험 확인 (이어할 모험이 있을 때)")]
         [SerializeField] private GameObject newAdventureConfirm;

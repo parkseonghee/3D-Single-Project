@@ -84,7 +84,7 @@ namespace ArmySurvivor.Army
             if (teamAttackSpeedRemaining > 0) speedBonus += teamAttackSpeedBonus;
             if (Time.time < rewardWarCryUntil) speedBonus += rewardWarCryBonus;
             speedBonus += ManualBonus(unit).y;
-            speedBonus += ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.squadAttackSpeedBonus ?? 0f;
+            speedBonus += ArmySurvivor.Equipment.EquipmentInventory.SquadAttackSpeedBonus;
             return attack.interval / ((1f + speedBonus) *
                 (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.AttackSpeed : 1f));
         }
@@ -355,7 +355,7 @@ namespace ArmySurvivor.Army
                 (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.CommanderHealth : 1f),
                 new Color(1, 0.8f, 0.2f));
             allies[run.Commander].EquipmentDamageReduction =
-                ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderDamageReduction ?? 0f;
+                ArmySurvivor.Equipment.EquipmentInventory.CommanderDamageReduction;
             buildingDamageBonus.Clear();
             foreach (var unit in recruitment.Units)
             {
@@ -1390,7 +1390,7 @@ namespace ArmySurvivor.Army
         {
             if (target.health <= 0 || damage <= 0) return;
             if (source != null && allies.ContainsKey(source))
-                damage *= 1f + (ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.squadDamageBonus ?? 0f);
+                damage *= 1f + (ArmySurvivor.Equipment.EquipmentInventory.SquadDamageBonus);
             float supportMultiplier = target.isBoss || target.isMiniBoss
                 ? GetComponent<CommanderProgression>()?.EliteDamageMultiplier ?? 1f : 1f;
             bool wasSuppressed = target.suppressionRemaining > 0;
@@ -1422,7 +1422,7 @@ namespace ArmySurvivor.Army
                 HealOnKill(source);
                 if (source != null && allies.ContainsKey(source) && allies.TryGetValue(run.Commander, out UnitHealth commanderVitality))
                 {
-                    float healRatio = ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderHealOnKillRatio ?? 0f;
+                    float healRatio = ArmySurvivor.Equipment.EquipmentInventory.CommanderHealOnKillRatio;
                     if (healRatio > 0) commanderVitality.Heal(commanderVitality.Maximum * healRatio);
                 }
                 target.attackTarget = null;
@@ -1442,10 +1442,9 @@ namespace ArmySurvivor.Army
                 if (suppression) ApplySuppression(target);
                 else if (source != null && allies.ContainsKey(source))
                 {
-                    var equipped = ArmySurvivor.Equipment.EquipmentInventory.EquippedItem;
-                    if (equipped != null && equipped.slowOnHitChance > 0 &&
-                        Random.value < equipped.slowOnHitChance)
-                        ApplySuppression(target, equipped.slowOnHitDuration);
+                    float slowChance = ArmySurvivor.Equipment.EquipmentInventory.SlowOnHitChance;
+                    if (slowChance > 0 && Random.value < slowChance)
+                        ApplySuppression(target, ArmySurvivor.Equipment.EquipmentInventory.SlowOnHitDuration);
                 }
                 if (knockback > 0)
                 {

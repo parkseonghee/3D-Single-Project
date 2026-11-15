@@ -166,6 +166,8 @@ namespace ArmySurvivor.Army
 
         private GameObject uiRoot;
         [SerializeField] private TMP_FontAsset font;
+        [Tooltip("정예 등장·보상 발동 알림 위치 (화면 중앙 기준). 지휘관 EXP 표시 아래에 둔다.")]
+        [SerializeField] private Vector2 noticePosition = new Vector2(0, 215);
         private void EnsureUI()
         {
             if (uiRoot != null) return;
@@ -198,7 +200,7 @@ namespace ArmySurvivor.Army
                 Text("Choose", card, new Vector2(0, -130), new Vector2(340, 50), "선택 · 즉시 발동", 28);
             }
             Text("Help", overlay, new Vector2(0, -265), new Vector2(1200, 70), "한 장을 선택하면 효과가 발동하고 전투가 계속됩니다.", 26);
-            notice = Text("Notice", uiRoot.transform, new Vector2(0, 380), new Vector2(1200, 70), "", 36);
+            notice = Text("Notice", uiRoot.transform, noticePosition, new Vector2(1200, 70), "", 36);
             notice.gameObject.SetActive(false);
             panel.SetActive(false);
         }

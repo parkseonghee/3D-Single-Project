@@ -22,7 +22,10 @@ namespace ArmySurvivor.Army
             public GameObject riceRequired;
             [Tooltip("마을 건물 강화 보너스 표시 (기획서 9). 보너스가 없으면 빈 문구")]
             public TMP_Text buildingBonus;
+            [Tooltip("UnitDefinition.riceCost를 costFormat으로 표시")]
+            public TMP_Text cost;
         }
+        [SerializeField] private string costFormat = "벼 {0}";
         [SerializeField] private string buildingBonusFormat = "공격력·체력 +{0}%";
         [SerializeField] private string buildingBonusSplitFormat = "공격력 +{0}% · 체력 +{1}%";
 
@@ -320,6 +323,7 @@ namespace ArmySurvivor.Army
                         : string.Format(buildingBonusSplitFormat, damage, health);
                 }
                 option.riceRequired.SetActive(unlocked && !affordable);
+                if (option.cost != null) option.cost.text = string.Format(costFormat, option.unit.riceCost);
             }
         }
 

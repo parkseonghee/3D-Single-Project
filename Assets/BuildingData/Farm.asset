@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: "\uB18D\uC7A5"
   prefab: {fileID: 100000, guid: 520e20395d1150a4c94174228bde0499, type: 3}
   icon: {fileID: 21300000, guid: cd281a07a09726d43991d92849b6e208, type: 3}
+  cardDescription: "\uD558\uB8E8 \uBCBC \uCC44\uCDE8\uB7C9 \uC99D\uAC00\n\uAC15\uD654:
+    \uCC44\uCDE8\uB7C9 \uCD94\uAC00 \uC99D\uAC00"
   riceCost: 120
   costMultiplier: 1.5
   upgradeGoldCost: 80
@@ -23,6 +25,13 @@ MonoBehaviour:
   initialDailyRice: 100
   additionalDailyRice: 40
   dailyRicePerUpgrade: 20
+  formationSlots: 0
+  formationSlotsPerUpgrade: 0
+  boostsAllUnits: 0
+  unitDamageBonus: 0
+  unitDamageBonusPerUpgrade: 0
+  unitHealthBonus: 0
+  unitHealthBonusPerUpgrade: 0
   footprint: {x: 6.9976163, y: 3.9223058, z: 6.97461}
   modelOffset: {x: -0.025361061, y: 0.8070588, z: -0.048159387}
   modelRotation: {x: 90, y: 0, z: 0}

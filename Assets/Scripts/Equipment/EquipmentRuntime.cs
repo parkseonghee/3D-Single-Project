@@ -15,7 +15,7 @@ namespace ArmySurvivor.Equipment
         CombatController combat;
         EquipmentUI ui;
         PickupFeedback pickupFeedback;
-        SurvivalWeaponReveal weaponReveal;
+        SurvivalSealDraft sealDraft;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Install()
         {
@@ -38,15 +38,11 @@ namespace ArmySurvivor.Equipment
             {
                 if (run == null) run = root.GetComponentInChildren<RunController>(true);
                 if (combat == null) combat = root.GetComponentInChildren<CombatController>(true);
+                if (sealDraft == null) sealDraft = root.GetComponentInChildren<SurvivalSealDraft>(true);
             }
             ui = gameObject.AddComponent<EquipmentUI>();
             ui.Initialize(catalog, run);
             if (run != null) pickupFeedback = PickupFeedback.Prepare(run);
-            if (run != null && GameModeManager.Current == GameMode.Survival)
-            {
-                weaponReveal = gameObject.AddComponent<SurvivalWeaponReveal>();
-                weaponReveal.Initialize(catalog, run);
-            }
             if (combat != null) combat.EnemyKilled += Drop;
             if (run != null) { run.RunStarted += ClearDrops; run.RunEnded += ClearDrops; }
             EquipmentInventory.Changed += RefreshEquippedDefense;
@@ -56,7 +52,7 @@ namespace ArmySurvivor.Equipment
         {
             if (run == null || !run.IsRunning || run.Commander == null ||
                 !run.Commander.TryGetComponent<UnitHealth>(out var health)) return;
-            health.EquipmentDamageReduction = EquipmentInventory.EquippedItem?.commanderDamageReduction ?? 0f;
+            health.EquipmentDamageReduction = EquipmentInventory.CommanderDamageReduction;
         }
         void Drop(Vector3 position)
         {
@@ -89,17 +85,18 @@ namespace ArmySurvivor.Equipment
                 if (distance <= catalog.pickupRadius && Time.unscaledTime >= pickupReadyAt[item])
                 {
                     bool survivalPickup = GameModeManager.Current == GameMode.Survival;
+                    // 서바이벌: 인장 1개 = 장비 카드 선택 1회 (PlayScene의 SurvivalSealDraft).
                     if (survivalPickup)
                     {
-                        var weapon = EquipmentInventory.GrantRandomSurvivalWeapon(catalog);
-                        if (weaponReveal != null) weaponReveal.Show(weapon);
+                        if (sealDraft != null) sealDraft.Grant();
+                        else Debug.LogError("PlayScene에 SurvivalSealDraft가 배치되지 않았습니다.", this);
                     }
                     else EquipmentInventory.AddTickets(1);
                     if (pickupFeedback != null) pickupFeedback.SealCollected();
                     TutorialEvents.Raise("TicketCollected", item);
                     pickupReadyAt.Remove(item);
                     Destroy(item.gameObject); drops.RemoveAt(i);
-                    // A second seal collected in the same frame waits until this reveal closes.
+                    // 같은 프레임에 주운 두 번째 인장은 선택 창이 닫힌 뒤 줍는다.
                     if (survivalPickup) break;
                     continue;
                 }

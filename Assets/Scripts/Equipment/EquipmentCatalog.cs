@@ -49,6 +49,29 @@ namespace ArmySurvivor.Equipment
         [Range(0, 1)] public float bRate = 0.30f;
         [Min(1)] public int aGuarantee = 10;
         [Min(1)] public int sGuarantee = 90;
+        [Header("서바이벌 인장 보급 (그 판에서만 유지)")]
+        [Tooltip("인장 1개당 제시하는 장비 카드 수")]
+        [Min(1)] public int survivalChoiceCount = 3;
+        [Tooltip("장착 중인 장비가 있으면 그 장비의 강화 카드를 섞어 줄 확률")]
+        [Range(0, 1)] public float survivalUpgradeOfferChance = 0.6f;
+        [Tooltip("강화 1단계마다 장비 효과 증가율 (0.25 = 기본 효과의 25%씩 추가)")]
+        [Min(0)] public float survivalUpgradeBonus = 0.25f;
+        [Min(0)] public int survivalMaxUpgrade = 5;
+        [Tooltip("카드를 고르지 않고 현재 장비를 유지할 때 받는 경험치 병")]
+        [Min(0)] public int survivalKeepBottles = 3;
+        [Tooltip("끄면 무기만 제시한다")]
+        public bool survivalIncludeNonWeapons;
+        [Tooltip("서바이벌 무기 등급 피해 배율 (C, B, A, S 순서)")]
+        public float[] survivalGradeDamage = { 1.1f, 1.2f, 1.35f, 1.6f };
+        [Header("장비 효과 문구 · {0} = 수치")]
+        public string squadDamageFormat = "부대 공격 피해 +{0}%";
+        public string squadAttackSpeedFormat = "부대 공격 속도 +{0}%";
+        public string commanderMoveFormat = "지휘관 이동 속도 +{0}%";
+        public string commanderDamageReductionFormat = "지휘관 받는 피해 -{0}%";
+        public string commanderHealOnKillFormat = "처치 시 지휘관 체력 {0}% 회복";
+        [Tooltip("{0} = 확률 %, {1} = 지속 초")]
+        public string slowOnHitFormat = "적중 시 {0}% 확률로 {1}초 감속";
+        public string survivalGradeDamageFormat = "무기 등급 피해 ×{0}";
         public float CRate => Mathf.Max(0, 1 - sRate - aRate - bRate);
         public bool HasSRewards => sRate > 0 && HasGrade(ItemGrade.S);
         public bool HasGrade(ItemGrade grade) => items != null && System.Array.Exists(items, x => x != null && x.grade == grade);

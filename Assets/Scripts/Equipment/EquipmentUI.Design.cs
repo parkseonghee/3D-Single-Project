@@ -73,6 +73,10 @@ namespace ArmySurvivor.Equipment
                 entry.image.color=Color.white;
             }
             shortcut=entry.gameObject; shortcutText=entry.GetComponentInChildren<TMP_Text>();
+            // 배너 양 끝 장식 위로 글자가 넘치지 않도록 가운데 정렬하고, 긴 장비 이름은 글자 크기를 줄여 맞춘다.
+            shortcutText.alignment=TextAlignmentOptions.Center; shortcutText.margin=new Vector4(26,0,26,0);
+            shortcutText.enableAutoSizing=true; shortcutText.fontSizeMin=14; shortcutText.fontSizeMax=21;
+            shortcutText.textWrappingMode=TextWrappingModes.NoWrap;
             shortcut.AddComponent<TutorialTarget>().SetId("SupplyDepotEntry");
             // A fitted 16:9 composition keeps all four corners accessible on other aspect ratios.
             var backdrop=Box("Supply and Equipment",canvasRoot.transform,0,0,1920,1080,Hex("090F16"));

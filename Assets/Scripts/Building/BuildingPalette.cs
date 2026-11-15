@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,11 +13,18 @@ namespace ArmySurvivor.Building
             public BuildingDefinition building;
             public Button button;
             public Image icon;
-
+            [Tooltip("이름과 현재 건설 비용")]
+            public TMP_Text label;
+            [Tooltip("BuildingDefinition.cardDescription을 표시")]
+            public TMP_Text description;
         }
 
         [SerializeField] private BuildingPlacementController controller;
         [SerializeField] private BuildingOption[] options;
+        [Header("카드 문구 · {0} 이름, {1} 현재 비용, {2} 비용 색(벼 부족 여부)")]
+        [SerializeField] private string labelFormat = "{0}\n<color=#{2}>{1} 벼</color>";
+        [SerializeField] private Color affordableCostColor = new Color(0.45f, 0.29f, 0.1f);
+        [SerializeField] private Color shortageCostColor = new Color(0.75f, 0.16f, 0.12f);
 
         [Header("건설 목록 창")]
         [SerializeField] private GameObject buildingPanel;
@@ -24,6 +32,7 @@ namespace ArmySurvivor.Building
         [SerializeField] private Button closeButton;
 
         private int lastRice = -1;
+        private bool wasOpen;
 
         private void Start()
         {
@@ -36,6 +45,7 @@ namespace ArmySurvivor.Building
                 option.icon.sprite = option.building.icon;
                 option.icon.gameObject.SetActive(option.building.icon != null);
                 option.button.onClick.AddListener(() => SelectBuilding(option.building));
+                if (option.description != null) option.description.text = option.building.cardDescription;
             }
             RefreshButtons();
         }
@@ -86,11 +96,12 @@ namespace ArmySurvivor.Building
 
         private void Update()
         {
-            // 문구는 Inspector에서 입력하고, 코드는 버튼의 건설 가능 여부만 갱신한다.
-            if (lastRice != controller.Rice)
+            // 벼가 바뀌면 건설 가능 여부를, 창을 열 때는 건설 수에 따라 오른 비용도 다시 그린다.
+            if (lastRice != controller.Rice || (buildingPanel.activeSelf && !wasOpen))
             {
                 RefreshButtons();
             }
+            wasOpen = buildingPanel.activeSelf;
         }
 
         private void RefreshButtons()
@@ -100,8 +111,11 @@ namespace ArmySurvivor.Building
             foreach (BuildingOption option in options)
             {
                 int cost = controller.GetCost(option.building);
-
-                option.button.interactable = controller.Rice >= cost;
+                bool affordable = controller.Rice >= cost;
+                option.button.interactable = affordable;
+                if (option.label != null)
+                    option.label.text = string.Format(labelFormat, option.building.displayName, cost,
+                        ColorUtility.ToHtmlStringRGB(affordable ? affordableCostColor : shortageCostColor));
             }
         }
     }
