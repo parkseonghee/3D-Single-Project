@@ -48,6 +48,8 @@ namespace ArmySurvivor.Army
         [SerializeField] private Vector3 suppressionDebuffLocalPosition = new Vector3(0, 0.1f, 0);
         [SerializeField] private Vector3 suppressionDebuffScale = Vector3.one * 1.5f;
         [SerializeField, Range(0, 1)] private float suppressionSlowPercent = 0.4f;
+        [Tooltip("포위 접근 중 이 속도(m/s)보다 빠르게 움직이면 걷기 애니메이션을 재생한다.")]
+        [SerializeField, Min(0)] private float encirclementWalkThreshold = 0.2f;
         [SerializeField, Min(0.1f)] private float suppressionDuration = 2.5f;
         public float SuppressionSlowPercent => suppressionSlowPercent * 100f;
         public float SuppressionDuration => suppressionDuration;
@@ -1031,17 +1033,20 @@ namespace ArmySurvivor.Army
                     destination.x = Mathf.Clamp(destination.x, ground.min.x + boundaryMargin, ground.max.x - boundaryMargin);
                     destination.z = Mathf.Clamp(destination.z, ground.min.z + boundaryMargin, ground.max.z - boundaryMargin);
                     destination.y = state.root.position.y;
-                    Vector3 movement = destination - state.root.position;
                     float ringSpeedMultiplier = (state.suppressionRemaining > 0 ? 1f - suppressionSlowPercent : 1f)
                         * TutorialEnemySpeedMultiplier;
-                    state.root.position = Vector3.MoveTowards(state.root.position, destination,
+                    Vector3 previous = state.root.position;
+                    state.root.position = Vector3.MoveTowards(previous, destination,
                         Mathf.Max(enemy.speed, encirclementRule.EncirclementClosingSpeed) * state.specialSpeedMultiplier * ringSpeedMultiplier * dt);
+                    // 포위망은 한 프레임에 아주 조금씩 좁혀진다. 남은 거리로 판정하면 이동 중에도 정지로 보여
+                    // 대기 자세로 미끄러지므로, 실제 이동 속도로 걷기 애니메이션을 정한다.
+                    float ringMoveSpeed = dt > 0 ? FlatDistance(previous, state.root.position) / dt : 0;
                     Vector3 facing = run.Commander.position - state.root.position;
                     facing.y = 0;
                     if (facing.sqrMagnitude > .001f)
                         state.root.rotation = Quaternion.RotateTowards(state.root.rotation, Quaternion.LookRotation(facing), enemy.turnSpeed * dt);
                     if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
-                        state.animator.SetBool(enemy.movingParameter, movement.sqrMagnitude > .001f);
+                        state.animator.SetBool(enemy.movingParameter, ringMoveSpeed > encirclementWalkThreshold);
                     if (state.specialHoldRemaining > 0 || state.encirclementRadius > releaseRadius ||
                         FlatDistance(state.root.position, run.Commander.position) > releaseRadius + .5f) continue;
                     state.encirclementApproach = false;

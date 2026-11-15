@@ -12,6 +12,12 @@ namespace ArmySurvivor.Equipment
         public TMP_FontAsset font;
         public GameObject ticketPrefab;
         public Sprite ticketIcon;
+        [Header("보급소 바로가기 배너 위치 (1920×1080 기준)")]
+        [Tooltip("전투 화면: 화면 왼쪽 위 기준")]
+        public Vector2 battleShortcutPosition = new Vector2(28, -105);
+        [Tooltip("마을: 왼쪽 위에는 왕국 깃발과 벼 채취 창이 있어 화면 오른쪽 위 기준으로 둔다.")]
+        public Vector2 villageShortcutAnchor = new Vector2(1, 1);
+        public Vector2 villageShortcutPosition = new Vector2(-28, -90);
         [Header("보급 연출")]
         public GameObject supplyFirework;
         [Header("문짝 경로와 로컬 회전 (닫힘 / 열림)")]
@@ -63,6 +69,22 @@ namespace ArmySurvivor.Equipment
         public bool survivalIncludeNonWeapons;
         [Tooltip("서바이벌 무기 등급 피해 배율 (C, B, A, S 순서)")]
         public float[] survivalGradeDamage = { 1.1f, 1.2f, 1.35f, 1.6f };
+        [Header("모험 장비 돌파 (같은 장비를 중복 획득하면 자동 돌파, 저장 슬롯에 유지)")]
+        [Tooltip("최대 돌파 단계. 이 이상 중복 획득한 장비는 능력이 더 오르지 않는다.")]
+        [Min(0)] public int adventureMaxBreakthrough = 5;
+        [Tooltip("돌파 1단계마다 장비 효과 증가율 (0.25 = 기본 효과의 25%씩 추가)")]
+        [Min(0)] public float adventureBreakthroughBonus = 0.25f;
+        [Tooltip("{0} = 돌파 단계, {1} = 최대 돌파")]
+        public string breakthroughFormat = "{0}/{1} 돌파";
+        [Tooltip("{0} = 늘어난 능력 %")]
+        public string breakthroughBonusFormat = "능력 +{0}%";
+        [Tooltip("보급 결과 카드 문구. {0} = 돌파 후 단계")]
+        public string breakthroughResultFormat = "중복 획득 · {0}돌파";
+        public string breakthroughMaxResultText = "중복 획득 · 최대 돌파";
+        [Tooltip("보급소 상세의 장착 효과 줄. {0} = 돌파가 반영된 효과 목록")]
+        public string equipEffectFormat = "장착: {0}";
+        [Tooltip("장착 효과 목록 구분자")]
+        public string equipEffectSeparator = ", ";
         [Header("장비 효과 문구 · {0} = 수치")]
         public string squadDamageFormat = "부대 공격 피해 +{0}%";
         public string squadAttackSpeedFormat = "부대 공격 속도 +{0}%";

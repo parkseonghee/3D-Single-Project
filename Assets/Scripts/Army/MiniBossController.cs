@@ -26,6 +26,12 @@ namespace ArmySurvivor.Army
         [Header("테스트")]
         [SerializeField] private bool guaranteeDiablo;
         public enum Reward { Explosion, Protection, Bottles, Healing, Speed, Mines, WarCry, Diablo }
+        [Header("보상 카드 이미지 · Reward 순서 (Explosion, Protection, Bottles, Healing, Speed, Mines, WarCry, Diablo)")]
+        [Tooltip("등급 테두리와 그림이 들어간 카드 이미지. 비어 있으면 등급 색 배경을 쓴다.")]
+        [SerializeField] private Sprite[] rewardCardSprites = new Sprite[8];
+        [Tooltip("카드 크기. 이미지 비율(800×1120)에 맞춘다.")]
+        [SerializeField] private Vector2 rewardCardSize = new Vector2(360, 504);
+        [SerializeField, Min(0)] private float rewardCardSpacing = 400;
         private readonly List<Reward> offered = new List<Reward>();
         public IReadOnlyList<Reward> OfferedRewards => offered.AsReadOnly();
         private readonly TMP_Text[] cardTitles = new TMP_Text[3];
@@ -187,19 +193,36 @@ namespace ArmySurvivor.Army
             overlay.offsetMin = overlay.offsetMax = Vector2.zero;
             panel = overlay.gameObject;
             panel.AddComponent<Image>().color = new Color(0.015f, 0.045f, 0.06f, 0.94f);
-            Text("Title", overlay, new Vector2(0, 260), new Vector2(1200, 80), "정예 몬스터 처치 · 즉시 효과 선택", 42);
+            float half = rewardCardSize.y * 0.5f;
+            // 카드 이미지(800×1120)의 아래 글상자는 위에서 52%~91% 구간이다. 글자는 그 안에 맞춘다.
+            float boxTop = half - rewardCardSize.y * 0.52f;
+            float boxBottom = half - rewardCardSize.y * 0.91f;
+            float boxWidth = rewardCardSize.x * 0.78f;
+            Text("Title", overlay, new Vector2(0, half + 60), new Vector2(1200, 80), "정예 몬스터 처치 · 즉시 효과 선택", 42);
             for (int i = 0; i < 3; i++)
             {
                 int choice = i;
-                var card = Rect("Reward " + i, overlay, new Vector2((i - 1) * 430, 0), new Vector2(390, 370));
+                var card = Rect("Reward " + i, overlay, new Vector2((i - 1) * rewardCardSpacing, 0), rewardCardSize);
                 cardBackgrounds[i] = card.gameObject.AddComponent<Image>();
-                card.gameObject.AddComponent<Button>().onClick.AddListener(() => ChooseReward(choice));
-                cardRarities[i] = Text("Rarity", card, new Vector2(0, 155), new Vector2(360, 35), "", 22);
-                cardTitles[i] = Text("Title", card, new Vector2(0, 108), new Vector2(360, 65), "", 34);
-                cardDescriptions[i] = Text("Description", card, new Vector2(0, -10), new Vector2(350, 175), "", 25);
-                Text("Choose", card, new Vector2(0, -130), new Vector2(340, 50), "선택 · 즉시 발동", 28);
+                cardBackgrounds[i].preserveAspect = true;
+                var button = card.gameObject.AddComponent<Button>();
+                var tint = button.colors;
+                tint.highlightedColor = new Color(1f, 0.95f, 0.8f);
+                tint.pressedColor = new Color(0.85f, 0.85f, 0.85f);
+                button.colors = tint;
+                button.onClick.AddListener(() => ChooseReward(choice));
+                cardRarities[i] = Text("Rarity", card, new Vector2(0, boxTop - 24), new Vector2(boxWidth, 28), "", 20);
+                cardTitles[i] = Text("Title", card, new Vector2(0, boxTop - 58), new Vector2(boxWidth, 42), "", 32);
+                float descTop = boxTop - 82;
+                cardDescriptions[i] = Text("Description", card, new Vector2(0, (descTop + boxBottom) * 0.5f),
+                    new Vector2(boxWidth - 10, descTop - boxBottom - 6), "", 21);
+                cardDescriptions[i].enableAutoSizing = true;
+                cardDescriptions[i].fontSizeMin = 14;
+                cardDescriptions[i].fontSizeMax = 21;
+                cardDescriptions[i].color = new Color(0.86f, 0.9f, 0.96f);
+                Text("Choose", card, new Vector2(0, -half - 34), new Vector2(rewardCardSize.x, 40), "선택 · 즉시 발동", 24);
             }
-            Text("Help", overlay, new Vector2(0, -265), new Vector2(1200, 70), "한 장을 선택하면 효과가 발동하고 전투가 계속됩니다.", 26);
+            Text("Help", overlay, new Vector2(0, -half - 90), new Vector2(1200, 50), "한 장을 선택하면 효과가 발동하고 전투가 계속됩니다.", 24);
             notice = Text("Notice", uiRoot.transform, noticePosition, new Vector2(1200, 70), "", 36);
             notice.gameObject.SetActive(false);
             panel.SetActive(false);
@@ -257,7 +280,9 @@ namespace ArmySurvivor.Army
                 cardDescriptions[i].text = RewardDescription(selected);
                 cardRarities[i].text = names[rarity];
                 cardRarities[i].color = colors[rarity];
-                cardBackgrounds[i].color = Color.Lerp(new Color(0.06f, 0.1f, 0.15f), colors[rarity], 0.18f);
+                Sprite art = rewardCardSprites != null && (int)selected < rewardCardSprites.Length ? rewardCardSprites[(int)selected] : null;
+                cardBackgrounds[i].sprite = art;
+                cardBackgrounds[i].color = art != null ? Color.white : Color.Lerp(new Color(0.06f, 0.1f, 0.15f), colors[rarity], 0.18f);
             }
         }
 

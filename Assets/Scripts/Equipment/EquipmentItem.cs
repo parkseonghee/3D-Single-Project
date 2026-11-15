@@ -12,6 +12,8 @@ namespace ArmySurvivor.Equipment
         public ItemGrade grade;
         public bool isWeapon = true;
         [TextArea] public string description;
+        [Tooltip("보급소 상세의 소개 문구. 장착 효과 수치는 아래 능력 값과 돌파 단계로 자동 생성해 덧붙인다.")]
+        [TextArea] public string flavor;
         public GameObject model;
         public Vector3 previewRotation;
         [Header("장착 능력 (0.1 = 10%)")]

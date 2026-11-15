@@ -15,6 +15,8 @@ namespace ArmySurvivor.Equipment
         [SerializeField] private TMP_Text effects;
         [SerializeField] private string gradeFormat = "{0}";
         [SerializeField] private string upgradeSuffix = " +{0}";
+        [Tooltip("모험 모드 돌파 표시. {0} = 돌파 단계")]
+        [SerializeField] private string breakthroughSuffix = " · {0}돌파";
         [SerializeField] private string emptyName = "장비 없음";
         [SerializeField] private string emptyEffects = "인장을 주워 장비를 얻으세요";
         [SerializeField] private string adventureEmptyEffects = "마을 왕국 보급소에서 장착";
@@ -55,7 +57,7 @@ namespace ArmySurvivor.Equipment
             grade.text = string.Format(gradeFormat, item.grade);
             grade.color = color;
             if (gradeBand != null) gradeBand.color = color;
-            itemName.text = item.displayName + (level > 0 ? string.Format(upgradeSuffix, level) : "");
+            itemName.text = item.displayName + (level > 0 ? string.Format(survival ? upgradeSuffix : breakthroughSuffix, level) : "");
             effects.text = EquipmentInventory.EffectText(item, EquipmentInventory.EffectScale, survival, effectSeparator);
         }
     }

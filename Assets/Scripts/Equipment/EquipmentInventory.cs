@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ArmySurvivor.Army;
 using UnityEngine;
 
 namespace ArmySurvivor.Equipment
@@ -39,14 +40,23 @@ namespace ArmySurvivor.Equipment
 
         // ── 서바이벌 인장 보급 강화 (그 판에서만 유지, 저장하지 않음) ──
         static int survivalUpgrade;
-        public static int EquippedUpgrade => survivalUpgrade;
-        // 장착 장비 효과 배율. 강화 1단계마다 catalog.survivalUpgradeBonus만큼 커진다.
-        public static float EffectScale => ScaleAt(survivalUpgrade);
+        static bool Survival => GameModeManager.Current == GameMode.Survival;
+        // 장착 장비의 강화 단계. 서바이벌은 그 판의 인장 강화, 모험은 중복 획득으로 쌓인 돌파 단계다.
+        public static int EquippedUpgrade => Survival ? survivalUpgrade
+            : EquippedItem != null ? Breakthrough(EquippedItem.id) : 0;
+        // 장착 장비 효과 배율. 단계마다 서바이벌은 survivalUpgradeBonus, 모험은 adventureBreakthroughBonus만큼 커진다.
+        public static float EffectScale => ScaleAt(EquippedUpgrade);
         public static float ScaleAt(int upgrade)
         {
             var catalog = Catalog;
-            return 1f + Math.Max(0, upgrade) * (catalog != null ? catalog.survivalUpgradeBonus : 0f);
+            float bonus = catalog == null ? 0f : Survival ? catalog.survivalUpgradeBonus : catalog.adventureBreakthroughBonus;
+            return 1f + Math.Max(0, upgrade) * bonus;
         }
+
+        // ── 모험 장비 돌파 ──
+        // 같은 장비를 중복 획득한 수만큼 돌파한다 (보유 2개 = 1돌파). 최대 단계를 넘는 중복은 능력에 반영하지 않는다.
+        public static int MaxBreakthrough => Catalog != null ? Catalog.adventureMaxBreakthrough : 0;
+        public static int Breakthrough(string id) => Mathf.Clamp(Count(id) - 1, 0, MaxBreakthrough);
         static EquipmentCatalog Catalog
         {
             get

@@ -64,7 +64,14 @@ namespace ArmySurvivor.Equipment
             var canvas=canvasRoot.GetComponent<Canvas>(); canvas.renderMode=RenderMode.ScreenSpaceOverlay; canvas.sortingOrder=180;
             var scaler=canvasRoot.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1920,1080); scaler.matchWidthOrHeight=.5f;
-            var entry=Button("",canvasRoot.transform,new Vector2(28,-105),new Vector2(285,58),OpenEntry);
+            var entry=Button("",canvasRoot.transform,catalog.battleShortcutPosition,new Vector2(285,58),OpenEntry);
+            if(VillageMode)
+            {
+                // 마을에서는 왕국 깃발과 겹치지 않도록 비어 있는 곳으로 옮긴다.
+                var entryRect=(RectTransform)entry.transform;
+                entryRect.anchorMin=entryRect.anchorMax=entryRect.pivot=catalog.villageShortcutAnchor;
+                entryRect.anchoredPosition=catalog.villageShortcutPosition;
+            }
             var entrySprite=Resources.Load<Sprite>("GeneratedKingdomUI/VillageSupplyBanner");
             if(entrySprite!=null)
             {
@@ -139,6 +146,7 @@ namespace ArmySurvivor.Equipment
             itemName=Text("",panel,1432,320,440,160,59,Foreground); itemName.fontStyle=FontStyles.Bold;
             itemName.enableAutoSizing=true; itemName.fontSizeMin=42; itemName.fontSizeMax=59;
             detail=Text("",panel,1432,493,440,105,24,Hex("BDCBD2"));
+            detail.enableAutoSizing=true; detail.fontSizeMin=17; detail.fontSizeMax=24;
             Art("Eye",panel,1432,608,22,22); ownership=Text("",panel,1464,603,408,44,22,Muted);
             Box("Detail divider",panel,1432,678,48,2,Hex("C3AA70"));
             notice=Text("",panel,1432,702,440,112,22,Muted);
@@ -200,7 +208,14 @@ namespace ArmySurvivor.Equipment
             for(int i=0;i<resultButtons.Count;i++)
             {
                 var b=resultButtons[i]; b.gameObject.SetActive(i<rewards.Count); if(i>=rewards.Count) continue;
-                var item=rewards[i]; b.GetComponentInChildren<TMP_Text>().text=$"<color=#{ColorUtility.ToHtmlStringRGB(GradeColor(item.grade))}>{item.grade}급 장비</color>\n{item.displayName}";
+                var item=rewards[i];
+                // 보급 후 보유 수에서 뒤에 나온 같은 장비를 빼면, 이 카드를 받은 시점의 보유 수가 된다.
+                int later=0; for(int j=i+1;j<rewards.Count;j++) if(rewards[j]==item) later++;
+                int countThen=EquipmentInventory.Count(item.id)-later;
+                string duplicate=countThen<=1?"":countThen-1>EquipmentInventory.MaxBreakthrough?catalog.breakthroughMaxResultText
+                    :string.Format(catalog.breakthroughResultFormat,countThen-1);
+                b.GetComponentInChildren<TMP_Text>().text=$"<color=#{ColorUtility.ToHtmlStringRGB(GradeColor(item.grade))}>{item.grade}급 장비</color>\n{item.displayName}"
+                    +(duplicate.Length>0?$"\n<size=19><color=#{ColorUtility.ToHtmlStringRGB(Gold)}>{duplicate}</color></size>":"");
                 b.onClick.RemoveAllListeners(); b.onClick.AddListener(()=>{resultsPanel.SetActive(false);Select(item);});
             }
             resultsPanel.SetActive(true);
@@ -233,13 +248,22 @@ namespace ArmySurvivor.Equipment
                 ((RectTransform)rows[i].transform).anchoredPosition=new Vector2(0,-count++*78);
                 var c=rows[i].colors;c.normalColor=item==selected?Hex("283744"):new Color(.063f,.102f,.141f,.78f);rows[i].colors=c;
                 rowSelection[i].SetActive(item==selected);
-                itemLabels[i].text=$"{item.displayName}\n<size=16><color=#81929F>{(owned>0?$"보유 {owned}개":"미보유")}{(item.id==EquipmentInventory.EquippedId?" · 장착 중":"")}</color></size>";
+                int rowBreak=EquipmentInventory.Breakthrough(item.id);
+                itemLabels[i].text=$"{item.displayName}\n<size=16><color=#81929F>{(owned>0?$"보유 {owned}개":"미보유")}{(rowBreak>0?$" · {rowBreak}돌파":"")}{(item.id==EquipmentInventory.EquippedId?" · 장착 중":"")}</color></size>";
             }
             listContent.sizeDelta=new Vector2(370,Mathf.Max(620,count*78));listTitle.text=ownedOnly?"보유 장비":"보급 장비";listCount.text=$"전체 {count}종";
             if(selected==null)return;
             gradeText.text=$"<pos=12>{selected.grade}<pos=56><size=24>{selected.grade}급 장비</size>";gradeText.color=GradeColor(selected.grade);
-            itemName.text=selected.displayName; detail.text=selected.description;
-            ownership.text=EquipmentInventory.Count(selected.id)>0?$"보유 {EquipmentInventory.Count(selected.id)}개":"미보유 · 미리보기";
+            itemName.text=selected.displayName;
+            // 소개 문구 + 현재 돌파 단계가 반영된 장착 효과. 소개 문구가 없으면 기존 설명을 그대로 쓴다.
+            float detailScale=EquipmentInventory.ScaleAt(EquipmentInventory.Breakthrough(selected.id));
+            detail.text=string.IsNullOrEmpty(selected.flavor)?selected.description
+                :selected.flavor+"\n"+string.Format(catalog.equipEffectFormat,
+                    EquipmentInventory.EffectText(selected,detailScale,false,catalog.equipEffectSeparator));
+            int selectedCount=EquipmentInventory.Count(selected.id), selectedBreak=EquipmentInventory.Breakthrough(selected.id);
+            ownership.text=selectedCount<=0?"미보유 · 미리보기"
+                :$"보유 {selectedCount}개 · "+string.Format(catalog.breakthroughFormat,selectedBreak,EquipmentInventory.MaxBreakthrough)
+                +(selectedBreak>0?" · "+string.Format(catalog.breakthroughBonusFormat,Mathf.RoundToInt(selectedBreak*catalog.adventureBreakthroughBonus*100f)):"");
             notice.text=VillageMode?"획득한 장비는 출전 준비에서\n장착할 수 있습니다.":"장착한 장비의 능력은 전투에 적용됩니다.\n장착 상태는 저장 슬롯에 기록됩니다.";
             equip.gameObject.SetActive(!VillageMode);equip.interactable=Available&&EquipmentInventory.Count(selected.id)>0;
             equip.GetComponentInChildren<TMP_Text>().text=selected.id==EquipmentInventory.EquippedId?"장착 해제":"지휘관 공용 슬롯에 장착";

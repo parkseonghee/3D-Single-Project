@@ -19,6 +19,7 @@ MonoBehaviour:
   description: "\uD3ED\uD48D\uC758 \uD798\uC744 \uD488\uC740 \uAC80.\n\uC7A5\uCC29:
     \uBD80\uB300 \uACF5\uACA9 \uD53C\uD574 +12%, \uC9C0\uD718\uAD00 \uC774\uB3D9\uC18D\uB3C4
     +10%."
+  flavor: "\uD3ED\uD48D\uC758 \uD798\uC744 \uD488\uC740 \uAC80."
   model: {fileID: 919132149155446097, guid: fd7feb85b75a190469d45c72e852eb9f, type: 3}
   previewRotation: {x: 270, y: 0, z: 0}
   squadDamageBonus: 0.12

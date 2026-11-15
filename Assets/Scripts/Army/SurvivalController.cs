@@ -19,7 +19,20 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text bestText;
         [SerializeField] private TMP_Text alert;
         [SerializeField] private TMP_Text bossTitle;
+        [Tooltip("결과창 가운데 칸: 처치 수와 점수")]
         [SerializeField] private TMP_Text resultText;
+        [Tooltip("결과창 위 칸: 신기록 여부와 생존 시간. 비우면 모든 문구를 resultText에 모아 쓴다.")]
+        [SerializeField] private TMP_Text resultHeader;
+        [Tooltip("결과창 아래 칸: 이전 최고 기록")]
+        [SerializeField] private TMP_Text resultFooter;
+        [Header("결과 문구")]
+        [SerializeField] private string newRecordText = "NEW RECORD!";
+        [Tooltip("{0} = 생존 시간")]
+        [SerializeField] private string resultTimeFormat = "생존 {0}";
+        [Tooltip("{0} = 일반, {1} = 정예, {2} = 보스 처치, {3} = 점수")]
+        [SerializeField] private string resultStatsFormat = "일반 처치 {0}   정예 {1}   보스 {2}\n점수 {3:N0}";
+        [Tooltip("{0} = 이전 최고 생존 시간")]
+        [SerializeField] private string resultPreviousFormat = "이전 최고 {0}";
         [SerializeField] private Image bossFill;
         [SerializeField] private GameObject bossBar;
         [SerializeField] private GameObject resultPanel;
@@ -258,9 +271,17 @@ namespace ArmySurvivor.Army
             SetHudVisible(false);
             bossBar.SetActive(false);
             resultPanel.SetActive(true);
-            resultText.text = $"{(best ? "NEW RECORD!\n" : "")}생존 {RecordManager.TimeLabel(seconds)}\n" +
-                $"일반 처치 {normalKills}   정예 {eliteKills}   보스 {bossKills}\n" +
-                $"점수 {record.score:N0}\n이전 최고 {RecordManager.TimeLabel(previous?.survivalSeconds ?? 0)}";
+            string header = (best ? newRecordText + "\n" : "") + string.Format(resultTimeFormat, RecordManager.TimeLabel(seconds));
+            string stats = string.Format(resultStatsFormat, normalKills, eliteKills, bossKills, record.score);
+            string footer = string.Format(resultPreviousFormat, RecordManager.TimeLabel(previous?.survivalSeconds ?? 0));
+            // 결과창 그림의 구분선을 피해 위·가운데·아래 칸에 나눠 쓴다.
+            if (resultHeader != null && resultFooter != null)
+            {
+                resultHeader.text = header;
+                resultText.text = stats;
+                resultFooter.text = footer;
+            }
+            else resultText.text = header + "\n" + stats + "\n" + footer;
         }
 
         private void OnRunEnded()

@@ -10,6 +10,12 @@ namespace ArmySurvivor.Army
         {
             public string title;
             [TextArea(2, 4)] public string description;
+            [Tooltip("카드 그림 (위쪽 리본에 이름, 아래쪽 남색 칸에 설명이 들어간다). 비어 있으면 단색 카드로 표시한다.")]
+            public Sprite card;
+            [Tooltip("카드 위쪽 리본의 세로 중심 (카드 높이 대비, 위에서부터)")]
+            [Range(0, 0.3f)] public float cardTitleCenter = 0.085f;
+            [Tooltip("리본이 어두운 색이면 켠다. 제목을 밝은 글자색으로 쓴다.")]
+            public bool cardDarkRibbon;
             [Min(0.1f)] public float commanderHealth = 1;
             [Min(0.1f)] public float soldierHealth = 1;
             [Min(0.1f)] public float damage = 1;
@@ -76,6 +82,23 @@ namespace ArmySurvivor.Army
         [Min(0)] public int bossKillScore = 500;
         [Header("시작 리스크와 보상 (무작위 3개 제시)")]
         public Tradeoff[] openingTradeoffs;
+        [Header("시작 계약 카드 배치 (1920×1080 기준)")]
+        [Tooltip("카드 이미지 비율(1024×1536 = 2:3)에 맞춘다.")]
+        public Vector2 tradeoffCardSize = new Vector2(400, 600);
+        [Min(0)] public float tradeoffCardSpacing = 450;
+        public float tradeoffCardY = -20;
+        [Tooltip("제목 글자 영역 높이 (카드 높이 대비). 세로 위치는 계약마다 cardTitleCenter로 정한다.")]
+        [Range(0.02f, 0.2f)] public float tradeoffTitleHeight = 0.055f;
+        [Tooltip("카드 높이 대비 위에서부터의 비율. x = 설명 칸 위쪽, y = 설명 칸 아래쪽")]
+        public Vector2 tradeoffDescriptionBand = new Vector2(0.80f, 0.93f);
+        [Tooltip("카드 너비 대비 글자 영역 너비")]
+        [Range(0.3f, 1f)] public float tradeoffTitleWidth = 0.55f;
+        [Range(0.3f, 1f)] public float tradeoffDescriptionWidth = 0.8f;
+        public Color tradeoffTitleColor = new Color(0.32f, 0.17f, 0.05f);
+        public Color tradeoffDarkRibbonTitleColor = new Color(1f, 0.88f, 0.6f);
+        public Color tradeoffDescriptionColor = new Color(0.93f, 0.9f, 0.8f);
+        [Tooltip("설명의 이 구분자를 줄바꿈으로 바꿔 혜택과 대가를 두 줄로 나눈다. 비우면 그대로 쓴다.")]
+        public string tradeoffDescriptionLineBreak = " / ";
 
         public int Tier(float seconds) => seconds < tier2Seconds ? 1 : seconds < tier3Seconds ? 2 : 3;
         public int AdventureTier(int day) => day < adventureTier2Day ? 1 : day < adventureTier3Day ? 2 : 3;
