@@ -77,6 +77,12 @@ namespace ArmySurvivor.Army
             [Tooltip("구형 호환 값. 현재는 Day 1~10: 2, 11~20: 3, 21 이후: 4로 결정")]
             [Min(1)] public int availableWaveCount = 4;
             [Min(0)] public int goldReward = 100;
+            [Header("보스 보상 (기획서 9.1) · 이 구간의 보스를 격파한 날에만 지급")]
+            [Min(0)] public int bossSealReward = 10;
+            [Tooltip("보스 확정 장비 뽑기 1회의 최저 등급. 인장을 소모하지 않는다.")]
+            public ArmySurvivor.Equipment.ItemGrade bossGuaranteedGrade = ArmySurvivor.Equipment.ItemGrade.A;
+            [Tooltip("끄면 확정 장비 뽑기를 지급하지 않는다.")]
+            public bool bossGuaranteedDraw = true;
         }
         [Min(1)] public int finalDay = 30;
         [Min(1)] public int bossInterval = 10;

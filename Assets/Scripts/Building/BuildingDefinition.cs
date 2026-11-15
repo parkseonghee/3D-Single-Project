@@ -20,6 +20,16 @@ namespace ArmySurvivor.Building
         [Min(0)] public int initialDailyRice;
         [Min(0)] public int additionalDailyRice;
         [Min(0)] public int dailyRicePerUpgrade;
+        [Header("편성 상한 기여 (기획서 9 막사) · 기여하지 않는 건물은 0")]
+        [Min(0)] public int formationSlots;
+        [Min(0)] public int formationSlotsPerUpgrade;
+        [Header("전투 능력치 보너스 (기획서 9) · 0.1 = 10%, 모험 모드에만 적용")]
+        [Tooltip("켜면 모든 병력, 끄면 이 건물에서 고용하는 클래스(UnitDefinition.requiredBuilding)에만 적용")]
+        public bool boostsAllUnits;
+        [Min(0)] public float unitDamageBonus;
+        [Min(0)] public float unitDamageBonusPerUpgrade;
+        [Min(0)] public float unitHealthBonus;
+        [Min(0)] public float unitHealthBonusPerUpgrade;
         [Header("점유 크기와 모델 보정")]
         public Vector3 footprint = Vector3.one;
         public Vector3 modelOffset;
@@ -32,6 +42,14 @@ namespace ArmySurvivor.Building
             double roundedCost = System.Math.Round(cost, System.MidpointRounding.AwayFromZero);
             return (int)System.Math.Min(roundedCost, int.MaxValue);
         }
+
+        // 이 건물 1채가 해당 레벨에서 늘려 주는 편성 칸 수.
+        public int FormationSlotsAt(int level) =>
+            level < 1 ? 0 : (int)System.Math.Min(int.MaxValue, formationSlots + (long)(level - 1) * formationSlotsPerUpgrade);
+
+        // 건설(레벨 1) 보너스 + 강화 레벨마다 추가 보너스.
+        public float DamageBonusAt(int level) => level < 1 ? 0 : unitDamageBonus + (level - 1) * unitDamageBonusPerUpgrade;
+        public float HealthBonusAt(int level) => level < 1 ? 0 : unitHealthBonus + (level - 1) * unitHealthBonusPerUpgrade;
 
         public int UpgradeCostAt(int level)
         {

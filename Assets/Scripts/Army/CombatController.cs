@@ -95,12 +95,16 @@ namespace ArmySurvivor.Army
             if (GameModeManager.Current == GameMode.Survival)
                 damage *= SurvivalTradeoffDraft.Damage * ArmySurvivor.Equipment.EquipmentInventory.SurvivalWeaponDamageMultiplier;
             damage *= 1f + ManualBonus(unit).x;
+            if (buildingDamageBonus.TryGetValue(unit, out float buildingBonus)) damage *= 1f + buildingBonus;
             if (Time.time < rewardWarCryUntil) damage *= 1f + rewardWarCryBonus;
             if (teamAttackRemaining > 0) damage *= 1f + teamAttackBonus;
             if (experience != null && Random.value < experience.FocusCriticalChance(unit))
                 damage *= experience.FocusCriticalMultiplier(unit);
             return damage;
         }
+        private readonly Dictionary<Transform, float> buildingDamageBonus = new Dictionary<Transform, float>();
+        public event System.Action<Transform, Vector3, float, bool> EnemyDamaged;
+        public float BuildingDamageBonus(Transform unit) => buildingDamageBonus.TryGetValue(unit, out float value) ? value : 0f;
         public bool Defeated { get; private set; }
         public event System.Action CommanderDeathFinished;
         public event System.Action<Vector3> EnemyKilled;
@@ -352,11 +356,15 @@ namespace ArmySurvivor.Army
                 new Color(1, 0.8f, 0.2f));
             allies[run.Commander].EquipmentDamageReduction =
                 ArmySurvivor.Equipment.EquipmentInventory.EquippedItem?.commanderDamageReduction ?? 0f;
+            buildingDamageBonus.Clear();
             foreach (var unit in recruitment.Units)
             {
                 cooldowns[unit.Key] = 0;
                 attackers[unit.Key] = unit.Key.GetComponentsInChildren<Animator>();
-                RegisterHealth(unit.Key, unit.Value.health *
+                // 마을 건물 강화(기획서 9)는 전투 시작 시점 값으로 고정한다.
+                Vector2 building = recruitment.BuildingStatBonus(unit.Value);
+                buildingDamageBonus[unit.Key] = building.x;
+                RegisterHealth(unit.Key, unit.Value.health * (1f + building.y) *
                     (GameModeManager.Current == GameMode.Survival ? SurvivalTradeoffDraft.SoldierHealth : 1f),
                     new Color(0.2f, 0.8f, 0.3f));
             }
@@ -1388,7 +1396,10 @@ namespace ArmySurvivor.Army
             bool wasSuppressed = target.suppressionRemaining > 0;
             Vector3 hitPosition = target.root.position;
             Hits++;
-            target.vitality.TakeDamage(damage * ShoutArmorMultiplier(target) * supportMultiplier);
+            float dealt = damage * ShoutArmorMultiplier(target) * supportMultiplier;
+            target.vitality.TakeDamage(dealt);
+            // 데미지 숫자 표시. 건물 강화 보너스를 받은 병력의 피해는 따로 표시한다.
+            EnemyDamaged?.Invoke(target.root, hitPosition, dealt, source != null && BuildingDamageBonus(source) > 0);
             if (bloodEffect != null)
             {
                 Quaternion rotation = direction.sqrMagnitude > 0.0001f

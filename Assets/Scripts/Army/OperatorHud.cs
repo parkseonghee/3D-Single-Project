@@ -16,6 +16,8 @@ namespace ArmySurvivor.Army
         [SerializeField] private Button bottleButton;
         [SerializeField] private string portraitLayer = "UnitPortrait";
         [SerializeField, Range(64, 137)] private float slotWidth = 120;
+        [Tooltip("숫자키 선택·Ctrl+숫자키 투자를 지원하는 슬롯 수. 편성 최대 인원(8)에 맞춘다.")]
+        [SerializeField, Range(1, 9)] private int shortcutCount = 8;
         private sealed class Slot
         {
             public Transform unit;
@@ -123,8 +125,8 @@ namespace ArmySurvivor.Army
                 var keyBackground = key.gameObject.AddComponent<Image>();
                 keyBackground.color = new Color(0.06f, 0.1f, 0.12f, 0.85f);
                 keyBackground.raycastTarget = false;
-                Label("Key", key, Vector2.zero, new Vector2(24, 18), index < 5 ? (index + 1).ToString() : "", 14);
-                if (index >= 5) key.gameObject.SetActive(false);
+                Label("Key", key, Vector2.zero, new Vector2(24, 18), index < shortcutCount ? (index + 1).ToString() : "", 14);
+                if (index >= shortcutCount) key.gameObject.SetActive(false);
                 var badge = Rect("Level Badge", slot.root, new Vector2(-35, 26), new Vector2(43, 19));
                 var badgeImage = badge.gameObject.AddComponent<Image>();
                 badgeImage.color = new Color(0.04f, 0.09f, 0.13f, 0.85f);
@@ -241,7 +243,7 @@ namespace ArmySurvivor.Army
             if (!run.IsRunning || run.IsPaused || experience.IsChoosingUpgrade || Keyboard.current == null ||
                 ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked) return;
             bool feed = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
-            for (int i = 0; i < Mathf.Min(5, slots.Count); i++)
+            for (int i = 0; i < Mathf.Min(shortcutCount, slots.Count); i++)
             {
                 if (!Keyboard.current[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) continue;
                 if (feed)

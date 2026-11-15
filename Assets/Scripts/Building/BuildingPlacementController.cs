@@ -153,6 +153,35 @@ namespace ArmySurvivor.Building
             return level;
         }
 
+        // 활성 건물 전체의 편성 상한 기여 합계. 철거·이동 중 비활성 건물은 제외한다.
+        public int GetFormationSlots()
+        {
+            long total = 0;
+            foreach (var placed in placedBuildings)
+                if (placed.Key != null && placed.Key.activeSelf && placed.Value.definition != null)
+                    total += placed.Value.definition.FormationSlotsAt(placed.Value.level);
+            return (int)System.Math.Min(total, int.MaxValue);
+        }
+
+        // 병력 클래스(고용 건물 기준)에 적용되는 공격력(x)·체력(y) 보너스 합계.
+        // 같은 건물이 여러 채면 가장 높은 레벨 하나만 적용해 중복 건설로 쌓이지 않게 한다.
+        public Vector2 GetUnitStatBonus(BuildingDefinition unitBuilding)
+        {
+            var highest = new Dictionary<BuildingDefinition, int>();
+            foreach (var placed in placedBuildings)
+            {
+                var definition = placed.Value.definition;
+                if (placed.Key == null || !placed.Key.activeSelf || definition == null) continue;
+                if (!definition.boostsAllUnits && definition != unitBuilding) continue;
+                highest.TryGetValue(definition, out int level);
+                highest[definition] = Mathf.Max(level, placed.Value.level);
+            }
+            Vector2 bonus = Vector2.zero;
+            foreach (var entry in highest)
+                bonus += new Vector2(entry.Key.DamageBonusAt(entry.Value), entry.Key.HealthBonusAt(entry.Value));
+            return bonus;
+        }
+
         public BuildingDefinition GetDefinition(GameObject target)
         {
             return target != null && placedBuildings.TryGetValue(target, out BuildingState state)

@@ -22,6 +22,10 @@ namespace ArmySurvivor.Army
         [SerializeField] private TMP_Text goldAmount;
         [SerializeField] private GameObject endingLabel;
         [SerializeField] private Button returnButton;
+        [Header("보스 보상 (기획서 9.1)")]
+        [SerializeField] private TMP_Text bossRewardText;
+        [SerializeField] private string bossSealFormat = "보스 보상 · 보급 인장 +{0}";
+        [SerializeField] private string bossItemFormat = "확정 보급 · {0}등급 {1}";
         [Header("베테랑 (기획서 4.6)")]
         [SerializeField] private VeteranProgression veterans;
         [Header("모험 모드 패배")]
@@ -251,8 +255,39 @@ namespace ArmySurvivor.Army
             clearedDay.text = Day.ToString();
             goldAmount.text = (stage.goldReward + victorySupportGold).ToString();
             endingLabel.SetActive(Day >= settings.finalDay);
+            ShowBossReward(IsBossDay ? GrantBossReward() : null);
             if (resultRetryInfo != null && retry != null) resultRetryInfo.text = retry.TokensLabel(CampaignState.RetryTokens);
             resultPanel.SetActive(true);
+        }
+
+        // 승리 확정 시 바로 인벤토리에 넣는다. 다음 아침 자동 저장 전에 종료하면 그날을 다시 하므로 중복 지급되지 않는다.
+        private string GrantBossReward()
+        {
+            var lines = new System.Text.StringBuilder();
+            if (stage.bossSealReward > 0)
+            {
+                ArmySurvivor.Equipment.EquipmentInventory.AddTickets(stage.bossSealReward);
+                lines.Append(string.Format(bossSealFormat, stage.bossSealReward));
+            }
+            if (stage.bossGuaranteedDraw)
+            {
+                var catalog = Resources.Load<ArmySurvivor.Equipment.EquipmentCatalog>("EquipmentCatalog");
+                var item = ArmySurvivor.Equipment.EquipmentInventory.GrantGuaranteedDraw(catalog, stage.bossGuaranteedGrade);
+                if (item != null)
+                {
+                    if (lines.Length > 0) lines.Append('\n');
+                    lines.Append(string.Format(bossItemFormat, item.grade, string.IsNullOrEmpty(item.displayName) ? item.name : item.displayName));
+                }
+                else Debug.LogWarning("보스 확정 보급 실패: EquipmentCatalog를 확인하세요.", this);
+            }
+            return lines.ToString();
+        }
+
+        private void ShowBossReward(string text)
+        {
+            if (bossRewardText == null) return;
+            bossRewardText.text = text ?? "";
+            bossRewardText.gameObject.SetActive(!string.IsNullOrEmpty(text));
         }
 
         private void DefeatCampaign() => Fail(false);

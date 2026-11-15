@@ -69,7 +69,7 @@ namespace ArmySurvivor.Editor
                     Step("Soldier", "자동 전투", "병사들은 가까운 적을 자동으로 공격합니다.", TutorialAdvance.NextButton),
                     Step("ExpBottle", "경험치 병", "몬스터가 경험치 병을 떨어뜨렸습니다. 화면을 클릭하면 전투가 재개됩니다.", TutorialAdvance.NextButton),
                     Step("ExpBottle", "경험치 병 줍기", "지휘관을 움직여 경험치 병을 주우세요.", TutorialAdvance.Event, "ExpBottleCollected"),
-                    Step("SoldierPortrait", "병사 레벨업", "경험치 병을 얻으면 Ctrl+1~5로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
+                    Step("SoldierPortrait", "병사 레벨업", "경험치 병을 얻으면 Ctrl+숫자키로 해당 번호의 병사에게 투자하세요. 경험치가 차면 레벨업합니다.", TutorialAdvance.Event, "ExpBottleInvested")
                 };
                 battle.steps[0].commanderDistance = 2f;
                 battle.steps[0].pauseGame = true;

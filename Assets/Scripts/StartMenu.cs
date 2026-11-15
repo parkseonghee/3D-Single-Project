@@ -18,21 +18,39 @@ namespace ArmySurvivor.UI
         [SerializeField] private string continueFormat = "Day {0} 아침 · 재도전권 {1}";
         [SerializeField] private string battleQuitText = " (전투 중 종료 · 이어하면 재도전권 1장 사용)";
         [SerializeField] private string campaignEndedText = "전투 중 종료되어 남은 재도전권이 없습니다. 회차가 종료되었습니다.";
+        [Header("새 모험 확인 (이어할 모험이 있을 때)")]
+        [SerializeField] private GameObject newAdventureConfirm;
+        [SerializeField] private TMP_Text newAdventureMessage;
+        [SerializeField] private Button newAdventureConfirmButton;
+        [SerializeField] private Button newAdventureCancelButton;
+        [SerializeField, TextArea] private string newAdventureFormat = "진행 중인 모험(Day {0}, 재도전권 {1})이 삭제됩니다.\n새 모험을 시작할까요?";
         [SerializeField] private TMP_Text survivalBestTimeText;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private Slider volumeSlider;
         [SerializeField] private Toggle fullscreenToggle;
+        [SerializeField] private Toggle damageNumbersToggle;
         private bool loading;
 
         private void Start()
         {
             volumeSlider.SetValueWithoutNotify(AudioListener.volume);
             fullscreenToggle.SetIsOnWithoutNotify(Screen.fullScreen);
+            if (damageNumbersToggle != null)
+            {
+                damageNumbersToggle.SetIsOnWithoutNotify(DamageNumbers.Enabled);
+                damageNumbersToggle.onValueChanged.AddListener(value => DamageNumbers.Enabled = value);
+            }
             // 버튼과 기록 문구는 StartScene에 배치하고 여기서는 동작만 연결한다.
             newGameButton.onClick = new Button.ButtonClickedEvent();
             newGameButton.onClick.AddListener(() => StartMode(GameMode.Survival));
             adventureModeButton.onClick = new Button.ButtonClickedEvent();
-            adventureModeButton.onClick.AddListener(() => StartMode(GameMode.Adventure));
+            adventureModeButton.onClick.AddListener(AdventureClicked);
+            if (newAdventureConfirm != null)
+            {
+                newAdventureConfirm.SetActive(false);
+                newAdventureConfirmButton.onClick.AddListener(ConfirmNewAdventure);
+                newAdventureCancelButton.onClick.AddListener(() => newAdventureConfirm.SetActive(false));
+            }
             if (continueButton != null)
             {
                 // 씬에 남아 있던 슬롯 창 연결을 지우고 자동 저장 이어하기로 바꾼다.
@@ -59,6 +77,23 @@ namespace ArmySurvivor.UI
         }
 
         public void NewGame() => StartMode(GameMode.Survival);
+
+        // 자동 저장이 있으면 덮어쓰기 전에 확인한다. 확인 창이 배치되지 않았으면 바로 시작한다.
+        private void AdventureClicked()
+        {
+            var info = ArmySurvivor.Saving.GameSave.AutoSaveSummary();
+            if (loading || !info.HasValue || newAdventureConfirm == null) { StartMode(GameMode.Adventure); return; }
+            newAdventureMessage.text = string.Format(newAdventureFormat, info.Value.day, info.Value.tokens);
+            newAdventureConfirm.transform.SetAsLastSibling();
+            newAdventureConfirm.SetActive(true);
+        }
+
+        private void ConfirmNewAdventure()
+        {
+            newAdventureConfirm.SetActive(false);
+            ArmySurvivor.Saving.GameSave.DeleteAutoSave();
+            StartMode(GameMode.Adventure);
+        }
 
         private void RefreshContinue()
         {

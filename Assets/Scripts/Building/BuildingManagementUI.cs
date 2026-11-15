@@ -27,6 +27,11 @@ namespace ArmySurvivor.Building
         [SerializeField] private Button moveButton;
         [SerializeField] private Button demolishButton;
         [SerializeField] private Button closeButton;
+        [Header("강화 수치 미리보기 (기획서 9) · 해당 효과가 없는 건물은 숨김")]
+        [SerializeField] private TMP_Text bonusPreview;
+        [SerializeField] private string statFormat = "공격력·체력  현재 +{0}%  →  강화 후 +{1}%";
+        [SerializeField] private string formationFormat = "편성 상한  현재 +{0}칸  →  강화 후 +{1}칸";
+        [SerializeField] private string higherCopyFormat = "더 높은 Lv.{0} {1}의 효과가 적용 중";
 
         private GameObject selected;
         private int lastGold;
@@ -100,6 +105,33 @@ namespace ArmySurvivor.Building
             refundAmount.text = definition.DemolitionRefund.ToString();
             upgradeButton.interactable = lastGold >= cost && lastLevel < int.MaxValue;
             insufficientGold.SetActive(lastGold < cost);
+            RefreshBonusPreview(definition);
         }
+
+        // 선택한 건물 1채의 현재·다음 레벨 효과를 보여준다. 수치는 BuildingDefinition에서 계산한다.
+        private void RefreshBonusPreview(BuildingDefinition definition)
+        {
+            if (bonusPreview == null) return;
+            var lines = new System.Text.StringBuilder();
+            int next = lastLevel < int.MaxValue ? lastLevel + 1 : lastLevel;
+            if (definition.formationSlots > 0 || definition.formationSlotsPerUpgrade > 0)
+                lines.Append(string.Format(formationFormat, definition.FormationSlotsAt(lastLevel), definition.FormationSlotsAt(next)));
+            bool stat = definition.unitDamageBonus > 0 || definition.unitDamageBonusPerUpgrade > 0 ||
+                        definition.unitHealthBonus > 0 || definition.unitHealthBonusPerUpgrade > 0;
+            if (stat)
+            {
+                if (lines.Length > 0) lines.Append('\n');
+                // 공격력과 체력 보너스는 같은 값으로 설정한다. 다르면 공격력 기준으로 표시한다.
+                lines.Append(string.Format(statFormat, Percent(definition.DamageBonusAt(lastLevel)), Percent(definition.DamageBonusAt(next))));
+                // 같은 건물이 여러 채면 가장 높은 레벨 하나만 적용된다.
+                int highest = controller.GetHighestLevel(definition);
+                if (highest > lastLevel)
+                    lines.Append('\n').Append(string.Format(higherCopyFormat, highest, definition.displayName));
+            }
+            bonusPreview.text = lines.ToString();
+            bonusPreview.gameObject.SetActive(lines.Length > 0);
+        }
+
+        private static int Percent(float value) => Mathf.RoundToInt(value * 100);
     }
 }

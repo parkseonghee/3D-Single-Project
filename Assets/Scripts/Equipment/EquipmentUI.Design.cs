@@ -65,6 +65,13 @@ namespace ArmySurvivor.Equipment
             var scaler=canvasRoot.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1920,1080); scaler.matchWidthOrHeight=.5f;
             var entry=Button("",canvasRoot.transform,new Vector2(28,-105),new Vector2(285,58),OpenEntry);
+            var entrySprite=Resources.Load<Sprite>("GeneratedKingdomUI/VillageSupplyBanner");
+            if(entrySprite!=null)
+            {
+                entry.image.sprite=entrySprite;
+                entry.image.type=Image.Type.Simple;
+                entry.image.color=Color.white;
+            }
             shortcut=entry.gameObject; shortcutText=entry.GetComponentInChildren<TMP_Text>();
             shortcut.AddComponent<TutorialTarget>().SetId("SupplyDepotEntry");
             // A fitted 16:9 composition keeps all four corners accessible on other aspect ratios.

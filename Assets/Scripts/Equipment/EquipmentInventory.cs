@@ -143,22 +143,40 @@ namespace ArmySurvivor.Equipment
             state.tickets -= count;
             for (int i = 0; i < count; i++)
             {
-                float roll = UnityEngine.Random.value;
-                ItemGrade grade = roll < catalog.sRate ? ItemGrade.S : roll < catalog.sRate + catalog.aRate ? ItemGrade.A
-                    : roll < catalog.sRate + catalog.aRate + catalog.bRate ? ItemGrade.B : ItemGrade.C;
-                if (catalog.HasSRewards && state.sinceS >= catalog.sGuarantee - 1) grade = ItemGrade.S;
-                else if (state.sinceA >= catalog.aGuarantee - 1 && grade < ItemGrade.A) grade = ItemGrade.A;
-                var pool = Array.FindAll(catalog.items, x => x.grade == grade);
-                var item = pool[UnityEngine.Random.Range(0, pool.Length)];
-                if (catalog.HasSRewards) state.sinceS = grade == ItemGrade.S ? 0 : state.sinceS + 1;
-                state.sinceA = grade >= ItemGrade.A ? 0 : state.sinceA + 1;
-                var owned = state.owned.Find(x => x.id == item.id);
-                if (owned == null) state.owned.Add(new OwnedEquipment { id = item.id, count = 1 });
-                else if (owned.count < int.MaxValue) owned.count++;
-                result.Add(item);
+                result.Add(DrawOne(catalog, ItemGrade.C));
             }
             Changed?.Invoke();
             return true;
+        }
+
+        // 보스 보상(기획서 9.1): 인장 없이 1회 뽑는다. 등급은 minimum 이상으로 올리고,
+        // 보장 카운터는 일반 뽑기와 같은 규칙으로 갱신한다.
+        public static EquipmentItem GrantGuaranteedDraw(EquipmentCatalog catalog, ItemGrade minimum)
+        {
+            if (catalog == null || !catalog.IsValid) return null;
+            var item = DrawOne(catalog, minimum);
+            Changed?.Invoke();
+            return item;
+        }
+
+        private static EquipmentItem DrawOne(EquipmentCatalog catalog, ItemGrade minimum)
+        {
+            float roll = UnityEngine.Random.value;
+            ItemGrade grade = roll < catalog.sRate ? ItemGrade.S : roll < catalog.sRate + catalog.aRate ? ItemGrade.A
+                : roll < catalog.sRate + catalog.aRate + catalog.bRate ? ItemGrade.B : ItemGrade.C;
+            if (catalog.HasSRewards && state.sinceS >= catalog.sGuarantee - 1) grade = ItemGrade.S;
+            else if (state.sinceA >= catalog.aGuarantee - 1 && grade < ItemGrade.A) grade = ItemGrade.A;
+            if (grade < minimum) grade = minimum;
+            // 데이터에 해당 등급 장비가 없으면 한 단계씩 내려 존재하는 등급에서 뽑는다.
+            while (grade > ItemGrade.C && !catalog.HasGrade(grade)) grade--;
+            var pool = Array.FindAll(catalog.items, x => x.grade == grade);
+            var item = pool[UnityEngine.Random.Range(0, pool.Length)];
+            if (catalog.HasSRewards) state.sinceS = grade == ItemGrade.S ? 0 : state.sinceS + 1;
+            state.sinceA = grade >= ItemGrade.A ? 0 : state.sinceA + 1;
+            var owned = state.owned.Find(x => x.id == item.id);
+            if (owned == null) state.owned.Add(new OwnedEquipment { id = item.id, count = 1 });
+            else if (owned.count < int.MaxValue) owned.count++;
+            return item;
         }
     }
 }

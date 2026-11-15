@@ -40,7 +40,7 @@ namespace ArmySurvivor.Army
             {
                 var definition = catalog.Resolve<UnitDefinition>(record.id);
                 var root = new GameObject(definition.name).transform;
-                bool standby = record.reserve || hiredCount >= spawnPoints.Length;
+                bool standby = record.reserve || hiredCount >= FormationCap;
                 if (standby && reserveRoot == null)
                 {
                     reserveRoot = new GameObject("Reserve Troops").transform;

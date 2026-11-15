@@ -2624,10 +2624,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 74, y: -17}
+  m_SizeDelta: {x: 38, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &11711161
 MonoBehaviour:
@@ -6410,9 +6410,9 @@ MonoBehaviour:
   m_text: "\uC624\uB298 \uCC44\uCDE8\uAC00 \uB05D\uB0AC\uC2B5\uB2C8\uB2E4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+  m_sharedMaterial: {fileID: 178730207}
   m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
+  m_fontMaterial: {fileID: 178730207}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
@@ -6429,7 +6429,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -17601,12 +17601,13 @@ RectTransform:
   - {fileID: 191882021}
   - {fileID: 2005285082}
   - {fileID: 544412199}
+  - {fileID: 293187298}
   m_Father: {fileID: 1757108268}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 40, y: 140}
-  m_SizeDelta: {x: 620, y: 380}
+  m_SizeDelta: {x: 620, y: 480}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &82028649
 MonoBehaviour:
@@ -35759,6 +35760,73 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 178340867}
   m_Mesh: {fileID: 4301012, guid: 02ded044b8e0963439276550f50be6f9, type: 3}
+--- !u!21 &178730207
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &180525434
 GameObject:
   m_ObjectHideFlags: 0
@@ -38447,8 +38515,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uAE30\uB9C8\uBCD1\uC758 \uAE30\uBCF8 \uB2A5\uB825\uCE58
-    \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uAE30\uB9C8\uBCD1\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +8% (\uAC15\uD654\uB9C8\uB2E4 \uB204\uC801)\n\uAC19\uC740 \uAC74\uBB3C\uC774
+    \uC5EC\uB7EC \uCC44\uBA74 \uAC00\uC7A5 \uB192\uC740 \uB808\uBCA8\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -40930,6 +40999,73 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 204982287}
   m_Mesh: {fileID: 4300402, guid: 02ded044b8e0963439276550f50be6f9, type: 3}
+--- !u!21 &205143242
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &205488629
 GameObject:
   m_ObjectHideFlags: 0
@@ -58188,6 +58324,144 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 293132873}
   m_Mesh: {fileID: 4300968, guid: 02ded044b8e0963439276550f50be6f9, type: 3}
+--- !u!1 &293187297
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 293187298}
+  - component: {fileID: 293187300}
+  - component: {fileID: 293187299}
+  m_Layer: 0
+  m_Name: Bonus Preview
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &293187298
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293187297}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 82028648}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 24, y: -226}
+  m_SizeDelta: {x: 572, y: 86}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &293187299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293187297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "\uACF5\uACA9\uB825\xB7\uCCB4\uB825  \uD604\uC7AC +0%  \u2192  \uAC15\uD654
+    \uD6C4 +8%"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 0.22, g: 0.15, b: 0.1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: 0
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 19
+  m_fontSizeBase: 19
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &293187300
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293187297}
+  m_CullTransparentMesh: 1
 --- !u!1 &293369621
 GameObject:
   m_ObjectHideFlags: 0
@@ -76985,8 +77259,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uCD9C\uC804\uD560 \uC218 \uC788\uB294 \uD3B8\uC131
-    \uC778\uC6D0 \uC0C1\uD55C \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uD3B8\uC131 \uC0C1\uD55C +1 \xB7 \uD558\uB8E8
+    \uBCBC \uCC44\uCDE8\uB7C9 +10\n\uB9C9\uC0AC 1\uCC44\uB2F9 \uD3B8\uC131 \uC0C1\uD55C
+    +2 \xB7 \uCD5C\uB300 8\uBA85"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -91781,8 +92056,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 6.3765, y: -14.225}
-  m_SizeDelta: {x: 75, y: 106}
+  m_AnchoredPosition: {x: 12, y: -36}
+  m_SizeDelta: {x: 62, y: 86}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &459484298
 MonoBehaviour:
@@ -98448,8 +98723,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uAD81\uC218\uC758 \uAE30\uBCF8 \uB2A5\uB825\uCE58
-    \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uAD81\uC218\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +8% (\uAC15\uD654\uB9C8\uB2E4 \uB204\uC801)\n\uAC19\uC740 \uAC74\uBB3C\uC774
+    \uC5EC\uB7EC \uCC44\uBA74 \uAC00\uC7A5 \uB192\uC740 \uB808\uBCA8\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -113095,7 +113371,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 105, y: -55}
+  m_AnchoredPosition: {x: 105, y: -72}
   m_SizeDelta: {x: 66, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &564964662
@@ -113121,10 +113397,12 @@ MonoBehaviour:
   m_text: 25
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 924960033}
+  m_fontSharedMaterials:
+  - {fileID: 924960033}
+  m_fontMaterial: {fileID: 924960033}
+  m_fontMaterials:
+  - {fileID: 924960033}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -120921,10 +121199,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 182, y: -17}
+  m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &600004212
 MonoBehaviour:
@@ -131471,6 +131749,73 @@ Transform:
   - {fileID: 1069664961}
   m_Father: {fileID: 1530927340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &655107910
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &655185847
 GameObject:
   m_ObjectHideFlags: 0
@@ -134523,8 +134868,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "\uAC15\uD654 \uD6A8\uACFC: \uB2E4\uC74C \uB0A0\uBD80\uD130 \uD558\uB8E8
-    \uBCBC \uCC44\uCDE8\uB7C9 +20\n\uCC44\uCDE8 \uD69F\uC218\uB294 \uD558\uB8E8 4\uD68C\uB85C
-    \uC720\uC9C0\uB429\uB2C8\uB2E4."
+    \uBCBC \uCC44\uCDE8\uB7C9 +20\n\uCC44\uCDE8 \uBC84\uD2BC 1\uD68C\uB85C \uD558\uB8E8
+    \uCD1D\uB7C9\uC744 \uBAA8\uB450 \uC218\uD655\uD569\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -157792,8 +158137,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uBCD1\uC0AC\uC758 \uAE30\uBCF8 \uB2A5\uB825\uCE58
-    \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uBCD1\uC0AC\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +8% (\uAC15\uD654\uB9C8\uB2E4 \uB204\uC801)\n\uAC19\uC740 \uAC74\uBB3C\uC774
+    \uC5EC\uB7EC \uCC44\uBA74 \uAC00\uC7A5 \uB192\uC740 \uB808\uBCA8\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -159824,15 +160170,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.055, g: 0.12, b: 0.16, a: 0.95}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 52833e7f1ac31b54591c62297decb8e2, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -183451,6 +183797,73 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.069048375, y: -0.043952137, z: 0.00000014901161}
     m_Extent: {x: 0.5184207, y: 0.3513364, z: 0.7707151}
   m_DirtyAABB: 0
+--- !u!21 &924960033
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &925254055
 GameObject:
   m_ObjectHideFlags: 0
@@ -188786,14 +189199,16 @@ MonoBehaviour:
   m_text: "\uAC74\uC124\uD558\uAE30"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 1540665082}
+  m_fontSharedMaterials:
+  - {fileID: 1540665082}
+  m_fontMaterial: {fileID: 1540665082}
+  m_fontMaterials:
+  - {fileID: 1540665082}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279903800
-  m_fontColor: {r: 0.22, g: 0.15, b: 0.1, a: 1}
+    rgba: 4287421434
+  m_fontColor: {r: 0.98, g: 0.86, b: 0.55, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -204478,8 +204893,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4572123b5d9ac7e419db2e2b99c90aa4, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 52833e7f1ac31b54591c62297decb8e2, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -208361,7 +208776,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 105, y: -93}
+  m_AnchoredPosition: {x: 105, y: -105}
   m_SizeDelta: {x: 38, y: 27}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1047791596
@@ -208387,10 +208802,12 @@ MonoBehaviour:
   m_text: 4
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 1919414473}
+  m_fontSharedMaterials:
+  - {fileID: 1919414473}
+  m_fontMaterial: {fileID: 1919414473}
+  m_fontMaterials:
+  - {fileID: 1919414473}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -216928,6 +217345,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 389952512}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &1096102806
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1097227234
 GameObject:
   m_ObjectHideFlags: 0
@@ -217673,7 +218157,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 171, y: -55}
+  m_AnchoredPosition: {x: 171, y: -72}
   m_SizeDelta: {x: 112, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1099472724
@@ -217699,10 +218183,12 @@ MonoBehaviour:
   m_text: "\uBCBC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 1788896099}
+  m_fontSharedMaterials:
+  - {fileID: 1788896099}
+  m_fontMaterial: {fileID: 1788896099}
+  m_fontMaterials:
+  - {fileID: 1788896099}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -220249,15 +220735,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.055, g: 0.12, b: 0.16, a: 0.95}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: e2077e27a8fd120448d2cb752af3dfb5, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -220281,7 +220767,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110197598}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
@@ -235516,7 +236002,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 103, y: -15}
+  m_AnchoredPosition: {x: 103, y: -38}
   m_SizeDelta: {x: 200, y: 34}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1197154538
@@ -235542,10 +236028,12 @@ MonoBehaviour:
   m_text: "\uBCBC \uCC44\uCDE8"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 655107910}
+  m_fontSharedMaterials:
+  - {fileID: 655107910}
+  m_fontMaterial: {fileID: 655107910}
+  m_fontMaterials:
+  - {fileID: 655107910}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4285446361
@@ -247320,7 +247808,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 146, y: -93}
+  m_AnchoredPosition: {x: 146, y: -105}
   m_SizeDelta: {x: 136, y: 27}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1254277934
@@ -247346,10 +247834,12 @@ MonoBehaviour:
   m_text: "\uD68C \uB0A8\uC74C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 1096102806}
+  m_fontSharedMaterials:
+  - {fileID: 1096102806}
+  m_fontMaterial: {fileID: 1096102806}
+  m_fontMaterials:
+  - {fileID: 1096102806}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -248620,10 +249110,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 146, y: -17}
+  m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1263594571
 MonoBehaviour:
@@ -251579,7 +252069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 226, y: -146}
+  m_AnchoredPosition: {x: 226, y: -150}
   m_SizeDelta: {x: 70, y: 25}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1276437044
@@ -251605,10 +252095,12 @@ MonoBehaviour:
   m_text: 100
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 1562735841}
+  m_fontSharedMaterials:
+  - {fileID: 1562735841}
+  m_fontMaterial: {fileID: 1562735841}
+  m_fontMaterials:
+  - {fileID: 1562735841}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -263108,7 +263600,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 240, y: -262}
+  m_AnchoredPosition: {x: 240, y: -362}
   m_SizeDelta: {x: 120, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1340408512
@@ -263910,10 +264402,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 227, y: -17}
+  m_SizeDelta: {x: 48, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1345036112
 MonoBehaviour:
@@ -303627,8 +304119,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uBC29\uD328\uBCD1\uC758 \uAE30\uBCF8 \uB2A5\uB825\uCE58
-    \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uBC29\uD328\uBCD1\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +8% (\uAC15\uD654\uB9C8\uB2E4 \uB204\uC801)\n\uAC19\uC740 \uAC74\uBB3C\uC774
+    \uC5EC\uB7EC \uCC44\uBA74 \uAC00\uC7A5 \uB192\uC740 \uB808\uBCA8\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -303873,6 +304366,73 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1540049255}
   m_Mesh: {fileID: 4300776, guid: 02ded044b8e0963439276550f50be6f9, type: 3}
+--- !u!21 &1540665082
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1541039325
 GameObject:
   m_ObjectHideFlags: 0
@@ -309052,6 +309612,73 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.09019899, y: 0.019462734, z: 0.00000014901161}
     m_Extent: {x: 0.5395713, y: 0.2879557, z: 0.7707151}
   m_DirtyAABB: 0
+--- !u!21 &1562735841
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1563294873
 GameObject:
   m_ObjectHideFlags: 0
@@ -309569,7 +310196,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -212}
+  m_AnchoredPosition: {x: 24, y: -312}
   m_SizeDelta: {x: 540, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1564961959
@@ -317811,10 +318438,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 34, y: -17}
+  m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1611257607
 MonoBehaviour:
@@ -330776,7 +331403,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 378, y: -262}
+  m_AnchoredPosition: {x: 378, y: -362}
   m_SizeDelta: {x: 220, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1686238048
@@ -343688,6 +344315,13 @@ MonoBehaviour:
   moveButton: {fileID: 1340408514}
   demolishButton: {fileID: 1686238050}
   closeButton: {fileID: 1126585346}
+  bonusPreview: {fileID: 293187299}
+  statFormat: "\uACF5\uACA9\uB825\xB7\uCCB4\uB825  \uD604\uC7AC +{0}%  \u2192  \uAC15\uD654
+    \uD6C4 +{1}%"
+  formationFormat: "\uD3B8\uC131 \uC0C1\uD55C  \uD604\uC7AC +{0}\uCE78  \u2192  \uAC15\uD654
+    \uD6C4 +{1}\uCE78"
+  higherCopyFormat: "\uB354 \uB192\uC740 Lv.{0} {1}\uC758 \uD6A8\uACFC\uAC00 \uC801\uC6A9
+    \uC911"
 --- !u!114 &1757108270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348541,6 +349175,73 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.06498811, y: 0.020641163, z: 0.00000014901161}
     m_Extent: {x: 0.5143604, y: 0.28673673, z: 0.7707151}
   m_DirtyAABB: 0
+--- !u!21 &1788896099
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1789762063
 GameObject:
   m_ObjectHideFlags: 0
@@ -351540,7 +352241,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 18, y: -146}
+  m_AnchoredPosition: {x: 18, y: -150}
   m_SizeDelta: {x: 195, y: 25}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1804692147
@@ -351566,10 +352267,12 @@ MonoBehaviour:
   m_text: "\uC624\uB298 \uB0A8\uC740 \uC218\uD655\uB7C9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_sharedMaterial: {fileID: 205143242}
+  m_fontSharedMaterials:
+  - {fileID: 205143242}
+  m_fontMaterial: {fileID: 205143242}
+  m_fontMaterials:
+  - {fileID: 205143242}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4291619056
@@ -353763,10 +354466,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1505787313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 112, y: -17}
+  m_SizeDelta: {x: 26, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1817502768
 MonoBehaviour:
@@ -367656,8 +368359,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uB9C8\uBC95\uC0AC\uC758 \uAE30\uBCF8 \uB2A5\uB825\uCE58
-    \uC99D\uAC00"
+  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uB9C8\uBC95\uC0AC\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +8% (\uAC15\uD654\uB9C8\uB2E4 \uB204\uC801)\n\uAC19\uC740 \uAC74\uBB3C\uC774
+    \uC5EC\uB7EC \uCC44\uBA74 \uAC00\uC7A5 \uB192\uC740 \uB808\uBCA8\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
@@ -372706,7 +373410,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: -262}
+  m_AnchoredPosition: {x: 22, y: -362}
   m_SizeDelta: {x: 200, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1906655380
@@ -374700,6 +375404,73 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1919193498}
   m_Mesh: {fileID: 4300920, guid: 02ded044b8e0963439276550f50be6f9, type: 3}
+--- !u!21 &1919414473
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: KMU80 Sungkok Serif - Regular Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 9088889375835878545, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _CullMode: 0
+    - _FaceDilate: 0
+    - _GradientScale: 10
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 1
+    - _ScaleRatioC: 0.73125
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 2048
+    - _TextureWidth: 2048
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: 0
+    - _UnderlaySoftness: 0
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &1920143950
 GameObject:
   m_ObjectHideFlags: 0
@@ -392805,8 +393576,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAC15\uD654 \uD6A8\uACFC: \uBAA8\uB4E0 \uBCD1\uB825\uC758 \uACF5\uACA9\uB825\uACFC
-    \uCCB4\uB825 \uC99D\uAC00"
+  m_text: "\uAC74\uC124 \uD6A8\uACFC: \uBAA8\uB4E0 \uBCD1\uB825\uC758 \uACF5\uACA9\uB825\xB7\uCCB4\uB825
+    +5%\n\uAC15\uD654 \uD6A8\uACFC: \uAC15\uD654\uB9C8\uB2E4 +4% \uCD94\uAC00"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}
   m_sharedMaterial: {fileID: -3941975125088835751, guid: d4b9760239b2ba94b9d673a7c1d03ea9, type: 2}

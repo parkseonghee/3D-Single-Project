@@ -23,6 +23,8 @@ MonoBehaviour:
   initialDailyRice: 40
   additionalDailyRice: 20
   dailyRicePerUpgrade: 10
+  formationSlots: 2
+  formationSlotsPerUpgrade: 1
   footprint: {x: 8.260579, y: 10.934618, z: 8.256876}
   modelOffset: {x: 0.05851364, y: 0.5263829, z: -0.0041365623}
   modelRotation: {x: 90, y: 0, z: 0}

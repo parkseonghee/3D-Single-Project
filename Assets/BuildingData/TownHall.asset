@@ -20,6 +20,16 @@ MonoBehaviour:
   upgradeGoldCost: 192
   upgradeCostMultiplier: 1.4
   demolitionRefundRatio: 0.5
+  initialDailyRice: 0
+  additionalDailyRice: 0
+  dailyRicePerUpgrade: 0
+  formationSlots: 0
+  formationSlotsPerUpgrade: 0
+  boostsAllUnits: 0
+  unitDamageBonus: 0
+  unitDamageBonusPerUpgrade: 0.08
+  unitHealthBonus: 0
+  unitHealthBonusPerUpgrade: 0.08
   footprint: {x: 8.593069, y: 9.572266, z: 8.399763}
   modelOffset: {x: 0.018764496, y: 0.8686137, z: -0.00000047683716}
   modelRotation: {x: 90, y: 0, z: 0}
