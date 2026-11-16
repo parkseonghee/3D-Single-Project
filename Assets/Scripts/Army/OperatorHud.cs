@@ -183,6 +183,8 @@ namespace ArmySurvivor.Army
 
         private void UpdateHealth(Slot slot)
         {
+            // 씬을 내릴 때 슬롯 UI가 먼저 파괴된 뒤 전투 정리(체력 초기화)가 체력 변경을 알릴 수 있다.
+            if (slot.root == null || slot.hp == null || slot.portrait == null) return;
             float ratio = slot.health != null && slot.health.Maximum > 0 ? slot.health.Current / slot.health.Maximum : 0;
             bool dead = slot.health == null || slot.health.IsDead;
             slot.hp.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1);

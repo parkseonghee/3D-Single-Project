@@ -26,6 +26,7 @@ namespace ArmySurvivor.Audio
         private int nextVoice;
         private readonly Dictionary<Sfx, SoundLibrary.SfxEntry> entries = new Dictionary<Sfx, SoundLibrary.SfxEntry>();
         private readonly Dictionary<Sfx, float> lastPlayed = new Dictionary<Sfx, float>();
+        private readonly Dictionary<AudioClip, float> lastClipPlayed = new Dictionary<AudioClip, float>();
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
         private PointerEventData pointer;
         private EventSystem pointerSystem;
@@ -65,6 +66,7 @@ namespace ArmySurvivor.Audio
                     if (entry != null && !entries.ContainsKey(entry.id)) entries.Add(entry.id, entry);
             GameSettings.Changed += RefreshVolumes;
             SceneManager.sceneLoaded += SceneLoaded;
+            SceneManager.activeSceneChanged += ActiveSceneChanged;
         }
 
         // 첫 씬은 이 오브젝트가 만들어지는 시점과 씬 로드 알림 순서가 엇갈릴 수 있어 첫 프레임에 한 번 더 맞춘다.
@@ -77,7 +79,16 @@ namespace ArmySurvivor.Audio
         {
             GameSettings.Changed -= RefreshVolumes;
             SceneManager.sceneLoaded -= SceneLoaded;
+            SceneManager.activeSceneChanged -= ActiveSceneChanged;
             if (instance == this) instance = null;
+        }
+
+        // 모험 모드는 마을과 전투 씬을 오가며 활성 씬만 바꾼다(추가 로드). 활성 씬이 바뀔 때 그 씬의 곡으로 맞춘다.
+        private void ActiveSceneChanged(Scene previous, Scene next)
+        {
+            if (!next.IsValid()) return;
+            var bgm = library.SceneMusic(next.name);
+            if (bgm != Bgm.None) SwitchMusic(bgm);
         }
 
         private void SceneLoaded(Scene scene, LoadSceneMode mode)
@@ -90,6 +101,16 @@ namespace ArmySurvivor.Audio
         public static void Play(Sfx id, float volumeScale = 1f)
         {
             if (instance != null) instance.PlayInternal(id, volumeScale);
+        }
+
+        // 데이터(예: 공격 정의)에 직접 연결된 소리. 같은 파일은 minInterval 안에 다시 내지 않는다.
+        public static void PlayClip(AudioClip clip, float volume, float minInterval, float pitchVariation = 0.05f)
+        {
+            if (instance == null || clip == null) return;
+            float now = Time.unscaledTime;
+            if (instance.lastClipPlayed.TryGetValue(clip, out float last) && now - last < minInterval) return;
+            instance.lastClipPlayed[clip] = now;
+            instance.PlayVoice(clip, volume, 1f - pitchVariation, 1f + pitchVariation);
         }
 
         public static void PlayMusic(Bgm id)
@@ -105,12 +126,17 @@ namespace ArmySurvivor.Audio
             var clip = entry.clips[Random.Range(0, entry.clips.Length)];
             if (clip == null) return;
             lastPlayed[id] = now;
+            PlayVoice(clip, entry.volume * volumeScale, Mathf.Min(entry.pitch.x, entry.pitch.y), Mathf.Max(entry.pitch.x, entry.pitch.y));
+        }
+
+        private void PlayVoice(AudioClip clip, float volume, float minPitch, float maxPitch)
+        {
             int index = FreeVoice();
             var voice = voices[index];
-            voiceBase[index] = entry.volume * volumeScale;
+            voiceBase[index] = volume;
             voice.clip = clip;
-            voice.pitch = Random.Range(Mathf.Min(entry.pitch.x, entry.pitch.y), Mathf.Max(entry.pitch.x, entry.pitch.y));
-            voice.volume = voiceBase[index] * GameSettings.SfxVolume;
+            voice.pitch = Random.Range(minPitch, maxPitch);
+            voice.volume = volume * GameSettings.SfxVolume;
             voice.Play();
         }
 

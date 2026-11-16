@@ -18,7 +18,7 @@ namespace ArmySurvivor.Army
             // Already emitted attacks are cancelled before their owners disappear.
             for (int i = shots.Count - 1; i >= 0; i--)
                 if (shots[i].source != run.Commander)
-                { Destroy(shots[i].visual.gameObject); shots.RemoveAt(i); }
+                { ReleaseEffect(shots[i].visual.gameObject); shots.RemoveAt(i); }
         }
 
         public bool DiabloPointerBlocked(Vector2 position) => PointerOverInteractiveUI(position);
@@ -32,8 +32,8 @@ namespace ArmySurvivor.Army
             float boundaryDistance = DistanceToBoundary(run.Commander.position, direction, run.Ground.bounds);
             float travelDistance = piercing ? boundaryDistance : Mathf.Min(attack.range, boundaryDistance);
             if (travelDistance <= 0) return;
-            var visual = Instantiate(attack.projectilePrefab, run.Commander.position + Vector3.up * attack.height,
-                Quaternion.LookRotation(direction), combatRoot).transform;
+            var visual = SpawnEffect(attack.projectilePrefab, run.Commander.position + Vector3.up * attack.height,
+                Quaternion.LookRotation(direction)).transform;
             visual.localScale *= scale;
             shots.Add(new Shot { source = run.Commander, visual = visual, direction = direction,
                 definition = attack, damage = damage, piercing = piercing, remaining = travelDistance });

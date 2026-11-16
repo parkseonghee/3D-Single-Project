@@ -63,6 +63,7 @@ namespace ArmySurvivor.Army
                 if (remaining <= 0)
                 {
                     shoutAreas.Add(new ShoutArea { position = unit.position, remaining = shoutAreaDuration });
+                    ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.Shout);
                     if (shoutPrefab != null)
                     {
                         var effect = Instantiate(shoutPrefab, unit.position, shoutPrefab.transform.rotation, combatRoot);

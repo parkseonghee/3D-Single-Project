@@ -24,6 +24,8 @@ namespace ArmySurvivor.Army
                 remaining -= dt;
                 if (remaining <= 0 && teamAttackRemaining <= 0 && teamAttackSpeedRemaining <= 0 && teamAttackSpeedCooldown != 0)
                 {
+                    // 방패병이 여럿이어도 같은 프레임에는 소리 간격 제한으로 한 번만 난다.
+                    ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.ShieldAura);
                     foreach (var ally in allies)
                         if (ally.Key != null && ally.Key.gameObject.activeSelf && !ally.Value.IsDead)
                             ally.Value.GiveShield(teamShieldAmount, teamShieldDuration, teamShieldPrefab);

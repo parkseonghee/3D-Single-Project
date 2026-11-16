@@ -146,6 +146,9 @@ namespace ArmySurvivor.Army
             if (distance >= arrowDistance)
             {
                 distance %= arrowDistance;
+                // 한 바퀴(arrowCount발)를 동시에 쏘므로 소리는 한 번만 낸다. 소리 파일은 연결한 궁수 공격 정의를 따른다.
+                if (arrow != null)
+                    ArmySurvivor.Audio.GameAudio.PlayClip(arrow.attackSound, arrow.attackSoundVolume, arrow.attackSoundInterval);
                 for (int i = 0; i < arrowCount; i++)
                     combat.FireDiabloProjectile(arrow, Quaternion.Euler(0, i * 360f / arrowCount, 0) * Vector3.forward, arrowDamage, 1, true);
             }
@@ -165,6 +168,7 @@ namespace ArmySurvivor.Army
                         {
                             run.FaceTarget(run.Commander, ray.GetPoint(enter));
                             PlayFireAttack();
+                            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.DiabloFire);
                             for (int i = 0; i < fireCount; i++)
                                 combat.FireDiabloProjectile(fire, Quaternion.Euler(0, fireCount == 1 ? 0 : fireSpread * (i / (float)(fireCount - 1) - 0.5f), 0) * direction, fireDamage, fireScale);
                             fireTimer = fireCooldown;

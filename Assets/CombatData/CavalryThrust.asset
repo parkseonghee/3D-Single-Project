@@ -28,4 +28,12 @@ MonoBehaviour:
   approachSpeed: 16
   returnSpeed: 14
   stoppingDistance: 1.5
+  maintainDistance: 0
+  stoppingTolerance: 0.05
   effectScale: 1
+  effectForwardOffset: 0
+  effectLifetime: 1
+  attackSound: {fileID: 8300000, guid: 9530f20a5690ed14fb8418e345c217d6, type: 3}
+  attackSoundVolume: 0.5
+  attackSoundPeak: 0.14
+  attackSoundInterval: 0.06

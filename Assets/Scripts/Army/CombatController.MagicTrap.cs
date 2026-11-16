@@ -22,6 +22,8 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0)] private float trapDamagePerSecond = 20f;
         [SerializeField, Min(0)] private float trapImpactDamage = 50f;
         [SerializeField, Min(0.05f)] private float trapDamageTickInterval = 0.25f;
+        [Tooltip("착지 폭발음을 땅에 닿기 이 시간(초) 전에 재생한다. 소리 파일의 가장 큰 지점과 맞추면 터지는 순간과 소리가 겹친다.")]
+        [SerializeField, Min(0)] private float meteorImpactSoundLead = 0.2f;
 
         private enum TrapPhase { Waiting, Falling }
         private class MagicTrapState
@@ -35,6 +37,7 @@ namespace ArmySurvivor.Army
             public float damageTimer;
             public float spinAngle;
             public float damageMultiplier = 1f;
+            public bool impactSoundPlayed;
         }
         private readonly Dictionary<Transform, float> magicTrapCooldowns = new Dictionary<Transform, float>();
         private readonly List<MagicTrapState> magicTraps = new List<MagicTrapState>();
@@ -80,6 +83,11 @@ namespace ArmySurvivor.Army
                 float fallingTime = Mathf.Min(dt, height / trapFireballSpeed);
                 float nextHeight = Mathf.Max(0, height - trapFireballSpeed * fallingTime);
                 fireball.position = trap.position + Vector3.up * nextHeight;
+                if (!trap.impactSoundPlayed && nextHeight / trapFireballSpeed <= meteorImpactSoundLead)
+                {
+                    trap.impactSoundPlayed = true;
+                    ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.MeteorImpact);
+                }
                 trap.spinAngle = Mathf.Repeat(trap.spinAngle + trapFireballRotationSpeed * fallingTime, 360f);
                 fireball.rotation = Quaternion.Euler(90, 0, trap.spinAngle);
                 trap.damageTimer += fallingTime;
@@ -119,6 +127,8 @@ namespace ArmySurvivor.Army
         {
             RemoveTrapVisual(trap);
             trap.phase = TrapPhase.Falling;
+            trap.impactSoundPlayed = false;
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.MeteorFall);
             trap.visual = Instantiate(trapFireballPrefab, trap.position + Vector3.up * trapFireballHeight,
                 Quaternion.Euler(90, 0, 0), combatRoot);
             trap.visual.transform.localScale *= trapFireballScale;

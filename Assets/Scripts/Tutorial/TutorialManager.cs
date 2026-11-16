@@ -53,7 +53,9 @@ namespace ArmySurvivor.Tutorial
         private bool startedStep;
         private bool revealRequested;
         private bool startedOnce;
-        private bool ownedPause;
+        private bool ownedPause { get => PausingGame; set => PausingGame = value; }
+        // 튜토리얼 안내가 게임을 멈춘 동안에는 ESC 일시정지가 끼어들지 않게 알린다.
+        public static bool PausingGame { get; private set; }
         private float previousTimeScale;
         private TutorialTarget resolvedTarget;
         private readonly Vector3[] corners = new Vector3[4];

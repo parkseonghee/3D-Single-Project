@@ -33,3 +33,7 @@ MonoBehaviour:
   effectScale: 1.5
   effectForwardOffset: 1.3
   effectLifetime: 2
+  attackSound: {fileID: 8300000, guid: 5e3a05f28e6504b82a82523aa957b4d2, type: 3}
+  attackSoundVolume: 0.5
+  attackSoundPeak: 0.24
+  attackSoundInterval: 0.06

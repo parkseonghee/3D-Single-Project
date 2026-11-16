@@ -62,6 +62,8 @@ namespace ArmySurvivor.Army
         public float EquipmentDamageReduction { get; set; }
         public float DiabloDamageReduction { get; set; }
         public bool IsInvulnerable { get; set; }
+        // 몬스터처럼 수가 많은 대상은 다치기 전까지 체력바(월드 캔버스)를 숨겨 그리기 비용을 줄인다.
+        public bool HideBarWhenFull { get; set; }
         private float rewardInvulnerableUntil;
         public void GrantTemporaryInvulnerability(float seconds) =>
             rewardInvulnerableUntil = Mathf.Max(rewardInvulnerableUntil, Time.time + seconds);
@@ -238,7 +240,9 @@ namespace ArmySurvivor.Army
         {
             OnHpChanged?.Invoke(this);
             if (healthBar == null) return;
-            healthBar.gameObject.SetActive(enabled && !IsDead);
+            bool visible = enabled && !IsDead && (!HideBarWhenFull || Current < Maximum || Shield > 0);
+            if (healthBar.gameObject.activeSelf != visible) healthBar.gameObject.SetActive(visible);
+            if (!visible) return;
             fill.anchorMax = new Vector2(Mathf.Clamp01(Current / Maximum), 1);
             shieldFill.gameObject.SetActive(Shield > 0);
             float totalMaximum = baseShield > 0 ? shieldMaximum : 0;
@@ -248,7 +252,7 @@ namespace ArmySurvivor.Army
 
         private void LateUpdate()
         {
-            if (healthBar == null || IsDead) return;
+            if (healthBar == null || IsDead || !healthBar.gameObject.activeSelf) return;
             var camera = Camera.main;
             if (camera == null) return;
             healthBar.position = transform.position + Vector3.up * barHeight;

@@ -50,6 +50,16 @@ namespace ArmySurvivor.Army
         [SerializeField, Range(0, 1)] private float suppressionSlowPercent = 0.4f;
         [Tooltip("포위 접근 중 이 속도(m/s)보다 빠르게 움직이면 걷기 애니메이션을 재생한다.")]
         [SerializeField, Min(0)] private float encirclementWalkThreshold = 0.2f;
+        [Tooltip("포위 진형의 중심이 지휘관 쪽으로 옮겨 가는 속도(m/s). 지휘관보다 느려야 포위망이 지휘관에 붙어 같이 움직이지 않는다. 0이면 생성 당시 위치에 고정.")]
+        [SerializeField, Min(0)] private float encirclementFollowSpeed = 1f;
+        [Header("몬스터 성능")]
+        [Tooltip("일반 몬스터는 다친 뒤에만 체력바를 보인다. 몬스터마다 월드 캔버스가 하나씩 있어 수가 많을 때 그리기 비용이 크다.")]
+        [SerializeField] private bool hideFullHealthEnemyBars = true;
+        [Tooltip("화면 밖 몬스터의 애니메이션 계산 방식. CullUpdateTransforms는 화면 밖에서 뼈대 갱신을 생략한다(상태 진행·공격 타이밍은 유지).")]
+        [SerializeField] private AnimatorCullingMode enemyAnimatorCulling = AnimatorCullingMode.CullUpdateTransforms;
+        [Header("몬스터 표적")]
+        [Tooltip("살아 있는 병사가 있으면 몬스터는 가장 가까운 병사를 노린다. 지휘관이 이 거리 안으로 들어와 병사보다 가까울 때만 지휘관을 노린다. (지휘관 사냥 웨이브 제외)")]
+        [SerializeField, Min(0)] private float commanderAggroDistance = 2.5f;
         [SerializeField, Min(0.1f)] private float suppressionDuration = 2.5f;
         public float SuppressionSlowPercent => suppressionSlowPercent * 100f;
         public float SuppressionDuration => suppressionDuration;
@@ -72,6 +82,8 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0.01f)] private float weaponStrikeEffectScale = 0.2f;
         [SerializeField] private float weaponStrikeGroundOffset;
         [SerializeField, Min(0.1f)] private float weaponStrikeEffectLifetime = 2.5f;
+        [Tooltip("낙하 창 소리를 창이 꽂히기 이 시간(초) 전에 재생한다. 소리 파일의 가장 큰 지점과 맞추면 꽂히는 순간과 소리가 겹친다.")]
+        [SerializeField, Min(0)] private float weaponStrikeSoundLead = 0.3f;
         public float WeaponStrikeInterval => weaponStrikeInterval;
         public float WeaponStrikeImpactDelay => weaponStrikeImpactParticle != null
             ? weaponStrikeImpactParticle.main.startDelay.constant : weaponStrikeImpactDelay;
@@ -140,6 +152,7 @@ namespace ArmySurvivor.Army
             public float hitReactionRemaining, nextHitReactionTime;
             public bool encirclementApproach;
             public Vector3 encirclementDirection;
+            public Vector3 encirclementCenter;
             public float encirclementRadius;
             public float specialHoldRemaining;
             public float specialSpeedMultiplier = 1f;
@@ -197,6 +210,7 @@ namespace ArmySurvivor.Army
             public Vector3 impactPoint;
             public float remaining;
             public float damage;
+            public bool soundPlayed;
         }
         private readonly List<PendingWeaponStrike> pendingWeaponStrikes = new List<PendingWeaponStrike>();
         private readonly Dictionary<Transform, Animator[]> attackers = new Dictionary<Transform, Animator[]>();
@@ -208,6 +222,7 @@ namespace ArmySurvivor.Army
             public AttackDefinition definition;
             public bool focusAssigned;
             public int focusGeneration;
+            public bool soundPlayed;
         }
         private readonly Dictionary<Transform, PendingAttack> pending = new Dictionary<Transform, PendingAttack>();
         private class MeleeAttack
@@ -217,6 +232,7 @@ namespace ArmySurvivor.Army
             public EnemyState target;
             public bool returning;
             public float windup = -1;
+            public bool swingSoundPlayed;
             public bool focusAssigned;
             public int focusGeneration;
         }
@@ -376,6 +392,7 @@ namespace ArmySurvivor.Army
         }
         private void LateUpdate()
         {
+            UpdateTimedEffects();
             if (run == null || !run.IsRunning) return;
             if (Time.deltaTime > 0) Tick(Time.deltaTime);
             else if (ArmySurvivor.Tutorial.TutorialManager.FocusInputWhilePaused &&
@@ -482,6 +499,9 @@ namespace ArmySurvivor.Army
                     Vector3 aim = AimPoint(unit.Key, preparation);
                     run.FaceTarget(unit.Key, aim);
                     preparation.remaining -= dt;
+                    // 연쇄 번개를 배운 마법사는 휘두르는 소리 대신 번개가 터질 때 전기 소리를 낸다.
+                    if (!preparation.soundPlayed)
+                        preparation.soundPlayed = UsesChainLightning(unit.Key) || TryPlayAttackSound(preparation.definition, preparation.remaining);
                     if (preparation.remaining <= 0)
                     {
                         ExecuteAttack(unit.Key, aim, preparation.definition, preparation.enemyTarget);
@@ -661,6 +681,11 @@ namespace ArmySurvivor.Army
             {
                 PendingWeaponStrike strike = pendingWeaponStrikes[i];
                 strike.remaining -= dt;
+                if (!strike.soundPlayed && strike.remaining <= weaponStrikeSoundLead)
+                {
+                    strike.soundPlayed = true;
+                    ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.WeaponStrike);
+                }
                 if (strike.remaining > 0) continue;
                 foreach (EnemyState target in enemies)
                 {
@@ -791,8 +816,10 @@ namespace ArmySurvivor.Army
                 foreach (Animator animator in attackers[unit])
                     if (!string.IsNullOrEmpty(attack.animationTrigger)) animator.SetTrigger(attack.animationTrigger);
                 state.windup = attack.windup;
+                state.swingSoundPlayed = false;
             }
             state.windup -= dt;
+            if (!state.swingSoundPlayed) state.swingSoundPlayed = TryPlayAttackSound(attack, state.windup);
             if (state.windup > 0) return;
             if (focusActive && !FocusTargetInRange(unit, state.target, searchRange))
             {
@@ -960,6 +987,11 @@ namespace ArmySurvivor.Army
             { model.name = "특별 웨이브 정예"; model.transform.localScale *= 1.3f; }
             var health = model.GetComponent<UnitHealth>();
             if (health == null) health = model.AddComponent<UnitHealth>();
+            // 일반 몬스터는 다친 뒤에만 체력바를 보인다. 정예·보스는 항상 보인다.
+            health.HideBarWhenFull = hideFullHealthEnemyBars && !isBoss && !isMiniBoss &&
+                !(specialOrder.HasValue && specialOrder.Value.elite);
+            foreach (Animator animator in model.GetComponentsInChildren<Animator>(true))
+                animator.cullingMode = enemyAnimatorCulling;
             float hitPoints = definition.health;
             if (rhythmEnemy) hitPoints *= specialOrder.HasValue ? rhythm.SpecialHealthMultiplier : rhythm.HealthMultiplier;
             if (specialOrder.HasValue) hitPoints *= specialOrder.Value.health *
@@ -972,6 +1004,7 @@ namespace ArmySurvivor.Army
             enemies.Add(new EnemyState { root = model.transform, animator = model.GetComponentInChildren<Animator>(), vitality = health, bossCharge = charge, definition = definition, isBoss = isBoss, isMiniBoss = isMiniBoss,
                 waveDamageMultiplier = rhythmEnemy ? specialOrder.HasValue ? rhythm.SpecialDamageMultiplier : rhythm.DamageMultiplier : 1f,
                 encirclementApproach = encirclementEnemy, encirclementDirection = formationDirection,
+                encirclementCenter = run.Commander.position,
                 encirclementRadius = encirclementEnemy ? FlatDistance(position, run.Commander.position) : 0,
                 specialHoldRemaining = specialOrder.HasValue ? specialOrder.Value.hold : 0,
                 specialSpeedMultiplier = specialOrder.HasValue ? specialOrder.Value.speed : 1f,
@@ -1032,7 +1065,11 @@ namespace ArmySurvivor.Army
                     if (state.specialHoldRemaining > 0) state.specialHoldRemaining -= dt;
                     else state.encirclementRadius = Mathf.Max(releaseRadius,
                         state.encirclementRadius - encirclementRule.EncirclementClosingSpeed * state.specialSpeedMultiplier * dt);
-                    Vector3 destination = run.Commander.position + state.encirclementDirection * state.encirclementRadius;
+                    // 포위망 중심은 지휘관을 천천히 따라간다. 지휘관 위치에 바로 붙이면 지휘관이 움직일 때 진형 전체가 함께 미끄러진다.
+                    Vector3 commanderFlat = run.Commander.position;
+                    commanderFlat.y = state.encirclementCenter.y;
+                    state.encirclementCenter = Vector3.MoveTowards(state.encirclementCenter, commanderFlat, encirclementFollowSpeed * dt);
+                    Vector3 destination = state.encirclementCenter + state.encirclementDirection * state.encirclementRadius;
                     Bounds ground = run.Ground.bounds;
                     destination.x = Mathf.Clamp(destination.x, ground.min.x + boundaryMargin, ground.max.x - boundaryMargin);
                     destination.z = Mathf.Clamp(destination.z, ground.min.z + boundaryMargin, ground.max.z - boundaryMargin);
@@ -1051,8 +1088,11 @@ namespace ArmySurvivor.Army
                         state.root.rotation = Quaternion.RotateTowards(state.root.rotation, Quaternion.LookRotation(facing), enemy.turnSpeed * dt);
                     if (state.animator != null && !string.IsNullOrEmpty(enemy.movingParameter))
                         state.animator.SetBool(enemy.movingParameter, ringMoveSpeed > encirclementWalkThreshold);
-                    if (state.specialHoldRemaining > 0 || state.encirclementRadius > releaseRadius ||
-                        FlatDistance(state.root.position, run.Commander.position) > releaseRadius + .5f) continue;
+                    // 지휘관이 포위망 밖으로 빠져나가면 진형을 풀고 바로 추적한다.
+                    bool commanderEscaped = FlatDistance(state.encirclementCenter, run.Commander.position) > state.encirclementRadius;
+                    bool closed = state.specialHoldRemaining <= 0 && state.encirclementRadius <= releaseRadius &&
+                        FlatDistance(state.root.position, destination) <= .5f;
+                    if (!commanderEscaped && !closed) continue;
                     state.encirclementApproach = false;
                 }
                 if (state.attackTarget != null)
@@ -1082,14 +1122,21 @@ namespace ArmySurvivor.Army
                     if (state.attackTime >= Mathf.Max(enemy.attackDuration, enemy.attackWindup)) state.attackTarget = null;
                     continue;
                 }
-                Transform target = run.Commander;
-                float distance = FlatDistance(state.root.position, target.position);
-                foreach (var unit in recruitment.Units)
+                // 병사를 먼저 노린다. 지휘관은 병사가 없거나, 바로 곁에 있어 병사보다 가까울 때만 노린다.
+                Transform target = null;
+                float distance = float.PositiveInfinity;
+                if (!state.huntCommander)
+                    foreach (var unit in recruitment.Units)
+                    {
+                        if (unit.Key == null || !unit.Key.gameObject.activeSelf || allies[unit.Key].IsDead) continue;
+                        float candidate = FlatDistance(state.root.position, unit.Key.position);
+                        if (candidate < distance) { distance = candidate; target = unit.Key; }
+                    }
+                float commanderDistance = FlatDistance(state.root.position, run.Commander.position);
+                if (target == null || (commanderDistance <= commanderAggroDistance && commanderDistance < distance))
                 {
-                    if (state.huntCommander) break;
-                    if (unit.Key == null || !unit.Key.gameObject.activeSelf || allies[unit.Key].IsDead) continue;
-                    float candidate = FlatDistance(state.root.position, unit.Key.position);
-                    if (candidate < distance) { distance = candidate; target = unit.Key; }
+                    target = run.Commander;
+                    distance = commanderDistance;
                 }
                 Vector3 direction = target.position - state.root.position;
                 direction.y = 0;
@@ -1126,9 +1173,9 @@ namespace ArmySurvivor.Army
             direction.y = 0;
             if (direction.sqrMagnitude < 0.001f) return;
             direction.Normalize();
-            var visual = Instantiate(definition.projectilePrefab,
+            var visual = SpawnEffect(definition.projectilePrefab,
                 source.root.position + Vector3.up * definition.projectileHeight,
-                Quaternion.LookRotation(direction), combatRoot).transform;
+                Quaternion.LookRotation(direction)).transform;
             enemyProjectiles.Add(new EnemyProjectile { visual = visual, direction = direction,
                 remaining = definition.projectileRange, speed = definition.projectileSpeed,
                 radius = definition.projectileHitRadius,
@@ -1161,7 +1208,7 @@ namespace ArmySurvivor.Army
                     break;
                 }
                 if (!hit && shot.remaining > 0) continue;
-                Destroy(shot.visual.gameObject);
+                ReleaseEffect(shot.visual.gameObject);
                 enemyProjectiles.RemoveAt(i);
             }
         }
@@ -1205,6 +1252,15 @@ namespace ArmySurvivor.Army
             return false;
         }
 
+        // 공격 소리의 가장 큰 지점이 공격 판정 순간(준비 시간이 끝나는 때)과 겹치도록, 남은 준비 시간이 그 지점 이하가 되면 재생한다.
+        private static bool TryPlayAttackSound(AttackDefinition attack, float remainingWindup)
+        {
+            if (attack == null || attack.attackSound == null) return true;
+            if (remainingWindup > attack.attackSoundPeak) return false;
+            ArmySurvivor.Audio.GameAudio.PlayClip(attack.attackSound, attack.attackSoundVolume, attack.attackSoundInterval);
+            return true;
+        }
+
         private void ExecuteAttack(Transform source, Vector3 target, AttackDefinition attack, EnemyState enemyTarget)
         {
             // 준비 동작 중 이동한 거리를 반영한다. 관통도 조준 사거리는 동일하다.
@@ -1244,9 +1300,9 @@ namespace ArmySurvivor.Army
                 // 접근 공격은 피해 판정과 별개로 지정된 이펙트를 한 번 재생한다.
                 if (attack.style == AttackDefinition.AttackStyle.ApproachArc && attack.projectilePrefab != null)
                 {
-                    var effect = Instantiate(attack.projectilePrefab,
+                    var effect = SpawnEffect(attack.projectilePrefab,
                         source.position + direction * attack.effectForwardOffset + Vector3.up * attack.height,
-                        Quaternion.LookRotation(direction) * attack.projectilePrefab.transform.rotation, combatRoot);
+                        Quaternion.LookRotation(direction) * attack.projectilePrefab.transform.rotation);
                     effect.transform.localScale *= attack.effectScale;
                     foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
                     {
@@ -1267,7 +1323,7 @@ namespace ArmySurvivor.Army
                                 * (attack.range / attack.effectScale));
                         }
                     }
-                    Destroy(effect, attack.effectLifetime);
+                    ReleaseEffectAfter(effect, attack.effectLifetime);
                 }
                 return;
             }
@@ -1287,8 +1343,8 @@ namespace ArmySurvivor.Army
                 float travelDistance = piercing || unrestrictedFocusShot
                     ? boundaryDistance : Mathf.Min(attack.range, boundaryDistance);
                 if (travelDistance <= 0) continue;
-                Transform visual = Instantiate(attack.projectilePrefab, source.position + Vector3.up * attack.height,
-                    Quaternion.LookRotation(projectileDirection), combatRoot).transform;
+                Transform visual = SpawnEffect(attack.projectilePrefab, source.position + Vector3.up * attack.height,
+                    Quaternion.LookRotation(projectileDirection)).transform;
                 shots.Add(new Shot { source = source, visual = visual, direction = projectileDirection, definition = attack,
                     remaining = travelDistance,
                     damage = damage, target = enemyTarget, piercing = piercing,
@@ -1353,7 +1409,7 @@ namespace ArmySurvivor.Army
                 {
                     ProcessShotHit(shot, hit);
                 }
-                if (hit != null || shot.remaining <= 0) { Destroy(shot.visual.gameObject); shots.RemoveAt(i); }
+                if (hit != null || shot.remaining <= 0) { ReleaseEffect(shot.visual.gameObject); shots.RemoveAt(i); }
             }
         }
         private void ProcessShotHit(Shot shot, EnemyState target)
@@ -1366,11 +1422,12 @@ namespace ArmySurvivor.Army
 
         private void Explode(Shot shot, Vector3 center)
         {
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.ArrowExplosion);
             if (explosionEffectPrefab != null)
             {
-                GameObject effect = Instantiate(explosionEffectPrefab,
+                GameObject effect = SpawnEffect(explosionEffectPrefab,
                     center + Vector3.up * explosionEffectHeight,
-                    explosionEffectPrefab.transform.rotation, combatRoot);
+                    explosionEffectPrefab.transform.rotation);
                 effect.transform.localScale *= explosionEffectScale;
                 // 원본은 반복 재생된다. 명중 시에는 복제본만 한 번 재생한다.
                 foreach (ParticleSystem particle in effect.GetComponentsInChildren<ParticleSystem>(true))
@@ -1380,7 +1437,7 @@ namespace ArmySurvivor.Army
                     particle.Clear(true);
                     particle.Play(true);
                 }
-                Destroy(effect, explosionEffectLifetime);
+                ReleaseEffectAfter(effect, explosionEffectLifetime);
             }
             float splashDamage = shot.damage * explosionDamageMultiplier;
             if (splashDamage <= 0) return;
@@ -1413,10 +1470,10 @@ namespace ArmySurvivor.Army
             {
                 Quaternion rotation = direction.sqrMagnitude > 0.0001f
                     ? Quaternion.LookRotation(direction) : Quaternion.identity;
-                var effect = Instantiate(bloodEffect, target.root.position + Vector3.up * bloodHeight,
-                    rotation * bloodEffect.transform.localRotation, combatRoot);
+                var effect = SpawnEffect(bloodEffect, target.root.position + Vector3.up * bloodHeight,
+                    rotation * bloodEffect.transform.localRotation);
                 effect.transform.localScale *= bloodScale;
-                Destroy(effect, bloodLifetime);
+                ReleaseEffectAfter(effect, bloodLifetime);
             }
             if (target.health <= 0)
             {
@@ -1532,6 +1589,7 @@ namespace ArmySurvivor.Army
             foreach (GameObject effect in healingEffects)
                 if (effect != null) { effect.SetActive(false); Destroy(effect); }
             healingEffects.Clear();
+            ReleaseAllEffects();
             if (combatRoot != null) { combatRoot.gameObject.SetActive(false); Destroy(combatRoot.gameObject); }
             combatRoot = null;
             specialWaveTestActive = false;

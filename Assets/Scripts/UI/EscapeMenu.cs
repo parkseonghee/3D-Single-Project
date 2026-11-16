@@ -17,7 +17,11 @@ namespace ArmySurvivor.UI
         {
             var keyboard = Keyboard.current;
             if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
+            // 모험 모드는 마을 씬 위에 전투 씬을 추가로 불러온다. 지금 활성 씬의 메뉴만 ESC를 처리해 두 메뉴가 동시에 열리지 않게 한다.
+            if (gameObject.scene != UnityEngine.SceneManagement.SceneManager.GetActiveScene()) return;
             if (settings.IsOpen) { settings.Close(); return; }
+            // 튜토리얼 안내가 시간을 멈춘 중에 일시정지를 겹치면, 안내가 끝난 뒤 멈춘 시간으로 되돌아가 게임이 멈춘 것처럼 보인다.
+            if (ArmySurvivor.Tutorial.TutorialManager.PausingGame) return;
             if (OtherWindowHandlesEscape()) return;
             if (battleHud != null && battleHud.HandleEscape()) return;
             settings.Open();

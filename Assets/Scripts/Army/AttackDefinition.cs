@@ -28,5 +28,12 @@ namespace ArmySurvivor.Army
         [Min(0.1f)] public float effectScale = 1;
         [Min(0)] public float effectForwardOffset;
         [Min(0.1f)] public float effectLifetime = 1f;
+        [Header("공격 소리 (비우면 소리 없음)")]
+        public AudioClip attackSound;
+        [Range(0, 1)] public float attackSoundVolume = 0.5f;
+        [Tooltip("소리 파일에서 가장 큰 지점(초). 이 지점이 공격 판정 순간(준비 동작 windup이 끝나는 때)과 겹치도록 그만큼 먼저 재생한다.")]
+        [Min(0)] public float attackSoundPeak;
+        [Tooltip("같은 소리를 다시 낼 수 있는 최소 간격(초). 여러 병사가 동시에 공격해도 소리가 겹쳐 커지지 않게 한다.")]
+        [Min(0)] public float attackSoundInterval = 0.06f;
     }
 }

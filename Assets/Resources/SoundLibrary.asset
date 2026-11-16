@@ -24,21 +24,16 @@ MonoBehaviour:
     pitch: {x: 0.97, y: 1.03}
     minInterval: 0.03
   - id: 1
-    clips:
-    - {fileID: 8300000, guid: 4fac2a7215c8b4fa883f6da6cd3f7874, type: 3}
-    - {fileID: 8300000, guid: 09b30873452844fcd84a5a12c0276166, type: 3}
-    - {fileID: 8300000, guid: 80801769f90d44a2eb86d5770c3baddb, type: 3}
+    clips: []
     volume: 0.35
     pitch: {x: 0.9, y: 1.1}
     minInterval: 0.08
   - id: 2
     clips:
-    - {fileID: 8300000, guid: 502c7f21842e846fa978774d2cce23a7, type: 3}
-    - {fileID: 8300000, guid: 9bf635ec69b3b4bd2bbc78f4a0204c70, type: 3}
-    - {fileID: 8300000, guid: 3e2f3f4543d334f19898e43ad3c3851b, type: 3}
-    volume: 0.6
+    - {fileID: 8300000, guid: 2b5514d3079005d45a3d3ae760026850, type: 3}
+    volume: 0.5
     pitch: {x: 0.9, y: 1.1}
-    minInterval: 0.08
+    minInterval: 0.15
   - id: 3
     clips:
     - {fileID: 8300000, guid: 35779339d76db49689c500c1eb0b9755, type: 3}
@@ -149,6 +144,54 @@ MonoBehaviour:
     volume: 1
     pitch: {x: 0.95, y: 1.05}
     minInterval: 0.1
+  - id: 21
+    clips:
+    - {fileID: 8300000, guid: 3c702fce0c6d58845b0b4f529bafe423, type: 3}
+    volume: 0.7
+    pitch: {x: 0.97, y: 1.03}
+    minInterval: 0.2
+  - id: 22
+    clips:
+    - {fileID: 8300000, guid: 2c082d8fa59e1294fb4b7648605ccc9d, type: 3}
+    volume: 0.8
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.2
+  - id: 23
+    clips:
+    - {fileID: 8300000, guid: a9027baf517acac43a41360e22c56070, type: 3}
+    volume: 0.55
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.2
+  - id: 24
+    clips:
+    - {fileID: 8300000, guid: 2b2ccd22ced6b0244a1edd7b70fbcc2d, type: 3}
+    volume: 0.6
+    pitch: {x: 0.97, y: 1.03}
+    minInterval: 0.5
+  - id: 25
+    clips:
+    - {fileID: 8300000, guid: 9fe43e120d227b34f9c8d810fc6572f8, type: 3}
+    volume: 0.6
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.5
+  - id: 26
+    clips:
+    - {fileID: 8300000, guid: 591320453837834479031d598f8657ad, type: 3}
+    volume: 0.45
+    pitch: {x: 0.93, y: 1.07}
+    minInterval: 0.12
+  - id: 27
+    clips:
+    - {fileID: 8300000, guid: 9968dd26adc95b74ca333d9f23216421, type: 3}
+    volume: 0.6
+    pitch: {x: 0.95, y: 1.05}
+    minInterval: 0.15
+  - id: 28
+    clips:
+    - {fileID: 8300000, guid: 2fa2ac6532d982b459911cab017da14c, type: 3}
+    volume: 0.45
+    pitch: {x: 0.92, y: 1.08}
+    minInterval: 0.12
   bgm:
   - id: 1
     clip: {fileID: 8300000, guid: 173b19c39500b8b4ea9f8b62d7d758e2, type: 3}

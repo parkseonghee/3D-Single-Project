@@ -27,6 +27,14 @@ namespace ArmySurvivor.Audio
         SupplyRare,
         BuildingPlace,
         Recruit,
+        MeteorFall,
+        MeteorImpact,
+        DiabloFire,
+        ShieldAura,
+        Shout,
+        ChainLightning,
+        WeaponStrike,
+        ArrowExplosion,
     }
 
     public enum Bgm { None, Title, Village, Preparation, Battle, Survival, Boss }

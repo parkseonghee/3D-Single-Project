@@ -10,6 +10,9 @@ namespace ArmySurvivor.Army
         [SerializeField, Min(0.1f)] private float chainLightningJumpRange = 8f;
         [SerializeField, Min(0.05f)] private float chainLightningLifetime = 0.25f;
 
+        private bool UsesChainLightning(Transform unit) =>
+            experience != null && chainLightningPrefab != null && experience.HasChainLightning(unit);
+
         private void AttackWithChainLightning(Transform source, EnemyState first, AttackDefinition attack, float damage)
         {
             if (first == null || first.root == null || first.health <= 0) return;
@@ -27,6 +30,7 @@ namespace ArmySurvivor.Army
 
             Vector3 height = Vector3.up * attack.height;
             CreateChainBolt(source.position + height, firstPosition + height);
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.ChainLightning);
             ApplyDamage(first, damage, (firstPosition - source.position).normalized, 0, false, source);
             if (second != null)
             {

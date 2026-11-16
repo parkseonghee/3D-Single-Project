@@ -39,6 +39,7 @@ namespace ArmySurvivor.Army
                 if (ally.Value != null && !ally.Value.IsDead && ally.Value.Shield > 0) return;
             teamAttackRemaining = teamAttackDuration;
             teamAttackCooldown = teamAttackInterval;
+            ArmySurvivor.Audio.GameAudio.Play(ArmySurvivor.Audio.Sfx.ShieldAura);
             foreach (var ally in allies)
                 if (ally.Key != null && ally.Key.gameObject.activeSelf && !ally.Value.IsDead && teamAttackPrefab != null)
                 {
