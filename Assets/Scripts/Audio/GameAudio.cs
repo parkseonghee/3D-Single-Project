@@ -133,6 +133,8 @@ namespace ArmySurvivor.Audio
             currentBgm = id;
             var entry = library.Find(id);
             var clip = entry?.clip;
+            // 곡이 연결되지 않은 상태(예: 보스 곡 미지정)는 무음으로 바꾸지 않고 지금 곡을 이어 간다.
+            if (clip == null && id != Bgm.None) return;
             if (clip != null && music[activeMusic].clip == clip && music[activeMusic].isPlaying) return;
             activeMusic = 1 - activeMusic;
             var next = music[activeMusic];
