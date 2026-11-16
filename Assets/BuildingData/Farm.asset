@@ -22,7 +22,7 @@ MonoBehaviour:
   upgradeGoldCost: 80
   upgradeCostMultiplier: 1.5
   demolitionRefundRatio: 0.5
-  initialDailyRice: 9999
+  initialDailyRice: 100
   additionalDailyRice: 40
   dailyRicePerUpgrade: 20
   formationSlots: 0

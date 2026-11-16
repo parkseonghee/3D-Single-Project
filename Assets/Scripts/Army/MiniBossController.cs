@@ -307,7 +307,7 @@ namespace ArmySurvivor.Army
             {
                 case Reward.Explosion: return $"화면 안 모든 적에게\n{explosionDamage} 피해\n\n보스에게도 적용";
                 case Reward.Protection: return $"지휘관과 모든 생존 병력\n{invulnerabilitySeconds}초 동안 무적";
-                case Reward.Bottles: return $"경험치 병 {bottleReward}개 획득\n\nCtrl + 1~5로 분배";
+                case Reward.Bottles: return $"경험치 병 {bottleReward}개 획득\n\nShift + 1~5로 분배";
                 case Reward.Healing: return "지휘관과 모든 생존 병력\n체력 즉시 전부 회복\n\n사망한 병력은 부활하지 않음";
                 case Reward.Speed: return $"지휘관과 모든 병력\n{speedDuration}초간 이동속도 +{speedBonus * 100:0}%";
                 case Reward.Mines: return "지휘관 주변에\n마법 함정 10개 설치\n\n적이 밟으면 메테오 낙하";

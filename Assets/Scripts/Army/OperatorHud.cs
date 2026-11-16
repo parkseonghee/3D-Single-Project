@@ -16,7 +16,7 @@ namespace ArmySurvivor.Army
         [SerializeField] private Button bottleButton;
         [SerializeField] private string portraitLayer = "UnitPortrait";
         [SerializeField, Range(64, 137)] private float slotWidth = 120;
-        [Tooltip("숫자키 선택·Ctrl+숫자키 투자를 지원하는 슬롯 수. 편성 최대 인원(8)에 맞춘다.")]
+        [Tooltip("숫자키 선택·Shift+숫자키 투자를 지원하는 슬롯 수. 편성 최대 인원(8)에 맞춘다.")]
         [SerializeField, Range(1, 9)] private int shortcutCount = 8;
         private sealed class Slot
         {
@@ -244,7 +244,8 @@ namespace ArmySurvivor.Army
             // Only input is polled. HP and levels are updated exclusively by events.
             if (!run.IsRunning || run.IsPaused || experience.IsChoosingUpgrade || Keyboard.current == null ||
                 ArmySurvivor.Tutorial.TutorialManager.KeyboardBlocked) return;
-            bool feed = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
+            // Shift: browsers reserve Ctrl+1~9 for tab switching in WebGL builds. Ctrl kept for desktop.
+            bool feed = Keyboard.current.shiftKey.isPressed || Keyboard.current.ctrlKey.isPressed;
             for (int i = 0; i < Mathf.Min(shortcutCount, slots.Count); i++)
             {
                 if (!Keyboard.current[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) continue;
