@@ -25,6 +25,8 @@
 
 [![플레이 영상](https://img.youtube.com/vi/7hMayWKB5HQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=7hMayWKB5HQ)
 
+**▶ 이미지 클릭하면 유튜브 창으로 넘어갑니다**
+
 </div>
 
 <br>
