@@ -17,7 +17,13 @@
 ![Period](https://img.shields.io/badge/기간-2026.09.10_~-blue?style=flat-square)
 ![Skills](https://img.shields.io/badge/구현_스킬-24개-red?style=flat-square)
 
-[📄 게임 기획서](Assets/Scripts/게임_기획서_최종.md) · [🗡️ 전체 스킬 정리](Docs/Skills.md)
+[📄 게임 기획서](Assets/Scripts/게임_기획서_최종.md) · [🗡️ 전체 스킬 정리](Docs/Skills.md) · [🎬 플레이 영상](https://www.youtube.com/watch?v=7hMayWKB5HQ)
+
+<br>
+
+### 🎬 플레이 영상
+
+[![플레이 영상](https://img.youtube.com/vi/7hMayWKB5HQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=7hMayWKB5HQ)
 
 </div>
 
